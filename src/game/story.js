@@ -90,7 +90,7 @@ export const STOPS = [
       title: 'Vidyard, and meeting Lichen',
       blurb: 'Moved to Waterloo for Vidyard and met Lichen, now my spouse and co-founder. Everything after this, we did together.',
       bubbles: [
-        { text: 'Hi, Lichen', at: [1.3, 1.9, -16] },
+        { text: 'Hi, Lichen', at: 'me' },
         { text: 'Moving to Waterloo', at: [5.6, 2.2, -16.6] },
       ],
     },
@@ -104,7 +104,7 @@ export const STOPS = [
     pos: { x: 0, L: -11 },
     title: 'AsteroidX, back to Toronto',
     role: 'Lead Software Developer',
-    blurb: 'Amazon PPC analytics with a fleet of background workers. Living under the CN Tower.',
+    blurb: 'Amazon PPC analytics with a fleet of background workers, back in Toronto.',
     bubbles: [
       { text: '40+ workers crunching ad data', at: [3, 3.2, -11] },
       { text: 'Hello again, Toronto', at: [6.6, 9.6, -12.5] },
@@ -138,7 +138,7 @@ export const STOPS = [
     blurb: "Lichen and I built Freshly for Shopify's COVID-19 App Challenge and placed third. That kickstarted everything: Freshly Inventory became our first app.",
     links: [{ text: 'The winners', href: 'https://www.shopify.com/ca/partners/blog/shopify-app-challenge-winners', ext: true }],
     bubbles: [
-      { text: "Let's build this together", at: [1.4, 1.9, 0.2] },
+      { text: "Let's build this together", at: 'me' },
       { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
     ],
     personal: {
@@ -158,7 +158,7 @@ export const STOPS = [
     title: 'Simple Bundles launches',
     role: 'Our first $10K MRR',
     milestone: '$10K MRR',
-    blurb: 'Simple Bundles took off and carried us across the first big road: $10K in monthly recurring revenue.',
+    blurb: 'Simple Bundles took off and got us to our first $10K in monthly recurring revenue.',
     bubbles: [
       { text: '$10K MRR!', at: [5.6, 4.2, 9.2] },
       { text: 'Look both ways', at: [-2.5, 1.2, 5] },
@@ -172,11 +172,10 @@ export const STOPS = [
     label: 'Camp',
     gear: 'shades',
     pos: { x: -0.2, L: 21 },
-    // TODO(basil): what started in 2022?
-    title: 'Setting up camp',
-    role: 'Through the mud',
-    milestone: 'Kept shipping',
-    blurb: 'We put it in 4x4, got through the mud and set up camp.',
+    title: 'Growing the team',
+    role: 'A remote, global team',
+    milestone: 'Growing our team',
+    blurb: 'Growing past $10K was the hard part. We started hiring and built a remote team around the world.',
     bubbles: [
       { text: 'Campfire debugging', at: [-1.5, 1.4, 21.2] },
       { text: '4x4 engaged', at: [1.3, 2.1, 20.6] },
@@ -203,9 +202,9 @@ export const STOPS = [
     gear: 'shades',
     pos: { x: 0, L: 32 },
     title: 'Simple Bundles 2.0',
-    role: 'The boat launch',
+    role: 'A ground-up rebuild',
     milestone: 'Simple Bundles 2.0 + Simple Discounts',
-    blurb: 'We rebuilt our biggest app from the ground up and launched Simple Discounts. I wakeboarded, Lichen went scuba diving.',
+    blurb: 'We rebuilt Simple Bundles from the ground up and launched Simple Discounts, our third app.',
     bubbles: [
       { text: 'Launch day', at: [-4, 2.4, 31.6] },
       { text: 'Next: bigger merchants', at: [1.2, 1.6, 32.4] },
@@ -266,7 +265,7 @@ export const STOPS = [
     title: 'Scaling up',
     role: 'Next stop: 100,000 merchants',
     milestone: '100,000 merchants',
-    blurb: 'Up the lift to basecamp. Three apps today, more on the way, and the next big number is 100,000 merchants.',
+    blurb: 'Three apps today and more on the way. The next big number is 100,000 merchants.',
     bubbles: [
       { text: '100,000 merchants', at: [-4.5, 3.6, 57.6] },
       { text: 'Built for Shopify', at: [-2.2, 2.6, 59.2] },
