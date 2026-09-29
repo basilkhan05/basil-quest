@@ -59,6 +59,10 @@ export function makePlayer(look = {}) {
     box(body, 0.06, 0.04, 0.02, '#f08a8a', -0.15, 0.82, -0.215);
     box(body, 0.06, 0.04, 0.02, '#f08a8a', 0.15, 0.82, -0.215);
   }
+  if (P.cap) {
+    box(body, 0.5, 0.16, 0.5, P.cap, 0, 1.1, 0.01);
+    box(body, 0.44, 0.05, 0.22, P.cap, 0, 1.1, -0.33);
+  }
   if (P.longHair) {
     box(body, 0.48, 0.5, 0.1, P.hair, 0, 0.56, 0.21);
     box(body, 0.07, 0.42, 0.3, P.hair, -0.24, 0.66, 0.08);

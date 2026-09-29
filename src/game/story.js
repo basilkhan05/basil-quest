@@ -55,10 +55,10 @@ export const STOPS = [
     pos: { x: 0, L: -28 },
     title: 'University of Waterloo',
     role: 'BASc, Chemical Engineering + Management Sciences',
-    blurb: "Studied Chem Eng. In 2015 I watched Tobi talk about Shopify Plus and Shopify's new Waterloo office, and got hooked on commerce.",
+    blurb: "Studied Chem Eng. In 2015 I watched Tobi's fireside chat at E5 about Shopify Plus and Shopify's new Waterloo office, and got hooked on commerce.",
     bubbles: [
       { text: 'Chem Eng grad who ended up writing code', at: [-4.2, 3.9, -28.3] },
-      { text: '2015: Tobi on stage. Shopify Plus + a Waterloo office. Inspired.', at: [4.4, 3.4, -25.8] },
+      { text: '2015, E5: Tobi on Shopify Plus and a Waterloo office. Inspired.', at: [4.4, 3.4, -25.8] },
       { text: 'Honk.', at: [2.8, 1.2, -28.2] },
     ],
     path: hops(0, -36, -28),

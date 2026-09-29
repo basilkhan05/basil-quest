@@ -795,30 +795,58 @@ function movingToCanada(stat, root, anim) {
   box(plane, 1.4, 0.08, 0.5, '#e8ecf2', 0, 0.45, 1.3);
   box(plane, 0.08, 0.7, 0.5, '#d52b1e', 0, 0.5, 1.3);
   for (let i = 0; i < 5; i++) box(plane, 0.62, 0.14, 0.14, '#7fdcff', 0, 0.35, -0.9 + i * 0.4, { shadow: false });
+  // Fly a wide loop: up the right side, bank left over the top, back down the
+  // left side and around again, so it reappears on the right.
+  plane.rotation.order = 'YXZ';
   anim.push((dt, t) => {
-    const u = (t * 0.12) % 1;
-    const L = -43 + u * 12;
-    plane.position.set(-1.5 + Math.sin(u * 6) * 0.4, 4.2 + Math.sin(u * Math.PI) * 0.8, z(L));
-    plane.rotation.z = Math.cos(u * 6) * 0.15;
+    const th = t * 0.32;
+    const x = 8 * Math.cos(th);
+    const L = -37.5 + 5.5 * Math.sin(th);
+    plane.position.set(x, 4.2 + Math.sin(th * 2) * 0.3, z(L));
+    plane.rotation.y = Math.atan2(8 * Math.sin(th), 5.5 * Math.cos(th));
+    plane.rotation.z = 0.35;
   });
 }
 
 function tobiStage(stat, anim) {
-  // UWaterloo, 2015: Tobi on stage talking about Shopify Plus.
+  // E5, UWaterloo, 2015: Tobi's fireside chat about Shopify Plus.
   const x = 4.4;
   const L = -25.8;
   const g = group(stat, x, 0, z(L));
   box(g, 3.0, 0.35, 1.6, '#3a3f4b', 0, 0, 0);
   box(g, 3.0, 1.9, 0.14, '#95bf47', 0, 0.35, -0.73);
-  sign(g, ['SHOPIFY PLUS'], { x: 0.4, y: 1.3, z: -0.64, w: 1.9, h: 0.5, post: 0, bg: '#ffffff', fg: '#5e8e3e', size: 18 });
+  sign(g, ['SHOPIFY PLUS'], { x: 0.4, y: 1.45, z: -0.64, w: 1.9, h: 0.45, post: 0, bg: '#ffffff', fg: '#5e8e3e', size: 18 });
+  sign(g, ['FIRESIDE CHAT'], { x: 0.4, y: 0.95, z: -0.64, w: 1.9, h: 0.36, post: 0, bg: '#5e8e3e', fg: '#ffffff', size: 14 });
   shopifyBag(g, -1.0, 0.75, -0.6, 0.08);
-  // Speaker + mic
-  const tobi = makePlayer({ hair: '#b58a5a', beard: '#b58a5a', skin: '#f0c9a8', shirt: '#1b1b1f', shirtDark: '#111111', pants: '#2c3a57' });
-  tobi.root.position.set(0.3, 0.35, 0);
-  tobi.root.rotation.y = Math.PI + 0.2; // facing the audience
-  g.add(tobi.root);
-  box(g, 0.06, 0.7, 0.06, '#222', 0.3, 0.35, 0.4);
-  box(g, 0.12, 0.12, 0.12, '#444', 0.3, 1.05, 0.4);
+
+  // Two armchairs, a side table, and the chat.
+  const chair = (cx, rot) => {
+    const c = group(g, cx, 0.35, 0);
+    c.rotation.y = rot;
+    box(c, 0.62, 0.42, 0.6, '#8b5e3c', 0, 0, 0);
+    box(c, 0.62, 0.55, 0.14, '#7a4f31', 0, 0.42, -0.26);
+    box(c, 0.12, 0.2, 0.6, '#7a4f31', -0.28, 0.42, 0);
+    box(c, 0.12, 0.2, 0.6, '#7a4f31', 0.28, 0.42, 0);
+    return c;
+  };
+  const seat = (m, cx, rot) => {
+    m.legs.rotation.x = -Math.PI / 2;
+    m.legs.position.set(0, 0.3, 0.05);
+    m.root.position.set(cx, 0.35 + 0.42 - 0.3, 0.05);
+    m.root.rotation.y = rot;
+    g.add(m.root);
+  };
+  // Seats face the audience (+z), angled toward each other.
+  chair(0.75, Math.PI - 0.5 + Math.PI);
+  chair(-0.45, Math.PI + 0.5 + Math.PI);
+  box(g, 0.3, 0.4, 0.3, '#5a3a22', 0.15, 0.35, 0.1);
+  box(g, 0.1, 0.12, 0.1, '#ffffff', 0.12, 0.75, 0.1);
+  // Tobi: bald, with his usual cap.
+  const tobi = makePlayer({ hair: '#f0c9a8', skin: '#f0c9a8', beard: '#b58a5a', shirt: '#1b1b1f', shirtDark: '#111111', pants: '#2c3a57', cap: '#1b1b1f' });
+  seat(tobi, 0.75, Math.PI + 0.5);
+  const host = makePlayer({ hair: '#3b2a20', skin: '#e2b08c', beard: null, shirt: '#95bf47', shirtDark: '#5e8e3e', longHair: true });
+  seat(host, -0.45, Math.PI - 0.5);
+
   // Audience (a younger Basil in the front row)
   const kid = makePlayer();
   kid.root.position.set(-0.4, 0, 1.4);
@@ -828,7 +856,7 @@ function tobiStage(stat, anim) {
     a.root.position.set(ax, 0, az);
     g.add(a.root);
   });
-  sign(stat, ['2015'], { x: x + 1.9, z: z(L) + 0.9, w: 0.9, h: 0.45, post: 0.4, bg: '#95bf47', fg: '#fff', size: 18 });
+  sign(stat, ['E5, UWATERLOO', '2015'], { x: x + 2.2, z: z(L) + 0.9, w: 1.9, h: 0.7, post: 0.4, bg: '#95bf47', fg: '#fff', size: 16 });
 }
 
 // Pixel Shopify bag, built from a small bitmap. `s` is the voxel size.
