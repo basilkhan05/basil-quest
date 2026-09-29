@@ -101,6 +101,7 @@ export function buildWorld(scene) {
     ...MARKERS.map((m) => [m.x - 0.4, m.L, 1.9]),
     [2.9, 23.2, 1.7],
     [5.8, 73.8, 2.8], // launch pad team
+    [4.4, 47.1, 1.3], // the Easter egg
   ];
   const clear = (x, L) => KEEP.every(([kx, kL, r]) => Math.hypot(x - kx, L - kL) > r);
   const scatter = (L, n, fn) => {

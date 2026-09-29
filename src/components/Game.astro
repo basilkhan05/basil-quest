@@ -50,9 +50,16 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     </noscript>
     <a class="skip" href={`${base}journey/`}>Text version</a>
     {mode === 'personal' ? (
-      <a class="egg egg--on" href={base} title="Back to the professional journey">♥ Personal journey · switch back</a>
+      <a class="route-badge" href={base} title="Back to the professional journey">♥ Personal journey · switch back</a>
     ) : (
-      <a class="egg" href={`${base}personal/`} title="My personal journey" aria-label="My personal journey">♥</a>
+      <div id="hatched" class="hatched panel pxcorners" role="dialog" aria-label="Easter egg found" hidden>
+        <p class="hatched__title">You found the Easter egg!</p>
+        <p class="hatched__body">It hatched into the personal version of the journey.</p>
+        <div class="hatched__btns">
+          <a class="pxbtn pxbtn--pink pxbtn--sm" href={`${base}personal/`}>See the personal journey</a>
+          <button class="pxbtn pxbtn--white pxbtn--sm" type="button" data-close>Keep exploring</button>
+        </div>
+      </div>
     )}
   </div>
 
@@ -202,11 +209,13 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   @keyframes pop { from { opacity: 0; margin-top: 10px; } to { opacity: 1; margin-top: -12px; } }
 
   .skip { position: absolute; right: 16px; top: 70px; font-family: var(--px); font-size: 8px; color: var(--ink); opacity: 0.6; }
-  /* Easter egg: a tiny heart in the corner unlocks the personal route. */
-  .egg { position: absolute; right: 18px; top: 90px; font-family: var(--px); font-size: 10px; color: var(--pink); text-decoration: none; opacity: 0.35; transition: opacity 0.2s, transform 0.2s; }
-  .egg:hover { opacity: 1; transform: scale(1.4); }
-  .egg--on { opacity: 1; font-size: 8px; background: #fff; border: 2px solid var(--ink); padding: 5px 7px; box-shadow: 2px 2px 0 var(--ink); }
-  .egg--on:hover { transform: none; }
+  .route-badge { position: absolute; right: 18px; top: 90px; font-family: var(--px); font-size: 8px; color: var(--pink); text-decoration: none; background: #fff; border: 2px solid var(--ink); padding: 5px 7px; box-shadow: 2px 2px 0 var(--ink); }
+  /* Card shown after hatching the Easter egg in the world. */
+  .hatched { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); width: min(92vw, 380px); text-align: center; animation: pop 0.35s steps(4) forwards; }
+  .hatched[hidden] { display: none; }
+  .hatched__title { font-family: var(--px); font-size: 13px; margin: 0 0 10px; }
+  .hatched__body { margin: 0 0 16px; font-size: 15px; }
+  .hatched__btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .noscript { position: absolute; left: 16px; right: 16px; top: 40%; }
   #game.is-broken::after { content: 'The 3D world could not start on this device.'; position: absolute; top: 45%; left: 0; right: 0; text-align: center; font-family: var(--px); font-size: 12px; }
 
@@ -223,6 +232,6 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     .hud__brand .brand__name { display: none; }
     .bubble { font-size: 9px; max-width: 160px; }
     .skip { top: auto; bottom: 8px; display: none; }
-    .egg { top: 64px; }
+    .route-badge { top: 64px; }
   }
 </style>

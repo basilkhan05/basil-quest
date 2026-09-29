@@ -539,6 +539,10 @@ export async function startGame(root) {
   syncProps(cur);
   arrive();
 
+  // ---------- Easter egg ----------
+  // A speckled egg in the snow near Now. Click it to hatch the personal route.
+  const egg = mode === 'pro' ? makeEgg(scene) : null;
+
   // ---------- Input ----------
   const next = () => !run && go(cur + 1);
   const prev = () => !run && go(cur - 1);
@@ -562,10 +566,17 @@ export async function startGame(root) {
     const dx = e.clientX - touch.x;
     const dy = e.clientY - touch.y;
     touch = null;
-    if (Math.hypot(dx, dy) < 12) return next();
+    if (Math.hypot(dx, dy) < 12) {
+      if (egg && egg.hit(e, camera, canvasWrap)) return egg.hatch(emit);
+      return next();
+    }
     if (Math.abs(dy) > Math.abs(dx)) (dy < 0 ? next : prev)();
     else (dx < 0 ? next : prev)();
   });
+  canvasWrap.addEventListener('pointermove', (e) => {
+    if (egg) canvasWrap.style.cursor = egg.hit(e, camera, canvasWrap) ? 'pointer' : '';
+  });
+  root.querySelector('#hatched [data-close]')?.addEventListener('click', () => (root.querySelector('#hatched').hidden = true));
   let wheelLock = 0;
   canvasWrap.addEventListener(
     'wheel',
@@ -622,6 +633,7 @@ export async function startGame(root) {
     world.update(dt, t, actor);
     updateParticles(dt);
     updateTow();
+    egg?.update(dt, t, root);
     scoop.visible = run != null && actor.dolphin != null;
     if (scoop.visible) {
       scoop.position.set(actor.x, groundAt(actor.L) + actor.alt + actor.arc - 0.55, -actor.L);
@@ -652,6 +664,7 @@ export async function startGame(root) {
   requestAnimationFrame(frame);
 
   // ?debug exposes manual stepping so headless/background tabs can be inspected.
+  if (new URLSearchParams(location.search).has('hatch') && egg) egg.hatch(emit);
   if (new URLSearchParams(location.search).has('debug')) {
     window.__quest = {
       go,
@@ -835,6 +848,74 @@ function makeSpace(scene, anchor) {
       moonG.rotation.y += dt * 0.1;
       sat.rotation.z += dt * 0.3;
       swarm.children.forEach((r) => (r.rotation.y += dt * r.userData.speed));
+    },
+  };
+}
+
+function makeEgg(scene) {
+  const L = 47.1;
+  const x = 4.4;
+  const y = laneHeight(Math.round(L));
+  const g = group(scene, x, y, -L);
+  g.scale.setScalar(1.35);
+  const bottom = group(g);
+  const top = group(g, 0, 0.36, 0);
+  const shell = '#fff4dc';
+  const spots = ['#ff6fa8', '#15c2b0', '#7b61ff', '#ffd23f'];
+  [0.3, 0.44, 0.52].forEach((w, i) => box(bottom, w, 0.12, w, shell, 0, i * 0.12, 0));
+  [0.52, 0.44, 0.32, 0.18].forEach((w, i) => box(top, w, 0.12, w, shell, 0, i * 0.12, 0));
+  [[0.2, 0.18, 0.2], [-0.24, 0.26, 0.05], [0.05, 0.12, -0.24], [-0.1, 0.3, 0.24]].forEach(([sx, sy, sz], i) =>
+    box(bottom, 0.1, 0.1, 0.1, spots[i], sx, sy, sz, { shadow: false }),
+  );
+  [[0.2, 0.06, -0.12], [-0.12, 0.16, 0.2], [0.06, 0.26, 0.12]].forEach(([sx, sy, sz], i) =>
+    box(top, 0.08, 0.08, 0.08, spots[i + 1], sx, sy, sz, { shadow: false }),
+  );
+  // The chick waiting inside.
+  const chick = group(g, 0, 0.2, 0);
+  box(chick, 0.34, 0.3, 0.3, '#ffd23f', 0, 0, 0);
+  box(chick, 0.1, 0.06, 0.1, '#ff8a1f', 0, 0.14, 0.18);
+  box(chick, 0.05, 0.05, 0.02, '#1b1b1f', -0.08, 0.2, 0.16);
+  box(chick, 0.05, 0.05, 0.02, '#1b1b1f', 0.08, 0.2, 0.16);
+  chick.scale.setScalar(0.01);
+  chick.visible = false;
+
+  const ray = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  let hatchedAt = -1;
+  let clock = 0;
+  return {
+    hit(e, camera, el) {
+      if (hatchedAt >= 0) return false;
+      const r = el.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      return ray.intersectObject(g, true).length > 0;
+    },
+    hatch(emit) {
+      hatchedAt = clock;
+      chick.visible = true;
+      emit('confetti', x, y + 0.6, -L, 30);
+      emit('heart', x, y + 0.6, -L, 14);
+    },
+    update(dt, t, root) {
+      clock = t;
+      if (hatchedAt < 0) {
+        // A little wobble every few seconds to catch the eye.
+        const w = t % 4;
+        g.rotation.z = w < 0.6 ? Math.sin(w * 30) * 0.12 : 0;
+        return;
+      }
+      const k = Math.min(1, (t - hatchedAt) / 0.8);
+      top.position.set(k * 0.5, 0.36 + Math.sin(k * Math.PI) * 0.9, 0);
+      top.rotation.z = -k * 2.4;
+      g.rotation.z = 0;
+      chick.scale.setScalar(Math.max(0.01, k));
+      chick.position.y = 0.2 + Math.abs(Math.sin(t * 5)) * 0.08 * k;
+      if (k >= 1 && !root.dataset.hatched) {
+        root.dataset.hatched = '1';
+        const card = root.querySelector('#hatched');
+        if (card) card.hidden = false;
+      }
     },
   };
 }
