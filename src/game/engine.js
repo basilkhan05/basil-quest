@@ -574,7 +574,7 @@ export async function startGame(root) {
     else (dx < 0 ? next : prev)();
   });
   canvasWrap.addEventListener('pointermove', (e) => {
-    if (egg) canvasWrap.style.cursor = egg.hit(e, camera, canvasWrap) ? 'pointer' : '';
+    if (egg) canvasWrap.style.cursor = egg.hit(e, camera, canvasWrap) ? 'var(--cur-hand)' : '';
   });
   root.querySelector('#hatched [data-close]')?.addEventListener('click', () => (root.querySelector('#hatched').hidden = true));
   let wheelLock = 0;
