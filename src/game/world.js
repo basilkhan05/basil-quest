@@ -216,7 +216,7 @@ export function buildWorld(scene) {
     box(stat, 1.2, 0.3, 0.6, '#ffffff', 0.4, y + 0.3, z(L));
   });
   for (let i = 0; i < 4; i++) box(stat, 1.6, 0.18 * (i + 1), 0.2, '#dfe9f7', 0.4, groundAt(64.9 + i * 0.2), z(64.9 + i * 0.2));
-  sign(stat, ['TERRAIN PARK', '2027'], { x: -2.8, z: z(61.6), y: groundAt(61.6), w: 2.2, h: 0.8, post: 0.5, bg: '#2b6cff', fg: '#fff', size: 16 });
+  sign(stat, ['TERRAIN', 'PARK'], { x: -2.8, z: z(61.6), y: groundAt(61.6), w: 2.2, h: 0.8, post: 0.5, bg: '#2b6cff', fg: '#fff', size: 16 });
   basecamp(stat, anim);
   summit(stat, root, anim);
 
@@ -433,6 +433,16 @@ function presentLandmarks(p, root, anim) {
     box(crates, 0.44, 0.06, 0.44, '#9b6b43', x, y + 0.18, zz);
   });
   sign(p, ['EST. 2020'], { x: 1.6, z: z(-0.6), w: 1.6, h: 0.55, post: 0.5, bg: '#111', fg: '#15c2b0', size: 18 });
+  // Shopify App Challenge trophy (3rd place)
+  const tr = group(p, 2.6, 0, z(2.2));
+  box(tr, 0.9, 0.5, 0.9, '#3a3f4b', 0, 0, 0);
+  box(tr, 0.3, 0.3, 0.3, '#e0a526', 0, 0.5, 0);
+  box(tr, 0.7, 0.2, 0.7, '#f6c453', 0, 0.8, 0);
+  box(tr, 0.8, 0.5, 0.8, '#f6c453', 0, 1.0, 0);
+  box(tr, 0.14, 0.3, 0.14, '#f6c453', -0.5, 1.15, 0);
+  box(tr, 0.14, 0.3, 0.14, '#f6c453', 0.5, 1.15, 0);
+  box(tr, 0.3, 0.3, 0.05, '#cd7f32', 0, 0.1, 0.46, { shadow: false });
+  sign(tr, ['3RD'], { y: 0.08, z: 0.5, w: 0.7, h: 0.32, post: 0, bg: '#3a3f4b', fg: '#ffd23f', size: 20 });
 }
 
 function booth(p, x, L, wall, accent, a, b, y = 0) {
@@ -520,17 +530,12 @@ function liftSystem(p, root, anim) {
 
 function summit(p, root, anim) {
   const y = laneHeight(73);
-  // $100M flag pole
-  box(p, 0.14, 4, 0.14, '#dfe3ea', -2.2, y, z(73.2));
-  box(p, 0.24, 0.24, 0.24, '#ffd23f', -2.2, y + 4, z(73.2));
-  const flag = sign(root, ['$100M'], { x: -1.1, y: y + 2.7, z: z(73.2), w: 2.1, h: 1.1, bg: '#ffd23f', fg: '#1b1b1f', size: 30 });
-  anim.push((dt, t) => (flag.rotation.y = Math.sin(t * 3) * 0.12));
   // Launch pad
   box(p, 1.8, 0.3, 1.8, '#555c68', 2.6, y, z(74));
   box(p, 1.9, 0.06, 1.9, '#ffd23f', 2.6, y + 0.3, z(74), { shadow: false });
   box(p, 0.2, 4.2, 0.2, '#ff3b5c', 3.7, y, z(74.4));
   box(p, 0.6, 0.12, 0.12, '#ff3b5c', 3.4, y + 3.0, z(74.4));
-  sign(p, ['SUMMIT'], { x: -1.4, y: laneHeight(72), z: z(72.3), w: 1.5, h: 0.5, post: 0.4, bg: '#1b1b1f', fg: '#fff', size: 16 });
+  sign(p, ['LAUNCH PAD'], { x: -1.4, y: laneHeight(72), z: z(72.3), w: 1.8, h: 0.5, post: 0.4, bg: '#1b1b1f', fg: '#fff', size: 16 });
 }
 
 function tower(p, x, L, h, c) {

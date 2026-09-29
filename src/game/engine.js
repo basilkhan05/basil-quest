@@ -69,6 +69,11 @@ export async function startGame(root) {
   const base = root.dataset.base || '/';
   const mode = root.dataset.mode === 'personal' ? 'personal' : 'pro';
   STOPS = storyFor(mode);
+  // "Now" follows the real date.
+  const today = new Date();
+  const nowStop = STOPS.find((s) => s.id === 'now');
+  nowStop.year = String(today.getFullYear());
+  nowStop.eraLabel = `Now · ${today.toLocaleDateString('en-CA', { month: 'short', year: 'numeric' })}`;
   const LICHEN_SPOT = LICHEN_SPOTS[mode];
   const $ = (sel) => root.querySelector(sel);
   const canvasWrap = $('#stage');
@@ -838,7 +843,7 @@ function makeUI(root, base, { go }) {
     const s = STOPS[i];
     card.dataset.era = s.era;
     card.innerHTML = `
-      <div class="card__era">${ERA_LABEL[s.era]}</div>
+      <div class="card__era">${s.eraLabel || ERA_LABEL[s.era]}</div>
       ${s.milestone ? `<div class="card__badge">${s.milestone}</div>` : ''}
       <h2 class="card__title">${s.title}</h2>
       <div class="card__role">${s.role}</div>
