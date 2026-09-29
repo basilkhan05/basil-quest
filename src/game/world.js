@@ -476,16 +476,35 @@ function presentLandmarks(p, root, anim) {
     box(crates, 0.44, 0.06, 0.44, '#9b6b43', x, y + 0.18, zz);
   });
   sign(p, ['EST. 2020'], { x: 1.6, z: z(-0.6), w: 1.6, h: 0.55, post: 0.5, bg: '#111', fg: '#15c2b0', size: 18 });
-  // Shopify App Challenge trophy (3rd place)
-  const tr = group(p, 2.6, 0, z(2.2));
-  box(tr, 0.9, 0.5, 0.9, '#3a3f4b', 0, 0, 0);
-  box(tr, 0.3, 0.3, 0.3, '#e0a526', 0, 0.5, 0);
-  box(tr, 0.7, 0.2, 0.7, '#f6c453', 0, 0.8, 0);
-  box(tr, 0.8, 0.5, 0.8, '#f6c453', 0, 1.0, 0);
-  box(tr, 0.14, 0.3, 0.14, '#f6c453', -0.5, 1.15, 0);
-  box(tr, 0.14, 0.3, 0.14, '#f6c453', 0.5, 1.15, 0);
-  box(tr, 0.3, 0.3, 0.05, '#cd7f32', 0, 0.1, 0.46, { shadow: false });
-  sign(tr, ['3RD'], { y: 0.08, z: 0.5, w: 0.7, h: 0.32, post: 0, bg: '#3a3f4b', fg: '#ffd23f', size: 20 });
+  // Shopify App Challenge 2020 trophy: Shopify-green plinth, gold cup with
+  // the Shopify bag on it, slowly turning.
+  const tr = group(p, 1.8, 0, z(3.1));
+  tr.scale.setScalar(1.3);
+  box(tr, 1.4, 0.3, 1.2, '#5e8e3e', 0, 0, 0);
+  box(tr, 1.1, 0.5, 0.9, '#95bf47', 0, 0.3, 0);
+  sign(tr, [{ text: 'SHOPIFY APP', size: 13 }, { text: 'CHALLENGE 2020', size: 13 }, { text: '3RD PLACE', size: 16 }], {
+    y: 0.02, z: 0.62, w: 1.3, h: 0.72, post: 0, bg: '#1b1b1f', fg: '#f6c453', size: 13,
+  });
+  const cup = group(root, 1.8, 1.04, z(3.1));
+  cup.scale.setScalar(1.3);
+  const gold = '#f6c453';
+  const deep = '#e0a526';
+  box(cup, 0.6, 0.12, 0.6, deep, 0, 0, 0);
+  box(cup, 0.2, 0.45, 0.2, gold, 0, 0.12, 0);
+  box(cup, 0.46, 0.14, 0.46, deep, 0, 0.55, 0);
+  box(cup, 0.72, 0.26, 0.72, gold, 0, 0.66, 0);
+  box(cup, 0.86, 0.5, 0.86, gold, 0, 0.9, 0);
+  box(cup, 0.92, 0.08, 0.92, deep, 0, 1.4, 0);
+  [-1, 1].forEach((sx) => {
+    box(cup, 0.12, 0.44, 0.12, gold, sx * 0.58, 0.88, 0);
+    box(cup, 0.2, 0.1, 0.12, gold, sx * 0.5, 1.26, 0);
+    box(cup, 0.2, 0.1, 0.12, gold, sx * 0.5, 0.86, 0);
+  });
+  shopifyBag(cup, 0.02, 0.84, 0.44, 0.045);
+  anim.push((dt, t) => {
+    cup.rotation.y = Math.sin(t * 0.6) * 0.5;
+    cup.position.y = 1.04 + Math.sin(t * 1.5) * 0.05;
+  });
 }
 
 function booth(p, x, L, wall, accent, a, b, y = 0) {

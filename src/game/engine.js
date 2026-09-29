@@ -706,6 +706,21 @@ async function voxelLogo(url, { cols, size, depth = 2, color = null, alpha = 110
   return holder;
 }
 
+// A flat, full-resolution logo image (for logos that aren't pixel art).
+async function logoPanel(url, width) {
+  const tex = await new THREE.TextureLoader().loadAsync(url);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  const { width: w, height: h } = tex.image;
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(width, (width * h) / w),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true }),
+  );
+  const g = new THREE.Group();
+  g.add(mesh);
+  return g;
+}
+
 async function addLogos(scene, base) {
   const u = (p) => `${base}logos/${p}`;
   const place = (obj, x, y, zz) => {
@@ -718,8 +733,8 @@ async function addLogos(scene, base) {
     const hqMark = await voxelLogo(u('freshly-mark.png'), { cols: 24, size: 0.1, depth: 3, color: '#15c2b0' });
     place(hqMark, -4.6, 2.6, -1.4);
     // Simple Bundles logo, in full colour, above its basecamp shop
-    const sb = await voxelLogo(u('simple-bundles.png'), { cols: 56, size: 0.055, depth: 3 });
-    place(sb, 5.4, laneHeight(58) + 1.3, -58.4);
+    // Simple Bundles logo as the real image (crisp, not voxelized)
+    place(await logoPanel(u('simple-bundles-hd.png'), 2.3), 5.4, laneHeight(58) + 1.85, -58.4);
     // Freshly wordmark billboard by the highway
     const bb = new THREE.Group();
     box(bb, 0.2, 1.4, 0.2, '#555c68', -2.2, 0, 0);
@@ -737,8 +752,8 @@ async function addLogos(scene, base) {
     box(sbb, 0.2, 1.4, 0.2, '#555c68', 2.2, 0, 0);
     box(sbb, 5.8, 2.1, 0.16, '#ffffff', 0, 1.4, 0);
     box(sbb, 5.9, 0.12, 0.2, '#ff4d6d', 0, 1.34, 0);
-    const sbBig = await voxelLogo(u('simple-bundles.png'), { cols: 72, size: 0.072, depth: 1.5 });
-    sbBig.position.set(0, 1.5, 0.12);
+    const sbBig = await logoPanel(u('simple-bundles-hd.png'), 5.0);
+    sbBig.position.set(0, 2.45, 0.1);
     sbb.add(sbBig);
     place(sbb, 5.6, 0, -9.2);
     // Teal Freshly monument on the summit
