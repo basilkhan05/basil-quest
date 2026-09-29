@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { buildWorld, groundAt, laneHeight, ROAD_LANES } from './world.js';
-import { makePlayer, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket } from './models.js';
-import { STOPS, START } from './story.js';
+import {
+  makePlayer, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket, makeWakeboard, makeBoat, LICHEN,
+} from './models.js';
+import { STOPS, START, FOUNDED, LICHEN_SPOT } from './story.js';
 import { box, group } from './voxel.js';
 
 const HOP_DUR = 0.17;
@@ -23,20 +25,38 @@ const lerpAngle = (a, b, t) => {
 const SEATS = {
   bronco: { pos: [-0.24, 0.66, 0.05], sit: true },
   bike: { pos: [0, 0.42, 0.08], sit: false },
-  surf: { pos: [0, 0.08, 0.1], sit: false, rot: 0.5 },
+  boat: { pos: [0, 0.08, 0], sit: false, rot: 0.7 },
   board: { pos: [0, 0.08, 0], sit: false, rot: 0.7 },
-  chair: { pos: [0, -0.2, 0], sit: true },
+  chair: { pos: [-0.28, -0.2, 0], sit: true },
   rocket: { hidden: true },
 };
 
+// Where Lichen rides relative to Basil for each vehicle.
+const LICHEN_SEATS = {
+  bronco: [0.24, 0.66, 0.05],
+  chair: [0.28, -0.2, 0],
+};
+const LICHEN_SIDE = {
+  boat: { dx: -1.5, dL: 0.2, ride: 'surf' },
+  board: { dx: 1.2, dL: -0.3, ride: 'board' },
+};
+
+// The tow boat runs ahead of Basil and peels off to the side near the far shore.
+const SHORE = 30.3;
+const LEAD = 3.6;
+function boatPose(p) {
+  const side = Math.min(3, Math.max(0, (p.L + LEAD - SHORE) * 1.2));
+  return { x: p.x + side, L: Math.min(p.L + LEAD, SHORE), rot: -side * 0.25 };
+}
+
 const SKY = {
   past: '#f3e2b8',
-  freshly: '#bdeeff',
+  founded: '#bdeeff',
   road: '#bdeeff',
   roadtrip: '#ffd6a0',
-  surf: '#9fe3ff',
+  wake: '#9fe3ff',
   trail: '#c9f2cf',
-  lift: '#dce9ff',
+  now: '#dce9ff',
   park: '#dce9ff',
   summit: '#cfdcff',
   launch: '#0a0f2c',
@@ -70,6 +90,7 @@ export async function startGame(root) {
   await document.fonts.load('16px "Press Start 2P"').catch(() => {});
   const world = buildWorld(scene);
   addLogos(scene, base);
+  const space = makeSpace(scene, new THREE.Vector3(2.6, 0, -74));
 
   // ---------- Actor ----------
   const actor = { x: 0, L: 0, alt: 0, rot: 0, vehicle: null };
@@ -81,15 +102,98 @@ export async function startGame(root) {
   const rides = {
     bronco: makeBronco(),
     bike: makeBike(),
-    surf: makeSurfboard(),
+    boat: makeWakeboard(),
     board: makeSnowboard(),
     chair: makeChair(),
-    rocket: makeRocket(),
+    rocket: makeRocket(true),
   };
   Object.values(rides).forEach((m) => {
     m.visible = false;
     aInner.add(m);
   });
+
+  // Tow boat + rope for the wakeboard ride.
+  const towBoat = makeBoat();
+  towBoat.visible = false;
+  scene.add(towBoat);
+  const rope = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 1), new THREE.MeshLambertMaterial({ color: '#1b1b1f' }));
+  rope.visible = false;
+  scene.add(rope);
+
+  // ---------- Lichen ----------
+  // A free-roaming Lichen that follows Basil's trail or rides beside him, plus a
+  // seated copy that lives inside Basil's vehicle for the Bronco and chairlift.
+  const lGroup = group(scene);
+  const lSpin = group(lGroup, 0, 0.6, 0);
+  const lInner = group(lSpin, 0, -0.6, 0);
+  const lichen = makePlayer(LICHEN);
+  lInner.add(lichen.root);
+  const lRides = { surf: makeSurfboard(), board: makeSnowboard(), bike: makeBike() };
+  Object.values(lRides).forEach((m) => {
+    m.visible = false;
+    lInner.add(m);
+  });
+  const lichenSeat = makePlayer(LICHEN);
+  lichenSeat.legs.rotation.x = -Math.PI / 2;
+  lichenSeat.legs.position.set(0, 0.3, 0.05);
+  lichenSeat.root.visible = false;
+  aInner.add(lichenSeat.root);
+  const trail = []; // recent actor states, for Lichen to follow
+
+  function sampleTrail(delay) {
+    const want = t - delay;
+    for (let i = trail.length - 1; i >= 0; i--) if (trail[i].t <= want) return trail[i];
+    return trail[0];
+  }
+
+  function updateLichen() {
+    trail.push({ t, x: actor.x, L: actor.L, alt: actor.alt, arc: actor.arc || 0, rot: actor.rot, flip: actor.flip || 0, spin: actor.spin || 0 });
+    while (trail.length && trail[0].t < t - 2) trail.shift();
+
+    const v = actor.vehicle;
+    const seat = LICHEN_SEATS[v];
+    lichenSeat.root.visible = !!seat;
+    if (seat) lichenSeat.root.position.set(...seat);
+    const side = LICHEN_SIDE[v];
+    const riding = side ? side.ride : v === 'bike' ? 'bike' : null;
+    Object.entries(lRides).forEach(([k, m]) => (m.visible = k === riding));
+    lichen.root.position.set(0, riding === 'bike' ? 0.42 : riding ? 0.08 : 0, riding === 'bike' ? 0.08 : 0);
+    lichen.root.rotation.y = riding && riding !== 'bike' ? -0.7 : 0;
+    lGroup.visible = !seat && v !== 'rocket';
+    if (!lGroup.visible) return;
+
+    let p;
+    if (!v && actor.L < LICHEN_SPOT.L + 0.3) {
+      // Before Basil reaches Vidyard she's waiting there.
+      p = { x: LICHEN_SPOT.x, L: LICHEN_SPOT.L, alt: 0, arc: 0, rot: -0.5, flip: 0, spin: 0 };
+    } else if (side) {
+      p = { ...actor, x: actor.x + side.dx, L: actor.L + side.dL, arc: actor.arc || 0, spin: -(actor.spin || 0) };
+    } else {
+      const s = sampleTrail(v === 'bike' ? 0.4 : 0.26);
+      p = { ...s, x: s.x + (v === 'bike' ? 0 : 0.85) };
+    }
+    lGroup.position.set(p.x, groundAt(p.L) + p.alt + p.arc, -p.L);
+    lGroup.rotation.y = p.rot;
+    lSpin.rotation.set(p.flip || 0, p.spin || 0, 0);
+    lichen.body.scale.copy(player.body.scale);
+  }
+
+  function updateTow() {
+    const on = actor.vehicle === 'boat';
+    towBoat.visible = on;
+    rope.visible = on && actor.L < SHORE - 1.2;
+    if (!on) return;
+    const bp = boatPose(actor);
+    towBoat.position.set(bp.x, -0.32 + Math.sin(t * 5) * 0.04, -bp.L);
+    towBoat.rotation.set(Math.sin(t * 3) * 0.03, bp.rot, 0);
+    if (rope.visible) {
+      const a = new THREE.Vector3(0, 0.9, 1.3).applyEuler(towBoat.rotation).add(towBoat.position);
+      const b = new THREE.Vector3(actor.x, groundAt(actor.L) + actor.alt + (actor.arc || 0) + 0.45, -actor.L - 0.15);
+      rope.position.copy(a).lerp(b, 0.5);
+      rope.scale.z = a.distanceTo(b);
+      rope.lookAt(b);
+    }
+  }
 
   function setVehicle(name) {
     actor.vehicle = name;
@@ -109,7 +213,7 @@ export async function startGame(root) {
   }
 
   function setGear(name) {
-    Object.entries(player.gear).forEach(([k, g]) => (g.visible = k === name));
+    [player, lichen, lichenSeat].forEach((c) => Object.entries(c.gear).forEach(([k, g]) => (g.visible = k === name)));
   }
 
   function placeProp(name, pose) {
@@ -119,12 +223,9 @@ export async function startGame(root) {
       return;
     }
     p.visible = true;
-    p.position.set(pose.x, groundAt(pose.L) + (pose.alt || 0), -pose.L);
+    if (name === 'boat') pose = boatPose(pose);
+    p.position.set(pose.x, name === 'boat' ? -0.32 : groundAt(pose.L) + (pose.alt || 0), -pose.L);
     p.rotation.set(0, pose.rot || 0, 0);
-    if (name === 'surf' && pose.stand) {
-      p.rotation.x = Math.PI / 2 - 0.2;
-      p.position.y += 0.7;
-    }
   }
 
   // ---------- Compile story paths into ops ----------
@@ -172,12 +273,12 @@ export async function startGame(root) {
     }
     stop.end = cur;
   });
-  if (propPoses.surf) propPoses.surf.before.stand = true;
 
   function syncProps(idx) {
     Object.entries(propPoses).forEach(([name, info]) => {
       placeProp(name, idx < info.seg ? info.before : info.after);
     });
+    trail.length = 0;
     const end = STOPS[idx].end;
     Object.assign(actor, end, { rot: 0 });
     setVehicle(end.vehicle);
@@ -199,6 +300,7 @@ export async function startGame(root) {
     splash: { colors: ['#ffffff', '#bff0ff', '#7fdcff'], up: 2.6, spread: 1.6, size: 0.12, life: 0.6 },
     flame: { colors: ['#ffb020', '#ff5a1f', '#ffe14d', '#dddddd'], up: -6, spread: 1.4, size: 0.24, life: 0.8 },
     dust: { colors: ['#ffffff'], up: 1, spread: 0.8, size: 0.08, life: 0.35 },
+    heart: { colors: ['#ff3b5c', '#ff6fa8', '#ffb3c7'], up: 1.6, spread: 0.9, size: 0.16, life: 1.6, grav: 0 },
   };
   function emit(kind, x, y, zz, n) {
     const f = FX[kind];
@@ -215,7 +317,7 @@ export async function startGame(root) {
         life: f.life,
         max: f.life,
         c: f.colors[(Math.random() * f.colors.length) | 0],
-        grav: kind === 'flame' ? 0 : 9,
+        grav: f.grav ?? (kind === 'flame' ? 0 : 9),
       });
     }
   }
@@ -376,6 +478,7 @@ export async function startGame(root) {
     rides.rocket.userData.flame.visible = stop.id === 'launch';
     setGear(stop.gear || null);
     setSky(stop.id, stop.era);
+    if (stop.id === 'vidyard') emit('heart', (actor.x + LICHEN_SPOT.x) / 2, 1.2, -LICHEN_SPOT.L, 24);
     ui.arrived(cur);
     history.replaceState(null, '', `#${stop.id}`);
   }
@@ -467,13 +570,20 @@ export async function startGame(root) {
   function tick(dt) {
     t += dt;
     if (run) stepRun(reduceMotion ? dt * 3 : dt);
-    else {
+    else if (STOPS[cur].id === 'launch') {
+      // The rocket never stops climbing.
+      actor.alt += dt * 5;
+      emit('flame', actor.x, groundAt(actor.L) + actor.alt, -actor.L, 3);
+    } else {
       actor.rot = lerpAngle(actor.rot, 0, Math.min(1, dt * 6));
       // idle bob
       if (!actor.vehicle) player.body.scale.y = 1 + Math.sin(t * 3) * 0.015;
     }
     world.update(dt, t, actor);
     updateParticles(dt);
+    updateTow();
+    updateLichen();
+    space.update(dt, groundAt(actor.L) + actor.alt, actor.vehicle === 'rocket' && actor.alt > 12);
 
     const y = groundAt(actor.L) + actor.alt + (actor.arc || 0);
     aGroup.position.set(actor.x + (actor.jitter || 0), y, -actor.L);
@@ -562,9 +672,9 @@ async function addLogos(scene, base) {
     // Giant Freshly "F" on the HQ roof
     const hqMark = await voxelLogo(u('freshly-mark.png'), { cols: 24, size: 0.1, depth: 3, color: '#15c2b0' });
     place(hqMark, -4.6, 2.6, -1.4);
-    // Simple Bundles logo, in full colour, above its booth
+    // Simple Bundles logo, in full colour, above its basecamp shop
     const sb = await voxelLogo(u('simple-bundles.png'), { cols: 56, size: 0.055, depth: 3 });
-    place(sb, 3.2, 1.3, -0.3);
+    place(sb, 5.4, laneHeight(58) + 1.3, -58.4);
     // Freshly wordmark billboard by the highway
     const bb = new THREE.Group();
     box(bb, 0.2, 1.4, 0.2, '#555c68', -2.2, 0, 0);
@@ -574,19 +684,116 @@ async function addLogos(scene, base) {
     const word = await voxelLogo(u('freshly-full.png'), { cols: 64, size: 0.08, depth: 1.5, color: '#111111' });
     word.position.set(0, 1.62, 0.12);
     bb.add(word);
-    place(bb, 5.6, 0, -9.2);
+    place(bb, -4.8, laneHeight(60), -60.4);
+    bb.position.y += 1.2;
+    // Simple Bundles billboard by the $10K MRR road
+    const sbb = new THREE.Group();
+    box(sbb, 0.2, 1.4, 0.2, '#555c68', -2.2, 0, 0);
+    box(sbb, 0.2, 1.4, 0.2, '#555c68', 2.2, 0, 0);
+    box(sbb, 5.8, 2.1, 0.16, '#ffffff', 0, 1.4, 0);
+    box(sbb, 5.9, 0.12, 0.2, '#ff4d6d', 0, 1.34, 0);
+    const sbBig = await voxelLogo(u('simple-bundles.png'), { cols: 72, size: 0.072, depth: 1.5 });
+    sbBig.position.set(0, 1.5, 0.12);
+    sbb.add(sbBig);
+    place(sbb, 5.6, 0, -9.2);
     // Teal Freshly monument on the summit
-    const peakY = laneHeight(72);
+    const peakY = laneHeight(73);
     const mon = new THREE.Group();
     box(mon, 2.2, 0.5, 1, '#9aa8bd', 0, 0, 0);
     const mark = await voxelLogo(u('freshly-mark.png'), { cols: 24, size: 0.085, depth: 3, color: '#15c2b0' });
     mark.position.y = 0.5;
     mon.add(mark);
-    place(mon, -4.4, peakY, -73.2);
+    place(mon, -4.4, peakY, -74.2);
+    // Freshly mark on the basecamp lodge roof
+    const lodgeMark = await voxelLogo(u('freshly-mark.png'), { cols: 24, size: 0.09, depth: 3, color: '#15c2b0' });
+    place(lodgeMark, -4.6, laneHeight(57) + 2.4, -57.8);
   } catch (e) {
     console.warn('logo voxelization failed', e);
   }
 }
+
+// ---------- Space: the rocket climbs past the Moon toward a Dyson swarm ----------
+function voxelBall(r, size, colorAt) {
+  const cells = [];
+  for (let x = -r; x <= r; x++)
+    for (let y = -r; y <= r; y++)
+      for (let z = -r; z <= r; z++) {
+        const d = Math.hypot(x, y, z);
+        if (d <= r && d > r - 1.6) cells.push([x, y, z]);
+      }
+  const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial(), cells.length);
+  const m = new THREE.Matrix4();
+  const c = new THREE.Color();
+  cells.forEach(([x, y, z], i) => {
+    mesh.setMatrixAt(i, m.makeScale(size, size, size).setPosition(x * size, y * size, z * size));
+    mesh.setColorAt(i, c.set(colorAt(x, y, z)));
+  });
+  return mesh;
+}
+
+function makeSpace(scene, anchor) {
+  const g = new THREE.Group();
+  g.visible = false;
+  scene.add(g);
+  const craters = new Set(['2,3', '-3,1', '0,-2', '4,-1', '-1,4']);
+  const moon = voxelBall(6, 0.5, (x, y) => (craters.has(`${x},${y}`) || craters.has(`${x + 1},${y}`) ? '#a9a9b8' : (x + y) % 3 ? '#e4e4ee' : '#d2d2de'));
+  const moonG = new THREE.Group();
+  moonG.add(moon);
+
+  const sat = new THREE.Group();
+  box(sat, 0.8, 0.8, 0.8, '#d9d9e3', 0, 0, 0);
+  box(sat, 2.4, 0.06, 0.8, '#2b6cff', -1.6, 0.36, 0);
+  box(sat, 2.4, 0.06, 0.8, '#2b6cff', 1.6, 0.36, 0);
+  box(sat, 0.1, 0.6, 0.1, '#9aa0a8', 0, 0.8, 0);
+  box(sat, 0.5, 0.1, 0.5, '#ffffff', 0, 1.4, 0);
+
+  const dyson = new THREE.Group();
+  dyson.add(voxelBall(7, 0.55, (x, y, z) => ((x * 7 + y * 3 + z) % 4 === 0 ? '#ff8a1f' : '#ffd23f')));
+  const swarm = new THREE.Group();
+  dyson.add(swarm);
+  for (let i = 0; i < 90; i++) {
+    const ring = new THREE.Group();
+    ring.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+    const a = Math.random() * Math.PI * 2;
+    const r = 6 + Math.random() * 2;
+    box(ring, 0.7, 0.05, 0.5, i % 5 ? '#1f2a5a' : '#7fdcff', Math.cos(a) * r, 0, Math.sin(a) * r, { shadow: false });
+    ring.userData.speed = 0.2 + Math.random() * 0.4;
+    swarm.add(ring);
+  }
+
+  // Three things stacked above the rocket, recycled as it climbs.
+  const items = [
+    { o: moonG, x: -7, z: -4 },
+    { o: sat, x: 5, z: -1 },
+    { o: dyson, x: -10, z: -10 },
+  ];
+  const GAP = 34;
+  let seeded = false;
+  items.forEach((it) => g.add(it.o));
+
+  return {
+    update(dt, rocketY, on) {
+      g.visible = on;
+      if (!on) {
+        seeded = false;
+        return;
+      }
+      if (!seeded) {
+        items.forEach((it, i) => (it.y = rocketY + 22 + i * GAP));
+        seeded = true;
+      }
+      items.forEach((it) => {
+        if (it.y < rocketY - 30) it.y += GAP * items.length;
+        it.o.position.set(anchor.x + it.x, it.y, anchor.z + it.z);
+      });
+      moonG.rotation.y += dt * 0.1;
+      sat.rotation.z += dt * 0.3;
+      swarm.children.forEach((r) => (r.rotation.y += dt * r.userData.speed));
+    },
+  };
+}
+
+const ERA_LABEL = { past: 'The past', company: 'Freshly Commerce', now: 'Now', future: 'The future' };
 
 // ---------- DOM UI ----------
 function makeUI(root, base, { go }) {
@@ -614,8 +821,8 @@ function makeUI(root, base, { go }) {
 
   $('#next').addEventListener('click', () => nextCb());
   $('#prev').addEventListener('click', () => prevCb());
-  $('#start')?.addEventListener('click', () => go(STOPS.findIndex((s) => s.id === 'road')));
-  $('#rewind')?.addEventListener('click', () => go(STOPS.findIndex((s) => s.id === 'podia')));
+  $('#start')?.addEventListener('click', () => go(START + 1));
+  $('#rewind')?.addEventListener('click', () => go(FOUNDED));
 
   const href = (l) => (l.ext ? l.href : base + l.href);
 
@@ -623,7 +830,8 @@ function makeUI(root, base, { go }) {
     const s = STOPS[i];
     card.dataset.era = s.era;
     card.innerHTML = `
-      <div class="card__era">${s.era === 'past' ? 'The past' : s.era === 'now' ? 'Now' : 'The future'}</div>
+      <div class="card__era">${ERA_LABEL[s.era]}</div>
+      ${s.milestone ? `<div class="card__badge">${s.milestone}</div>` : ''}
       <h2 class="card__title">${s.title}</h2>
       <div class="card__role">${s.role}</div>
       <p class="card__blurb">${s.blurb}</p>

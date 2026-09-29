@@ -50,13 +50,22 @@ export function signTexture(lines, { bg = '#111', fg = '#fff', w = 256, h = 96, 
   g.fillStyle = fg;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  const arr = Array.isArray(lines) ? lines : [lines];
-  arr.forEach((line, i) => {
-    const s = typeof line === 'object' ? line.size : size;
-    const t = typeof line === 'object' ? line.text : line;
-    g.font = `${s}px "Press Start 2P", monospace`;
-    const y = h / 2 + (i - (arr.length - 1) / 2) * (size * 1.6);
-    g.fillText(t, w / 2, y);
+  const arr = (Array.isArray(lines) ? lines : [lines]).map((line) =>
+    typeof line === 'object' ? { ...line } : { text: line, size },
+  );
+  // Shrink any line that would overflow the board.
+  arr.forEach((l) => {
+    g.font = `${l.size}px "Press Start 2P", monospace`;
+    const fit = (w * 0.88) / g.measureText(l.text).width;
+    if (fit < 1) l.size = Math.floor(l.size * fit);
+  });
+  const gap = 0.55;
+  const total = arr.reduce((n, l) => n + l.size, 0) + gap * Math.max(...arr.map((l) => l.size)) * (arr.length - 1);
+  let y = (h - total) / 2;
+  arr.forEach((l) => {
+    g.font = `${l.size}px "Press Start 2P", monospace`;
+    g.fillText(l.text, w / 2, y + l.size / 2 + 1);
+    y += l.size * (1 + gap);
   });
   const tex = new THREE.CanvasTexture(c);
   tex.magFilter = THREE.NearestFilter;

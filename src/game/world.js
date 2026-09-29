@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { box, group, sign, mat, rand, pick } from './voxel.js';
 import {
-  makeCar, makeTruck, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket,
+  makeCar, makeTruck, makeBronco, makeBike, makeBoat, makeSnowboard, makeChair, makeRocket,
   tree, autumnTree, pine, rock, cactus, mesa, flowers,
 } from './models.js';
 
@@ -31,9 +31,10 @@ export function laneHeight(L) {
   if (laneType(L) === 'water') return -0.3;
   if (L <= 46) return 0;
   if (L <= 56) return (L - 46) * 0.8;
-  if (L <= 66) return 8 - (L - 56) * 0.2;
-  if (L <= 72) return 6 + (L - 66) * 0.9;
-  return 11.4;
+  if (L <= 59) return 8; // basecamp plateau
+  if (L <= 67) return 8 - (L - 59) * 0.2;
+  if (L <= 73) return 6.4 + (L - 67) * 0.9;
+  return 11.8;
 }
 
 // Smooth height for moving actors between lane centers.
@@ -117,14 +118,16 @@ export function buildWorld(scene) {
       const truck = rand() < 0.3;
       const m = truck ? makeTruck() : makeCar();
       m.position.set(-16 + i * 11 + rand() * 3, 0, z(L));
-      if (dir < 0) m.rotation.y = Math.PI;
+      // Cars face +x, trucks have their cab at -x.
+      if ((dir < 0) !== truck) m.rotation.y = Math.PI;
       root.add(m);
       cars.push({ mesh: m, L, v: dir * speed, len: truck ? 2.6 : 1.8 });
     }
   });
   [8, 9, 10].forEach((L) => scatter(L, 2, (x, y, zz) => tree(stat, x, y, zz)));
   [1, 2, 5, 8, 9].forEach((L) => scatter(L, 1, (x, y, zz) => rock(stat, x, y, zz)));
-  sign(stat, ['ROAD TRIP', '--->'], { x: -1.8, z: z(10) - 0.2, w: 1.6, h: 0.7, post: 0.5, bg: '#ffd23f', fg: '#1b1b1f', size: 14 });
+  sign(stat, ['$10K MRR'], { x: -2.4, z: z(10) - 0.3, w: 2.2, h: 0.7, post: 0.6, bg: '#ffd23f', fg: '#1b1b1f', size: 26 });
+  booth(stat, -5.6, 9.3, '#ffe3ec', '#ff4d6d', 'SIMPLE', 'BUNDLES');
 
   // ---------- Desert + mud pit + campsite ----------
   for (let L = 11; L <= 21; L++) {
@@ -168,6 +171,13 @@ export function buildWorld(scene) {
     crests.forEach((c, i) => (c.position.y = -0.36 + Math.sin(t * 1.6 + i * 2) * 0.1));
   });
   surfShack(stat, -4, z(31.6));
+  // Boat launch dock
+  for (let L = 22.6; L <= 25.4; L += 0.4) box(stat, 1.2, 0.12, 0.36, '#b5875a', -0.9, L > 23.5 ? -0.15 : 0, z(L));
+  for (const L of [23.8, 25.2]) {
+    box(stat, 0.14, 0.7, 0.14, '#7a4b33', -1.45, -0.6, z(L));
+    box(stat, 0.14, 0.7, 0.14, '#7a4b33', -0.35, -0.6, z(L));
+  }
+  sign(stat, ['SIMPLE BUNDLES', '2.0 LAUNCH'], { x: -2.6, z: z(22.4), w: 2.4, h: 0.8, post: 0.5, bg: '#ff4d6d', fg: '#fff', size: 16 });
 
   // ---------- Forest trail ----------
   for (let L = TRAIL[0]; L <= TRAIL[1]; L++) {
@@ -182,30 +192,38 @@ export function buildWorld(scene) {
   // Kicker ramp rising toward the future (z decreasing).
   for (let i = 0; i < 5; i++) box(stat, 1.6, 0.16 * (i + 1), 0.2, '#9b6b43', 0.3, 0, z(41.3 + i * 0.2));
   box(stat, 1.6, 0.05, 1.0, '#c89163', 0.3, 0.8, z(41.9));
-  sign(stat, ['SEND IT'], { x: -2.2, z: z(40.5), w: 1.4, h: 0.5, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 14 });
+  [
+    [36, 'GLOSSIER', '#f6c6d0', '#1b1b1f'],
+    [39, 'STANLEY', '#1e6b3a', '#ffffff'],
+    [41.6, 'YAMAHA', '#4b2a7b', '#ffffff'],
+  ].forEach(([L, name, bg, fg]) => {
+    sign(stat, [name], { x: -2.6, z: z(L), w: 2.2, h: 0.6, post: 0.7, bg, fg, size: 24 });
+  });
 
   // ---------- Mountain ----------
   for (let L = 46; L <= L_MAX; L++) {
     const y = laneHeight(L);
+    if (L >= 55 && L <= 60) continue; // basecamp
     if (rand() < 0.8) pine(stat, pick([-1, 1]) * (4.5 + rand() * 6), y, z(L), true);
     if (rand() < 0.3) rock(stat, sideX(), y, z(L), '#c9d3e3');
   }
   // Big backdrop peaks on both sides.
   [[-13, 58, 14], [12, 64, 16], [-11, 74, 12], [13, 78, 10]].forEach(([x, L, h]) => peak(stat, x, z(L), h));
   liftSystem(stat, root, anim);
-  [59, 62].forEach((L) => {
-    const y = laneHeight(L);
+  [60.5, 63].forEach((L) => {
+    const y = groundAt(L);
     box(stat, 1.8, 0.3, 0.9, '#ffffff', 0.4, y, z(L));
     box(stat, 1.2, 0.3, 0.6, '#ffffff', 0.4, y + 0.3, z(L));
   });
-  for (let i = 0; i < 4; i++) box(stat, 1.6, 0.18 * (i + 1), 0.2, '#dfe9f7', 0.4, laneHeight(64), z(63.5 + i * 0.2));
-  sign(stat, ['TERRAIN', 'PARK'], { x: -2.2, z: z(57), y: laneHeight(57), w: 1.4, h: 0.7, post: 0.5, bg: '#2b6cff', fg: '#fff', size: 12 });
+  for (let i = 0; i < 4; i++) box(stat, 1.6, 0.18 * (i + 1), 0.2, '#dfe9f7', 0.4, groundAt(64.9 + i * 0.2), z(64.9 + i * 0.2));
+  sign(stat, ['TERRAIN PARK', '2027'], { x: -2.8, z: z(61.6), y: groundAt(61.6), w: 2.2, h: 0.8, post: 0.5, bg: '#2b6cff', fg: '#fff', size: 16 });
+  basecamp(stat, anim);
   summit(stat, root, anim);
 
   // ---------- Rideable props (moved around by the story) ----------
   props.bronco = makeBronco();
   props.bike = makeBike();
-  props.surf = makeSurfboard();
+  props.boat = makeBoat();
   props.board = makeSnowboard();
   props.chair = makeChair();
   props.rocket = makeRocket();
@@ -306,7 +324,11 @@ function building(p, x, L, { w = 2.4, d = 1.6, h = 1.6, color, roof, windows = '
     box(g, 0.3, 0.3, 0.04, windows, wx, h * 0.55, d / 2 + 0.01, { shadow: false });
   }
   box(g, 0.44, 0.6, 0.04, '#3a2a22', w / 2 - 0.5, 0, d / 2 + 0.01, { shadow: false });
-  if (name) sign(g, sub ? [name, sub] : [name], { z: d / 2 + 0.2, x: 0, y: 0, w: Math.min(w, 2.2), h: 0.62, post: 0.45, bg: bg || roof, fg, size: 12 });
+  if (name) {
+    sign(g, sub ? [{ text: name, size: 30 }, { text: sub, size: 20 }] : [name], {
+      z: d / 2 + 0.35, x: 0, y: 0, w: Math.max(2.6, w), h: 1.05, post: 0.5, bg: bg || roof, fg, size: 26,
+    });
+  }
   return g;
 }
 
@@ -326,6 +348,10 @@ function pastLandmarks(p, anim) {
   box(bk, 0.26, 0.3, 0.26, '#bfe8ff', 0, 0.7, 0);
 
   building(p, -4, -22.3, { w: 2.6, d: 1.6, h: 2.6, color: '#dfe7ea', roof: '#1a9e5a', name: 'LANSA', sub: '2016', bg: '#1a9e5a' });
+  // Toronto office towers
+  [[-7.2, -23.2, 4.2, '#b9c7d8'], [-8.8, -22, 5.6, '#9fb3c8'], [3.6, -23, 3.4, '#c9d3e3'], [5.2, -22.4, 4.8, '#a9bbd0']].forEach(([x, L, h, c]) =>
+    tower(p, x, L, h, c),
+  );
 
   building(p, -4, -16.3, { w: 2.8, d: 1.6, h: 1.8, color: '#e8fff4', roof: '#1fbf8f', name: 'VIDYARD', sub: '2017-19', bg: '#1fbf8f' });
   // Vidyard robot mascot
@@ -341,8 +367,24 @@ function pastLandmarks(p, anim) {
   box(bot, 0.18, 0.3, 0.18, '#333', 0.2, 0, 0);
   anim.push((dt, t) => (tip.visible = Math.sin(t * 5) > 0));
   bot.rotation.y = -0.4;
+  // Moving to Waterloo
+  const mv = group(p, 5.6, 0, z(-16.6));
+  box(mv, 1.2, 1.1, 2.0, '#ffffff', 0, 0.2, 0.3);
+  box(mv, 1.22, 0.3, 2.02, '#ff8a1f', 0, 0.9, 0.3);
+  box(mv, 1.1, 0.8, 0.8, '#ff8a1f', 0, 0.2, -1.0);
+  box(mv, 1.0, 0.3, 0.05, '#2c3240', 0, 0.6, -1.41, { shadow: false });
+  [[-0.5, -1.0], [0.5, -1.0], [-0.5, 0.8], [0.5, 0.8]].forEach(([x, zz]) => box(mv, 0.14, 0.34, 0.34, '#1d1d22', x * 1.2, 0, zz));
+  [[-0.4, 0, 1.7], [0.3, 0, 1.8], [0, 0.42, 1.75]].forEach(([x, y, zz]) => {
+    box(mv, 0.4, 0.4, 0.4, '#d9a36b', x, y, zz);
+    box(mv, 0.42, 0.05, 0.1, '#9b6b43', x, y + 0.36, zz);
+  });
+  sign(p, ['WATERLOO', 'POP. +1'], { x: 7.6, z: z(-15.4), w: 2.2, h: 0.8, post: 0.6, bg: '#1e6b3a', fg: '#fff', size: 18 });
 
   building(p, -4, -11.3, { w: 2.2, d: 1.5, h: 1.5, color: '#e6e3f5', roof: '#5d6bff', name: 'ASTEROIDX', sub: '2018', bg: '#5d6bff' });
+  cnTower(p, 6.6, -12.5);
+  [[4.8, -13.4, 3.2, '#b9c7d8'], [8.6, -13.2, 4.2, '#9fb3c8'], [9.8, -11.8, 2.6, '#c9d3e3'], [-7.6, -12.4, 3.6, '#a9bbd0']].forEach(([x, L, h, c]) =>
+    tower(p, x, L, h, c),
+  );
   const ast = group(p, 3, 2.2, z(-11));
   box(ast, 0.9, 0.8, 0.8, '#8d8a99', 0, 0, 0);
   box(ast, 0.5, 0.5, 0.5, '#6f6c7c', 0.3, 0.5, 0.2);
@@ -354,12 +396,7 @@ function pastLandmarks(p, anim) {
   });
 
   building(p, -4, -6.3, { w: 2.6, d: 1.6, h: 1.8, color: '#fff3c4', roof: '#f7c843', name: 'PODIA', sub: '2019-21', bg: '#f7c843', fg: '#1b1b1f' });
-  // Creator's laptop + course stack
-  const lap = group(p, 3, 0, z(-6));
-  box(lap, 0.9, 0.3, 0.6, '#7a4b33', 0, 0, 0);
-  box(lap, 0.7, 0.04, 0.45, '#333', 0, 0.3, 0);
-  box(lap, 0.7, 0.45, 0.04, '#333', 0, 0.3, 0.22);
-  box(lap, 0.6, 0.35, 0.02, '#f7c843', 0, 0.36, 0.2);
+  garage(p, anim);
 }
 
 function goose(p, x, L, anim) {
@@ -388,30 +425,22 @@ function presentLandmarks(p, root, anim) {
   box(hq, 0.7, 0.9, 0.05, '#15c2b0', 0, 0, 1.12, { shadow: false });
   sign(hq, ['FRESHLY', 'COMMERCE'], { z: 1.5, x: 1.9, w: 1.5, h: 0.62, post: 0.35, bg: '#111', fg: '#15c2b0', size: 11 });
 
-  // Product booths on the right
-  booth(p, 3.2, 0.3, '#ffe3ec', '#ff4d6d', 'SIMPLE', 'BUNDLES');
-  booth(p, 6.2, 0.3, '#e7e3ff', '#7b61ff', 'SIMPLE', 'DISCOUNTS');
-  booth(p, 4.7, 2.2, '#e1fbf6', '#15c2b0', 'FRESHLY', 'INVENTORY');
-  // Discount "%" above the discounts booth
-  const pct = group(p, 6.2, 2.0, z(0.3));
-  const P = ['#..#', '..#.', '.#..', '#..#'];
-  P.forEach((row, r) => row.split('').forEach((ch, c) => ch === '#' && box(pct, 0.2, 0.2, 0.2, '#7b61ff', -0.3 + c * 0.2, (3 - r) * 0.2, 0)));
-  // Inventory crates
-  const crates = group(p, 4.7, 0, z(3.2 - 0.6));
+  // App #1
+  booth(p, 4.2, 0.6, '#e1fbf6', '#15c2b0', 'FRESHLY', 'INVENTORY');
+  const crates = group(p, 4.2, 0, z(2.2));
   [[-0.9, 0, 0], [-0.9, 0.45, 0], [0.9, 0, 0], [0.9, 0, 0.5], [0.9, 0.45, 0.2]].forEach(([x, y, zz]) => {
     box(crates, 0.42, 0.42, 0.42, '#d9a36b', x, y, zz);
     box(crates, 0.44, 0.06, 0.44, '#9b6b43', x, y + 0.18, zz);
   });
-  sign(p, ['YOU ARE', 'HERE'], { x: 1.5, z: z(-0.6), w: 1.1, h: 0.62, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 11 });
+  sign(p, ['EST. 2020'], { x: 1.6, z: z(-0.6), w: 1.6, h: 0.55, post: 0.5, bg: '#111', fg: '#15c2b0', size: 18 });
 }
 
-function booth(p, x, L, wall, accent, a, b) {
-  const g = group(p, x, 0, z(L));
+function booth(p, x, L, wall, accent, a, b, y = 0) {
+  const g = group(p, x, y, z(L));
   box(g, 2.1, 1.1, 1.2, wall, 0, 0, 0);
   box(g, 2.3, 0.14, 1.4, accent, 0, 1.1, 0);
   for (let i = 0; i < 5; i++) box(g, 0.46, 0.12, 0.3, i % 2 ? '#ffffff' : accent, -0.92 + i * 0.46, 1.0, 0.72, { shadow: false });
-  box(g, 1.8, 0.1, 0.3, accent, 0, 0.5, 0.64);
-  sign(g, [a, b], { z: 0.62, y: 0, w: 1.6, h: 0.44, post: 0, bg: accent, fg: '#fff', size: 9 });
+  sign(g, [a, b], { z: 0.66, y: 0.05, w: 2.0, h: 0.62, post: 0, bg: accent, fg: '#fff', size: 18 });
 }
 
 function campsite(p, anim) {
@@ -490,16 +519,122 @@ function liftSystem(p, root, anim) {
 }
 
 function summit(p, root, anim) {
-  const y = laneHeight(72);
+  const y = laneHeight(73);
   // $100M flag pole
-  box(p, 0.14, 4, 0.14, '#dfe3ea', -2.2, y, z(72.2));
-  box(p, 0.24, 0.24, 0.24, '#ffd23f', -2.2, y + 4, z(72.2));
-  const flag = sign(root, ['$100M'], { x: -1.1, y: y + 2.7, z: z(72.2), w: 2.1, h: 1.1, bg: '#ffd23f', fg: '#1b1b1f', size: 30 });
+  box(p, 0.14, 4, 0.14, '#dfe3ea', -2.2, y, z(73.2));
+  box(p, 0.24, 0.24, 0.24, '#ffd23f', -2.2, y + 4, z(73.2));
+  const flag = sign(root, ['$100M'], { x: -1.1, y: y + 2.7, z: z(73.2), w: 2.1, h: 1.1, bg: '#ffd23f', fg: '#1b1b1f', size: 30 });
   anim.push((dt, t) => (flag.rotation.y = Math.sin(t * 3) * 0.12));
   // Launch pad
-  box(p, 1.8, 0.3, 1.8, '#555c68', 2.6, y, z(73));
-  box(p, 1.9, 0.06, 1.9, '#ffd23f', 2.6, y + 0.3, z(73), { shadow: false });
-  box(p, 0.2, 4.2, 0.2, '#ff3b5c', 3.7, y, z(73.4));
-  box(p, 0.6, 0.12, 0.12, '#ff3b5c', 3.4, y + 3.0, z(73.4));
-  sign(p, ['SUMMIT'], { x: 0.2, y, z: z(71.3), w: 1.3, h: 0.45, post: 0.4, bg: '#1b1b1f', fg: '#fff', size: 12 });
+  box(p, 1.8, 0.3, 1.8, '#555c68', 2.6, y, z(74));
+  box(p, 1.9, 0.06, 1.9, '#ffd23f', 2.6, y + 0.3, z(74), { shadow: false });
+  box(p, 0.2, 4.2, 0.2, '#ff3b5c', 3.7, y, z(74.4));
+  box(p, 0.6, 0.12, 0.12, '#ff3b5c', 3.4, y + 3.0, z(74.4));
+  sign(p, ['SUMMIT'], { x: -1.4, y: laneHeight(72), z: z(72.3), w: 1.5, h: 0.5, post: 0.4, bg: '#1b1b1f', fg: '#fff', size: 16 });
+}
+
+function tower(p, x, L, h, c) {
+  const g = group(p, x, 0, z(L));
+  box(g, 1.2, h, 1.2, c, 0, 0, 0);
+  for (let y = 0.4; y < h - 0.3; y += 0.5) box(g, 1.22, 0.14, 1.22, '#dff4ff', 0, y, 0, { shadow: false });
+  box(g, 1.3, 0.14, 1.3, '#6f7c8f', 0, h, 0);
+}
+
+function cnTower(p, x, L) {
+  const g = group(p, x, 0, z(L));
+  box(g, 1.2, 0.4, 1.2, '#b8b3a8', 0, 0, 0);
+  box(g, 0.6, 6.2, 0.6, '#d8d3c6', 0, 0.4, 0);
+  box(g, 0.3, 6.2, 0.9, '#cfc9bb', 0, 0.4, 0);
+  box(g, 1.5, 0.5, 1.5, '#9aa0a8', 0, 6.4, 0);
+  box(g, 1.7, 0.2, 1.7, '#6f7c8f', 0, 6.6, 0);
+  box(g, 1.3, 0.3, 1.3, '#9fdcff', 0, 6.9, 0);
+  box(g, 0.6, 0.6, 0.6, '#d8d3c6', 0, 7.2, 0);
+  box(g, 0.2, 2.2, 0.2, '#e8e4da', 0, 7.8, 0);
+  box(g, 0.08, 0.6, 0.08, '#ff3b5c', 0, 10, 0);
+}
+
+function garage(p, anim) {
+  // First fully remote job: a garage office that doubles as a longboard shop.
+  const g = group(p, 3.4, 0, z(-6.4));
+  box(g, 2.6, 1.5, 1.8, '#e8dcc8', 0, 0, 0);
+  box(g, 2.8, 0.16, 2.0, '#8b5e3c', 0, 1.5, 0);
+  box(g, 1.9, 1.1, 0.04, '#3a2f2a', -0.2, 0, 0.91, { shadow: false });
+  // Desk + laptop inside the open door
+  box(g, 0.9, 0.36, 0.4, '#b5875a', -0.6, 0, 0.7);
+  box(g, 0.44, 0.03, 0.3, '#333', -0.6, 0.36, 0.7);
+  box(g, 0.44, 0.3, 0.03, '#333', -0.6, 0.36, 0.56);
+  box(g, 0.36, 0.22, 0.02, '#f7c843', -0.6, 0.4, 0.58, { shadow: false });
+  // Chair
+  box(g, 0.3, 0.2, 0.3, '#ff6fa8', -0.6, 0, 1.05);
+  sign(g, ['REMOTE', 'HQ'], { x: 0.9, y: 0.95, z: 0.95, w: 0.8, h: 0.5, post: 0, bg: '#f7c843', fg: '#1b1b1f', size: 14 });
+
+  // Longboard shop next door
+  const shop = group(p, 6.2, 0, z(-6));
+  const deck = (x, y, zz, c, standing) => {
+    const d = group(shop, x, y, zz);
+    box(d, 0.34, 0.06, 1.3, c, 0, 0.1, 0);
+    box(d, 0.36, 0.08, 0.08, '#555', 0, 0.02, -0.4);
+    box(d, 0.36, 0.08, 0.08, '#555', 0, 0.02, 0.4);
+    if (standing) {
+      d.rotation.x = -Math.PI / 2 + 0.25;
+      d.position.y += 0.7;
+    }
+    return d;
+  };
+  // Rack of finished boards
+  box(shop, 1.5, 0.12, 0.12, '#7a4b33', 0, 1.4, 0.6);
+  box(shop, 0.12, 1.5, 0.12, '#7a4b33', -0.75, 0, 0.6);
+  box(shop, 0.12, 1.5, 0.12, '#7a4b33', 0.75, 0, 0.6);
+  ['#ff6fa8', '#2ec4ff', '#ffd23f'].forEach((c, i) => deck(-0.45 + i * 0.45, 0, 0.45, c, true));
+  // Sawhorses with a deck in progress
+  [-0.5, 0.5].forEach((zz) => {
+    box(shop, 0.9, 0.1, 0.12, '#b5875a', 0, 0.5, -0.6 + zz * 0.9);
+    box(shop, 0.08, 0.5, 0.08, '#b5875a', -0.35, 0, -0.6 + zz * 0.9);
+    box(shop, 0.08, 0.5, 0.08, '#b5875a', 0.35, 0, -0.6 + zz * 0.9);
+  });
+  const wip = deck(0, 0.5, -0.6, '#d9b27c', false);
+  for (let i = 0; i < 8; i++) box(shop, 0.08, 0.02, 0.05, '#e7c79a', -0.6 + rand() * 1.2, 0, -1.2 + rand() * 1.2, { shadow: false });
+  anim.push((dt, t) => (wip.position.y = 0.5 + Math.max(0, Math.sin(t * 6)) * 0.02));
+}
+
+function basecamp(p, anim) {
+  const y = laneHeight(57);
+  // Freshly lodge
+  const lodge = group(p, -4.6, y, z(57.8));
+  box(lodge, 3.6, 1.8, 2.2, '#8b5e3c', 0, 0, 0);
+  for (let i = 0; i < 6; i++) box(lodge, 3.62, 0.08, 2.22, '#7a4f31', 0, 0.2 + i * 0.28, 0, { shadow: false });
+  box(lodge, 3.9, 0.3, 2.5, '#1b1b1f', 0, 1.8, 0);
+  box(lodge, 3.2, 0.3, 2.0, '#1b1b1f', 0, 2.1, 0);
+  box(lodge, 3.9, 0.12, 2.5, '#ffffff', 0, 2.1, 0);
+  box(lodge, 0.7, 0.9, 0.05, '#15c2b0', 0.8, 0, 1.11, { shadow: false });
+  box(lodge, 0.5, 0.4, 0.04, '#ffe9a8', -0.9, 0.7, 1.11, { shadow: false });
+  sign(lodge, ['25,000+', 'MERCHANTS'], { x: -0.6, y: 0.2, z: 1.3, w: 2.0, h: 0.8, post: 0, bg: '#111', fg: '#15c2b0', size: 20 });
+
+  // Three app shops
+  booth(p, -8.4, 58.4, '#e1fbf6', '#15c2b0', 'FRESHLY', 'INVENTORY', y);
+  booth(p, 5.4, 58.4, '#ffe3ec', '#ff4d6d', 'SIMPLE', 'BUNDLES', y);
+  booth(p, 7.8, 58.4, '#e7e3ff', '#7b61ff', 'SIMPLE', 'DISCOUNTS', y);
+  const pct = group(p, 7.8, y + 1.3, z(58.4));
+  ['#..#', '..#.', '.#..', '#..#'].forEach((row, r) =>
+    row.split('').forEach((ch, c) => ch === '#' && box(pct, 0.2, 0.2, 0.2, '#7b61ff', -0.3 + c * 0.2, (3 - r) * 0.2, 0)),
+  );
+
+  // Built for Shopify badge on a pedestal
+  const badge = group(p, -2.2, y, z(59.2));
+  box(badge, 1.0, 0.5, 0.8, '#9aa8bd', 0, 0, 0);
+  const b = group(badge, 0, 1.25, 0);
+  const D = ['...##...', '..####..', '.######.', '##.###.#', '###.#.##', '.####.#.', '..####..', '...##...'];
+  D.forEach((row, r) =>
+    row.split('').forEach((ch, c) => {
+      if (ch === '.') return;
+      box(b, 0.12, 0.12, 0.12, '#1f8f4e', -0.42 + c * 0.12, (7 - r) * 0.12 - 0.5, 0);
+    }),
+  );
+  // White check mark on top of the green diamond
+  [[-0.18, -0.05], [-0.06, -0.17], [0.06, -0.05], [0.18, 0.07], [0.3, 0.19]].forEach(([x, yy]) =>
+    box(b, 0.12, 0.12, 0.14, '#ffffff', x, yy, 0),
+  );
+  anim.push((dt, t) => (b.rotation.y = Math.sin(t * 1.2) * 0.5));
+  sign(p, ['BUILT FOR', 'SHOPIFY'], { x: -2.2, y, z: z(58.6), w: 1.6, h: 0.5, post: 0, bg: '#1f8f4e', fg: '#fff', size: 14 });
+  sign(p, ['YOU ARE', 'HERE'], { x: -1.4, y, z: z(56.6), w: 1.3, h: 0.7, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 16 });
 }

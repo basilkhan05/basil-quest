@@ -27,8 +27,8 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       <h1 class="logo"><span>Basil</span><span>Khan</span></h1>
       <p class="title__sub">Co-founder &amp; CTO at Freshly Commerce</p>
       <div class="title__btns">
-        <button id="rewind" class="pxbtn pxbtn--white">◀◀ Where I've been</button>
-        <button id="start" class="pxbtn">Where I'm going ▶</button>
+        <button id="rewind" class="pxbtn pxbtn--white">◀◀ Where we've been</button>
+        <button id="start" class="pxbtn">Where we're going ▶</button>
       </div>
       <p class="title__hint">Arrow keys, swipe, or tap to travel</p>
     </div>
@@ -153,6 +153,11 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   #card[data-era='past'] .card__era { color: #b07a1a; }
   #card[data-era='now'] .card__era { color: var(--teal); }
   #card[data-era='future'] .card__era { color: var(--pink); }
+  #card[data-era='company'] .card__era { color: var(--purple); }
+  .card__badge {
+    display: inline-block; margin-top: 8px; font-family: var(--px); font-size: 9px; line-height: 1.4;
+    background: var(--yellow); border: 2px solid var(--ink); padding: 5px 7px; box-shadow: 2px 2px 0 var(--ink);
+  }
   .card__title { font-size: 16px; margin: 8px 0 6px; }
   .card__role { font-weight: 700; font-size: 15px; }
   .card__blurb { margin: 6px 0 0; font-size: 15px; line-height: 1.5; }
@@ -169,6 +174,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     background: rgba(255,255,255,0.75); border: 2px solid var(--ink); padding: 8px 6px; cursor: pointer; color: var(--ink);
   }
   .dot--past { background: rgba(255, 241, 214, 0.85); }
+  .dot--company { background: rgba(231, 227, 255, 0.85); }
   .dot.is-done { background: #fff; }
   .dot.is-on { background: var(--yellow); box-shadow: 3px 3px 0 var(--ink); transform: translateY(-2px); }
   .dot:hover { background: #fff; }
@@ -176,7 +182,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   #bubbles { position: absolute; inset: 0; pointer-events: none; }
   .bubble {
     position: absolute; left: 0; top: 0; max-width: 220px;
-    font-family: var(--px); font-size: 10px; line-height: 1.5; color: var(--ink);
+    font-family: var(--px); font-size: 12px; line-height: 1.5; color: var(--ink);
     background: #fff; border: 3px solid var(--ink); padding: 8px 10px; box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
     opacity: 0; animation: pop 0.35s steps(4) forwards; will-change: transform;
   }
@@ -202,7 +208,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     .score { top: 70px; }
     .hud__nav .pxbtn { font-size: 8px; padding: 8px 8px; }
     .hud__brand .brand__name { display: none; }
-    .bubble { font-size: 8px; max-width: 150px; }
+    .bubble { font-size: 9px; max-width: 160px; }
     .skip { top: auto; bottom: 8px; display: none; }
   }
 </style>

@@ -5,17 +5,19 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const past = STOPS.filter((s) => s.era === 'past').reverse();
 const now = STOPS.find((s) => s.era === 'now');
 const future = STOPS.filter((s) => s.era === 'future');
+const company = STOPS.filter((s) => s.era === 'company').reverse();
 ---
 <Base title="Journey" active="journey" description="Where Basil Khan has been and where he is going.">
   <div class="wrap page">
     <p class="eyebrow">Text version of the game</p>
     <h1>Where I'm going</h1>
-    <p class="lede">The short version of the 3D world. Most of it is about what comes next.</p>
+    <p class="lede">The short version of the 3D world: where Lichen and I have been with Freshly, and where we're headed.</p>
 
     <section class="now panel pxcorners">
       <p class="eyebrow">Now</p>
       <h2>{now.role}, {now.title}</h2>
       <p>{now.blurb}</p>
+      <p class="badge">{now.milestone}</p>
       <a class="pxbtn pxbtn--sm" href={`${base}work/`}>See the products</a>
     </section>
 
@@ -27,6 +29,20 @@ const future = STOPS.filter((s) => s.era === 'future');
           <div>
             <h3>{s.title}</h3>
             <p>{s.blurb}</p>
+          </div>
+          <a class="jump" href={`${base}#${s.id}`}>Play</a>
+        </li>
+      ))}
+    </ol>
+
+    <h2 class="sec">Freshly Commerce so far</h2>
+    <ol class="future">
+      {company.map((s) => (
+        <li class="panel pxcorners">
+          <span class="yr yr--co">{s.year}</span>
+          <div>
+            <h3>{s.milestone}</h3>
+            <p>{s.title}. {s.blurb}</p>
           </div>
           <a class="jump" href={`${base}#${s.id}`}>Play</a>
         </li>
@@ -53,6 +69,8 @@ const future = STOPS.filter((s) => s.era === 'future');
   .future p { margin: 0; }
   .yr { font-family: var(--px); font-size: 11px; color: var(--pink); }
   .jump { font-family: var(--px); font-size: 10px; }
+  .yr--co { color: var(--purple); }
+  .badge { display: inline-block; font-family: var(--px); font-size: 10px; background: var(--yellow); border: 2px solid var(--ink); padding: 6px 8px; }
   .past { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 15px; color: var(--muted); }
   .past .yr { color: #b07a1a; margin-right: 8px; }
   @media (max-width: 560px) { .future li { grid-template-columns: 1fr; gap: 6px; } }
