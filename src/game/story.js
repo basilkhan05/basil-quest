@@ -18,6 +18,8 @@ const dismount = (name) => ({ type: 'dismount', name });
 const wait = (dur) => ({ type: 'wait', dur });
 const TAU = Math.PI * 2;
 
+const CAREERS = 'https://careers.freshlycommerce.com/?utm_source=basilkhan.ca&utm_medium=referral&utm_campaign=personal_site#open-roles';
+
 // Where Lichen waits until Basil reaches her. In the personal route they meet
 // at Vidyard; in the professional route she joins when they found Freshly.
 export const LICHEN_SPOTS = {
@@ -140,7 +142,7 @@ export const STOPS = [
     blurb: "Lichen and I built Freshly for Shopify's COVID-19 App Challenge and placed third. That kickstarted everything: Freshly Inventory became our first app.",
     links: [{ text: 'The winners', href: 'https://www.shopify.com/ca/partners/blog/shopify-app-challenge-winners', ext: true }],
     bubbles: [
-      { text: "Let's build this together", at: 'me' },
+      { text: "Lichen, let's build this together!", at: 'me' },
       { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
     ],
     personal: {
@@ -178,9 +180,10 @@ export const STOPS = [
     role: 'A remote, global team',
     milestone: 'Growing our team',
     blurb: 'Growing past $10K was the hard part. We started hiring and built a remote team around the world.',
+    links: [{ text: 'Open roles', href: CAREERS, ext: true }],
     bubbles: [
       { text: 'Campfire debugging', at: [-1.5, 1.4, 21.2] },
-      { text: 'Hiring around the world', at: [-6.8, 2.4, 21.6] },
+      { text: "We're hiring: open roles", at: [-6.8, 2.4, 21.6], href: CAREERS },
     ],
     path: [
       hop(0.2, 10),
@@ -200,7 +203,7 @@ export const STOPS = [
     id: 'wake',
     era: 'company',
     year: '2023',
-    label: 'SB 2.0',
+    label: 'Bundles 2.0',
     gear: 'shades',
     pos: { x: 0, L: 32 },
     title: 'Simple Bundles 2.0',
@@ -208,8 +211,8 @@ export const STOPS = [
     milestone: 'Simple Bundles 2.0 + Simple Discounts',
     blurb: 'We rebuilt Simple Bundles from the ground up and launched Simple Discounts, our third app.',
     bubbles: [
-      { text: 'Launch day', at: [-4, 2.4, 31.6] },
-      { text: 'Next: bigger merchants', at: [1.2, 1.6, 32.4] },
+      { text: 'Launch day: Simple Bundles 2.0', at: [-4, 2.4, 31.6] },
+      { text: 'Next: scaling our apps for enterprise merchants', at: [1.2, 1.6, 32.4] },
     ],
     path: [
       ...hops(0, 21, 22),

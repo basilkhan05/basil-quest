@@ -996,8 +996,10 @@ function makeUI(root, base, { go, actor }) {
   function showBubbles(i) {
     bubbles.innerHTML = '';
     bubbleEls = STOPS[i].bubbles.map((b, k) => {
-      const el = document.createElement('div');
-      el.className = 'bubble';
+      // Bubbles with an href are clickable and open in a new tab.
+      const el = document.createElement(b.href ? 'a' : 'div');
+      el.className = b.href ? 'bubble bubble--link' : 'bubble';
+      if (b.href) Object.assign(el, { href: b.href, target: '_blank', rel: 'noopener' });
       el.style.animationDelay = `${0.15 + k * 0.25}s`;
       el.textContent = b.text;
       bubbles.appendChild(el);

@@ -236,6 +236,9 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     background: #fff; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
     clip-path: polygon(0 0, 100% 0, 100% 100%);
   }
+  .bubble--link { pointer-events: auto; background: var(--yellow); text-decoration: underline; text-underline-offset: 3px; }
+  .bubble--link::after { background: var(--yellow); }
+  .bubble--link:hover { background: #fff; }
   @keyframes pop { from { opacity: 0; margin-top: 10px; } to { opacity: 1; margin-top: -12px; } }
 
   .skip { position: absolute; right: 16px; top: 70px; font-family: var(--px); font-size: 8px; color: var(--ink); opacity: 0.6; }
