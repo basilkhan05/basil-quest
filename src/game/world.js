@@ -491,7 +491,7 @@ function presentLandmarks(p, root, anim) {
   tr.scale.setScalar(1.3);
   box(tr, 1.4, 0.3, 1.2, '#5e8e3e', 0, 0, 0);
   box(tr, 1.1, 0.5, 0.9, '#95bf47', 0, 0.3, 0);
-  sign(tr, [{ text: 'SHOPIFY APP', size: 13 }, { text: 'CHALLENGE 2020', size: 13 }, { text: '3RD PLACE', size: 16 }], {
+  sign(tr, [{ text: 'SHOPIFY APP', size: 13 }, { text: 'CHALLENGE 2020', size: 13 }, { text: 'WINNER', size: 18 }], {
     y: 0.02, z: 0.62, w: 1.3, h: 0.72, post: 0, bg: '#1b1b1f', fg: '#f6c453', size: 13,
   });
   const cup = group(root, 2.2, 1.04, z(1.6));
