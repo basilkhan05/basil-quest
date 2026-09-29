@@ -44,8 +44,8 @@ export function signTexture(lines, { bg = '#111', fg = '#fff', w = 256, h = 96, 
   g.fillRect(0, 0, w, h);
   if (border) {
     g.strokeStyle = border;
-    g.lineWidth = 8;
-    g.strokeRect(4, 4, w - 8, h - 8);
+    g.lineWidth = 16;
+    g.strokeRect(8, 8, w - 16, h - 16);
   }
   g.fillStyle = fg;
   g.textAlign = 'center';
@@ -68,8 +68,11 @@ export function signTexture(lines, { bg = '#111', fg = '#fff', w = 256, h = 96, 
     y += l.size * (1 + gap);
   });
   const tex = new THREE.CanvasTexture(c);
+  // Nearest when magnified keeps the pixel font crisp; mipmaps + anisotropy
+  // keep it readable (no shimmer) when the sign is small or at an angle.
   tex.magFilter = THREE.NearestFilter;
-  tex.minFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.anisotropy = 8;
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
@@ -82,7 +85,10 @@ export function sign(parent, lines, opts = {}) {
     box(g, 0.14, post, 0.14, postColor, -w / 2 + 0.2, 0, 0);
     box(g, 0.14, post, 0.14, postColor, w / 2 - 0.2, 0, 0);
   }
-  const tex = signTexture(lines, { ...opts, w: Math.round(128 * w), h: Math.round(128 * h) });
+  // Render at 2x (256px per world unit) so sign text stays sharp up close.
+  const S = 2;
+  const scaled = (Array.isArray(lines) ? lines : [lines]).map((l) => (typeof l === 'object' ? { ...l, size: l.size * S } : l));
+  const tex = signTexture(scaled, { ...opts, size: (opts.size || 18) * S, w: Math.round(128 * S * w), h: Math.round(128 * S * h) });
   const side = mat(opts.bg || '#111');
   const face = new THREE.MeshLambertMaterial({ map: tex });
   const mesh = new THREE.Mesh(UNIT, [side, side, side, side, face, side]);
