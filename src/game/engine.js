@@ -57,6 +57,7 @@ const SKY = {
   wake: '#9fe3ff',
   now: '#c9f2cf',
   scale: '#dce9ff',
+  launchpad: '#cfdcff',
   park: '#dce9ff',
   summit: '#cfdcff',
   launch: '#0a0f2c',

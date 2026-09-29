@@ -566,6 +566,26 @@ function summit(p, root, anim) {
   box(p, 1.9, 0.06, 1.9, '#ffd23f', 2.6, y + 0.3, z(74), { shadow: false });
   box(p, 0.2, 4.2, 0.2, '#ff3b5c', 3.7, y, z(74.4));
   box(p, 0.6, 0.12, 0.12, '#ff3b5c', 3.4, y + 3.0, z(74.4));
+  // Your AI team: little robots at the pad, one planning, one doing.
+  [[4.9, 72.8, '#15c2b0', 'plan'], [6.1, 73.9, '#7b61ff', 'act'], [5.4, 75, '#ff4d6d', 'act']].forEach(([bx, bL, c, role], i) => {
+    const bot = group(root, bx, y, z(bL));
+    box(bot, 0.5, 0.4, 0.4, '#dfe3ea', 0, 0.2, 0);
+    box(bot, 0.6, 0.5, 0.5, c, 0, 0.55, 0);
+    box(bot, 0.14, 0.14, 0.05, '#fff', -0.13, 0.78, 0.26);
+    box(bot, 0.14, 0.14, 0.05, '#fff', 0.13, 0.78, 0.26);
+    box(bot, 0.05, 0.25, 0.05, '#333', 0, 1.05, 0);
+    const led = box(bot, 0.12, 0.12, 0.12, '#ffd23f', 0, 1.3, 0);
+    box(bot, 0.14, 0.2, 0.14, '#555', -0.15, 0, 0);
+    box(bot, 0.14, 0.2, 0.14, '#555', 0.15, 0, 0);
+    // The planner holds a clipboard; the doers carry boxes.
+    if (role === 'plan') box(bot, 0.3, 0.36, 0.05, '#ffffff', 0.38, 0.45, 0.15);
+    else box(bot, 0.34, 0.3, 0.34, '#d9a36b', 0, 0.62, 0.36);
+    anim.push((dt, t) => {
+      bot.position.y = y + Math.abs(Math.sin(t * 4 + i)) * 0.08;
+      led.visible = Math.sin(t * 3 + i * 2) > -0.3;
+    });
+  });
+  sign(p, ['YOUR', 'AI TEAM'], { x: 7.4, y, z: z(72.4), w: 1.4, h: 0.7, post: 0.5, bg: '#15c2b0', fg: '#1b1b1f', size: 16 });
   sign(p, ['LAUNCH PAD'], { x: -1.4, y: laneHeight(72), z: z(72.3), w: 1.8, h: 0.5, post: 0.4, bg: '#1b1b1f', fg: '#fff', size: 16 });
 }
 
