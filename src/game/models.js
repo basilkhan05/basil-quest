@@ -15,31 +15,55 @@ export const PALETTE = {
   broncoDark: '#b84d1c',
 };
 
-export function makePlayer() {
+export const LICHEN = {
+  skin: '#e2b08c',
+  hair: '#141012',
+  shirt: '#ff7a8a',
+  shirtDark: '#e0566a',
+  pants: '#3b3355',
+  beard: null,
+  longHair: true,
+  helmet: '#ffd23f',
+  beanie: '#7b61ff',
+};
+
+// Basil by default; pass LICHEN (or any overrides) for other characters.
+export function makePlayer(look = {}) {
+  const P = { ...PALETTE, longHair: false, helmet: '#ff3b5c', beanie: '#ff8a1f', ...look };
   const root = group();
   const body = group(root); // squash/stretch pivot
   const legs = group(body);
-  box(legs, 0.17, 0.28, 0.2, PALETTE.pants, -0.1, 0.04, 0);
-  box(legs, 0.17, 0.28, 0.2, PALETTE.pants, 0.1, 0.04, 0);
-  box(legs, 0.18, 0.06, 0.24, PALETTE.shoe, -0.1, 0, -0.02);
-  box(legs, 0.18, 0.06, 0.24, PALETTE.shoe, 0.1, 0, -0.02);
-  box(body, 0.5, 0.4, 0.3, PALETTE.shirt, 0, 0.32, 0);
-  box(body, 0.5, 0.06, 0.31, PALETTE.shirtDark, 0, 0.32, 0);
-  const armL = box(body, 0.12, 0.34, 0.18, PALETTE.shirt, -0.31, 0.36, 0);
-  const armR = box(body, 0.12, 0.34, 0.18, PALETTE.shirt, 0.31, 0.36, 0);
-  box(body, 0.11, 0.08, 0.16, PALETTE.skin, -0.31, 0.3, 0);
-  box(body, 0.11, 0.08, 0.16, PALETTE.skin, 0.31, 0.3, 0);
+  box(legs, 0.17, 0.28, 0.2, P.pants, -0.1, 0.04, 0);
+  box(legs, 0.17, 0.28, 0.2, P.pants, 0.1, 0.04, 0);
+  box(legs, 0.18, 0.06, 0.24, P.shoe, -0.1, 0, -0.02);
+  box(legs, 0.18, 0.06, 0.24, P.shoe, 0.1, 0, -0.02);
+  box(body, 0.5, 0.4, 0.3, P.shirt, 0, 0.32, 0);
+  box(body, 0.5, 0.06, 0.31, P.shirtDark, 0, 0.32, 0);
+  const armL = box(body, 0.12, 0.34, 0.18, P.shirt, -0.31, 0.36, 0);
+  const armR = box(body, 0.12, 0.34, 0.18, P.shirt, 0.31, 0.36, 0);
+  box(body, 0.11, 0.08, 0.16, P.skin, -0.31, 0.3, 0);
+  box(body, 0.11, 0.08, 0.16, P.skin, 0.31, 0.3, 0);
   // Head
-  box(body, 0.44, 0.4, 0.42, PALETTE.skin, 0, 0.72, 0);
-  box(body, 0.46, 0.12, 0.46, PALETTE.hair, 0, 1.08, 0.01);
-  box(body, 0.46, 0.26, 0.08, PALETTE.hair, 0, 0.86, 0.2);
-  box(body, 0.06, 0.18, 0.3, PALETTE.hair, -0.225, 0.9, 0.06);
-  box(body, 0.06, 0.18, 0.3, PALETTE.hair, 0.225, 0.9, 0.06);
-  // Beard + face
-  box(body, 0.46, 0.12, 0.06, PALETTE.beard, 0, 0.72, -0.2);
-  box(body, 0.06, 0.16, 0.3, PALETTE.beard, -0.225, 0.72, -0.05);
-  box(body, 0.06, 0.16, 0.3, PALETTE.beard, 0.225, 0.72, -0.05);
-  box(body, 0.14, 0.04, 0.04, '#7a3b2e', 0, 0.8, -0.215);
+  box(body, 0.44, 0.4, 0.42, P.skin, 0, 0.72, 0);
+  box(body, 0.46, 0.12, 0.46, P.hair, 0, 1.08, 0.01);
+  box(body, 0.46, 0.26, 0.08, P.hair, 0, 0.86, 0.2);
+  box(body, 0.06, 0.18, 0.3, P.hair, -0.225, 0.9, 0.06);
+  box(body, 0.06, 0.18, 0.3, P.hair, 0.225, 0.9, 0.06);
+  if (P.beard) {
+    box(body, 0.46, 0.12, 0.06, P.beard, 0, 0.72, -0.2);
+    box(body, 0.06, 0.16, 0.3, P.beard, -0.225, 0.72, -0.05);
+    box(body, 0.06, 0.16, 0.3, P.beard, 0.225, 0.72, -0.05);
+    box(body, 0.14, 0.04, 0.04, '#7a3b2e', 0, 0.8, -0.215);
+  } else {
+    box(body, 0.14, 0.04, 0.04, '#c0504d', 0, 0.76, -0.215);
+    box(body, 0.06, 0.04, 0.02, '#f08a8a', -0.15, 0.82, -0.215);
+    box(body, 0.06, 0.04, 0.02, '#f08a8a', 0.15, 0.82, -0.215);
+  }
+  if (P.longHair) {
+    box(body, 0.48, 0.5, 0.1, P.hair, 0, 0.56, 0.21);
+    box(body, 0.07, 0.42, 0.3, P.hair, -0.24, 0.66, 0.08);
+    box(body, 0.07, 0.42, 0.3, P.hair, 0.24, 0.66, 0.08);
+  }
   box(body, 0.07, 0.07, 0.02, '#111', -0.1, 0.93, -0.215);
   box(body, 0.07, 0.07, 0.02, '#111', 0.1, 0.93, -0.215);
 
@@ -48,10 +72,10 @@ export function makePlayer() {
   gear.shades = group(body);
   box(gear.shades, 0.4, 0.08, 0.03, '#111', 0, 0.91, -0.225);
   gear.helmet = group(body);
-  box(gear.helmet, 0.52, 0.16, 0.52, '#ff3b5c', 0, 1.1, 0);
+  box(gear.helmet, 0.52, 0.16, 0.52, P.helmet, 0, 1.1, 0);
   box(gear.helmet, 0.52, 0.05, 0.12, '#222', 0, 1.1, -0.28);
   gear.beanie = group(body);
-  box(gear.beanie, 0.5, 0.18, 0.5, '#ff8a1f', 0, 1.1, 0);
+  box(gear.beanie, 0.5, 0.18, 0.5, P.beanie, 0, 1.1, 0);
   box(gear.beanie, 0.14, 0.12, 0.14, '#fff', 0, 1.28, 0);
   box(gear.beanie, 0.48, 0.1, 0.04, '#7fdcff', 0, 0.92, -0.225);
   gear.suit = group(body);
@@ -153,7 +177,7 @@ export function makeChair() {
   return g;
 }
 
-export function makeRocket() {
+export function makeRocket(crew = false) {
   const g = group();
   const white = '#f7f7fb';
   const red = '#ff3b5c';
@@ -164,9 +188,15 @@ export function makeRocket() {
   box(g, 0.56, 0.4, 0.56, red, 0, 3.5, 0);
   box(g, 0.3, 0.3, 0.3, red, 0, 3.9, 0);
   box(g, 0.1, 0.3, 0.1, '#ffe14d', 0, 4.2, 0);
-  // Porthole
-  box(g, 0.44, 0.44, 0.04, '#1b1b1f', 0, 2.1, -0.51);
-  box(g, 0.32, 0.32, 0.04, '#7fdcff', 0, 2.16, -0.53);
+  // Porthole (with Basil and Lichen inside when crewed)
+  box(g, 0.74, 0.5, 0.04, '#1b1b1f', 0, 2.05, -0.51);
+  box(g, 0.62, 0.38, 0.04, '#7fdcff', 0, 2.11, -0.53);
+  if (crew) {
+    [[-0.15, PALETTE.skin, PALETTE.hair], [0.15, LICHEN.skin, LICHEN.hair]].forEach(([x, skin, hair]) => {
+      box(g, 0.18, 0.16, 0.04, skin, x, 2.13, -0.55, { shadow: false });
+      box(g, 0.2, 0.07, 0.045, hair, x, 2.28, -0.55, { shadow: false });
+    });
+  }
   // Fins
   box(g, 0.2, 0.9, 0.6, red, -0.6, 0.2, 0);
   box(g, 0.2, 0.9, 0.6, red, 0.6, 0.2, 0);
@@ -271,5 +301,32 @@ export function flowers(parent, x, y, z) {
   box(g, 0.1, 0.1, 0.1, c, 0, 0, 0, { shadow: false });
   box(g, 0.1, 0.1, 0.1, c, 0.2, 0, 0.15, { shadow: false });
   box(g, 0.1, 0.1, 0.1, c, -0.15, 0, 0.2, { shadow: false });
+  return g;
+}
+
+export function makeWakeboard() {
+  const g = group();
+  box(g, 0.4, 0.06, 1.1, '#ffd23f', 0, 0, 0);
+  box(g, 0.3, 0.05, 0.1, '#ffd23f', 0, 0.02, -0.58);
+  box(g, 0.3, 0.05, 0.1, '#ffd23f', 0, 0.02, 0.58);
+  box(g, 0.41, 0.065, 0.3, '#1b1b1f', 0, 0, 0);
+  box(g, 0.28, 0.12, 0.14, '#ff3b5c', 0, 0.06, -0.22);
+  box(g, 0.28, 0.12, 0.14, '#ff3b5c', 0, 0.06, 0.22);
+  return g;
+}
+
+export function makeBoat() {
+  const g = group();
+  box(g, 1.3, 0.45, 2.6, '#ffffff', 0, 0, 0);
+  box(g, 1.32, 0.12, 2.62, '#15c2b0', 0, 0.12, 0);
+  box(g, 0.9, 0.35, 0.6, '#ffffff', 0, 0, -1.5);
+  box(g, 0.5, 0.25, 0.3, '#ffffff', 0, 0, -1.9);
+  box(g, 1.0, 0.1, 1.2, '#2b3240', 0, 0.45, 0.3);
+  box(g, 1.0, 0.36, 0.06, '#9fdcff', 0, 0.45, -0.3, { shadow: false });
+  // Wakeboard tower
+  box(g, 0.08, 0.8, 0.08, '#9aa0a8', -0.55, 0.45, 0.2);
+  box(g, 0.08, 0.8, 0.08, '#9aa0a8', 0.55, 0.45, 0.2);
+  box(g, 1.18, 0.08, 0.08, '#9aa0a8', 0, 1.25, 0.2);
+  box(g, 0.3, 0.2, 0.3, '#2b3240', 0, 0.45, 1.1);
   return g;
 }

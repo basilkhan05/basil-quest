@@ -1,6 +1,8 @@
 // The story is a list of stops. Each stop's `path` is the cinematic that plays
 // when travelling from the previous stop to it. Going backwards replays that
 // path in reverse (as a VHS rewind).
+//
+// `milestone` shows as a badge on the card. Stops marked TODO are placeholders.
 
 const hop = (x, L) => ({ type: 'hop', x, L });
 const hops = (x, from, to) => {
@@ -16,7 +18,33 @@ const dismount = (name) => ({ type: 'dismount', name });
 const wait = (dur) => ({ type: 'wait', dur });
 const TAU = Math.PI * 2;
 
+// Where Lichen waits until Basil reaches her. In the personal route they meet
+// at Vidyard; in the professional route she joins when they found Freshly.
+export const LICHEN_SPOTS = {
+  personal: { x: 1.3, L: -16 },
+  pro: { x: 1.4, L: 0.2 },
+};
+
+// Per-route copy lives under `personal` / `pro` on a stop and overrides the base.
+export function storyFor(mode) {
+  return STOPS.map((s) => ({ ...s, ...(s[mode] || {}) }));
+}
+
 export const STOPS = [
+  {
+    id: 'canada',
+    era: 'past',
+    year: '2005',
+    label: 'Canada',
+    pos: { x: 0, L: -36 },
+    title: 'Moving to Canada',
+    role: 'From Saudi Arabia',
+    blurb: 'Moved from Saudi Arabia to Canada in 2005. This is where the journey starts.',
+    bubbles: [
+      { text: 'Hello, Canada', at: [-2.2, 3.2, -35.6] },
+      { text: 'Next stop: Canada', at: [-4.5, 2.6, -40] },
+    ],
+  },
   {
     id: 'uw',
     era: 'past',
@@ -25,12 +53,13 @@ export const STOPS = [
     pos: { x: 0, L: -28 },
     title: 'University of Waterloo',
     role: 'BASc, Chemical Engineering + Management Sciences',
-    blurb: 'Where it started. Studied reactors, ended up shipping code.',
+    blurb: "Studied Chem Eng. In 2015 I watched Tobi talk about Shopify Plus and Shopify's new Waterloo office, and got hooked on commerce.",
     bubbles: [
-      { text: 'Chem Eng grad who ended up writing code', at: [-4.2, 3.6, -28.3] },
-      { text: "Startup Weekend + UW Apprentice '15", at: [3.8, 1.4, -29.5] },
+      { text: 'Chem Eng grad who ended up writing code', at: [-4.2, 3.9, -28.3] },
+      { text: '2015: Tobi on stage. Shopify Plus + a Waterloo office. Inspired.', at: [4.4, 3.4, -25.8] },
       { text: 'Honk.', at: [2.8, 1.2, -28.2] },
     ],
+    path: hops(0, -36, -28),
   },
   {
     id: 'lansa',
@@ -38,10 +67,10 @@ export const STOPS = [
     year: '2016',
     label: 'LANSA',
     pos: { x: 0, L: -22 },
-    title: 'LANSA',
+    title: 'LANSA, Toronto',
     role: 'Application Developer',
-    blurb: 'First real job. Commerce platforms for enterprise clients.',
-    bubbles: [{ text: 'First production deploy (gulp)', at: [-4, 3.4, -22.3] }],
+    blurb: 'First real job, in the big city. Commerce platforms for enterprise clients.',
+    bubbles: [{ text: 'First production deploy (gulp)', at: [-4, 4, -22.3] }],
     path: hops(0, -28, -22),
   },
   {
@@ -52,8 +81,19 @@ export const STOPS = [
     pos: { x: 0, L: -16 },
     title: 'Vidyard',
     role: 'Developer, Professional Services',
-    blurb: 'Built custom video integrations for big customers.',
-    bubbles: [{ text: 'Integrations for days', at: [3, 2.4, -16] }],
+    blurb: 'Moved to Waterloo for Vidyard. Built custom video integrations for big customers.',
+    bubbles: [
+      { text: 'Integrations for days', at: [3, 2.4, -16] },
+      { text: 'Moving to Waterloo', at: [5.6, 2.2, -16.6] },
+    ],
+    personal: {
+      title: 'Vidyard, and meeting Lichen',
+      blurb: 'Moved to Waterloo for Vidyard and met Lichen, now my spouse and co-founder. Everything after this, we did together.',
+      bubbles: [
+        { text: 'Hi, Lichen', at: [1.3, 1.9, -16] },
+        { text: 'Moving to Waterloo', at: [5.6, 2.2, -16.6] },
+      ],
+    },
     path: hops(0, -22, -16),
   },
   {
@@ -62,10 +102,13 @@ export const STOPS = [
     year: '2018',
     label: 'AsteroidX',
     pos: { x: 0, L: -11 },
-    title: 'AsteroidX',
+    title: 'AsteroidX, back to Toronto',
     role: 'Lead Software Developer',
-    blurb: 'Amazon PPC analytics. Lots of background workers.',
-    bubbles: [{ text: '40+ workers crunching ad data', at: [3, 3.2, -11] }],
+    blurb: 'Amazon PPC analytics with a fleet of background workers. Living under the CN Tower.',
+    bubbles: [
+      { text: '40+ workers crunching ad data', at: [3, 3.2, -11] },
+      { text: 'Hello again, Toronto', at: [6.6, 9.6, -12.5] },
+    ],
     path: hops(0, -16, -11),
   },
   {
@@ -76,56 +119,64 @@ export const STOPS = [
     pos: { x: 0, L: -6 },
     title: 'Podia',
     role: 'Product Developer, then Senior Product Developer',
-    blurb: 'Helped creators sell courses, downloads and memberships.',
-    bubbles: [{ text: 'Creators first', at: [3, 1.2, -6] }],
+    blurb: 'First fully remote job. Helped creators sell courses, and built longboards in the garage after hours.',
+    bubbles: [
+      { text: 'First fully remote job', at: [3, 2.2, -6.2] },
+      { text: 'Garage longboard shop', at: [6.2, 1.8, -6] },
+    ],
     path: hops(0, -11, -6),
   },
   {
-    id: 'freshly',
-    era: 'now',
-    year: '2026',
-    label: 'Freshly',
+    id: 'founded',
+    era: 'company',
+    year: '2020',
+    label: 'App Challenge',
     pos: { x: 0, L: 0 },
-    title: 'Freshly Commerce',
-    role: 'Co-founder & CTO',
-    blurb: 'Simple Bundles, Simple Discounts and Freshly Inventory. Shopify apps powering 20,000+ brands.',
-    links: [
-      { text: 'See the products', href: 'work/' },
-      { text: 'simplebundles.com', href: 'https://www.simplebundles.com/', ext: true },
-    ],
+    title: 'Shopify App Challenge',
+    role: 'Freshly Commerce is born',
+    milestone: '3rd place, Commerce and COVID-19',
+    blurb: "Lichen and I built Freshly for Shopify's COVID-19 App Challenge and placed third. That kickstarted everything: Freshly Inventory became our first app.",
+    links: [{ text: 'The winners', href: 'https://www.shopify.com/ca/partners/blog/shopify-app-challenge-winners', ext: true }],
     bubbles: [
-      { text: 'Co-founder & CTO', at: [-4.6, 3.6, 1.4] },
-      { text: 'Glossier, STANLEY, Yamaha and more', at: [3.2, 3.4, 0.3] },
-      { text: '20,000+ Shopify brands', at: [6.2, 3.3, 0.3] },
+      { text: "Let's build this together", at: [1.4, 1.9, 0.2] },
+      { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
     ],
+    personal: {
+      bubbles: [
+        { text: 'Day one', at: [-4.6, 3.8, 1.4] },
+        { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
+      ],
+    },
     path: hops(0, -6, 0),
   },
   {
     id: 'road',
-    era: 'future',
-    year: '2027',
-    label: 'The Road',
-    gear: 'shades',
+    era: 'company',
+    year: '2021',
+    label: '$10K MRR',
     pos: { x: -0.8, L: 10 },
-    title: 'The road ahead',
-    role: 'Onward',
-    blurb: "Past this point is where I'm headed. Look both ways.",
+    title: 'Simple Bundles launches',
+    role: 'Our first $10K MRR',
+    milestone: '$10K MRR',
+    blurb: 'Simple Bundles took off and carried us across the first big road: $10K in monthly recurring revenue.',
     bubbles: [
-      { text: "The Bronco's warmed up", at: [1, 1.8, 10] },
+      { text: '$10K MRR!', at: [5.6, 4.2, 9.2] },
       { text: 'Look both ways', at: [-2.5, 1.2, 5] },
     ],
     path: [...hops(0, 0, 8), hop(-0.4, 9), hop(-0.8, 10)],
   },
   {
     id: 'roadtrip',
-    era: 'future',
-    year: '2027',
-    label: 'Road trip',
+    era: 'company',
+    year: '2022',
+    label: 'Camp',
     gear: 'shades',
     pos: { x: -0.2, L: 21 },
-    title: 'Road trips in the Bronco',
-    role: 'Off-road, on purpose',
-    blurb: 'Weekends go to the Bronco. Mud is a feature.',
+    // TODO(basil): what started in 2022?
+    title: 'Setting up camp',
+    role: 'Through the mud',
+    milestone: 'Kept shipping',
+    blurb: 'We put it in 4x4, got through the mud and set up camp.',
     bubbles: [
       { text: 'Campfire debugging', at: [-1.5, 1.4, 21.2] },
       { text: '4x4 engaged', at: [1.3, 2.1, 20.6] },
@@ -145,44 +196,46 @@ export const STOPS = [
     ],
   },
   {
-    id: 'surf',
-    era: 'future',
-    year: '2028',
-    label: 'Surf',
+    id: 'wake',
+    era: 'company',
+    year: '2023',
+    label: 'SB 2.0',
     gear: 'shades',
     pos: { x: 0, L: 32 },
-    title: 'Chasing waves',
-    role: 'Surfing (badly, enthusiastically)',
-    blurb: 'Salt water resets everything.',
+    title: 'Simple Bundles 2.0',
+    role: 'The boat launch',
+    milestone: 'Simple Bundles 2.0 + Simple Discounts',
+    blurb: 'We rebuilt our biggest app from the ground up and launched Simple Discounts. I wakeboarded, Lichen surfed.',
     bubbles: [
-      { text: 'Wipeouts count as R&D', at: [-4, 2.4, 31.6] },
-      { text: 'Next: trails', at: [1.2, 1.6, 32.4] },
+      { text: 'Launch day', at: [-4, 2.4, 31.6] },
+      { text: 'Next: bigger merchants', at: [1.2, 1.6, 32.4] },
     ],
     path: [
       ...hops(0, 21, 22),
       hop(0.8, 23),
-      mount('surf'),
+      mount('boat'),
       drive(0.8, 24.6, { dur: 0.9, ease: 'in', fx: 'splash' }),
       jump(0.4, 26.8, { h: 0.9, dur: 0.8, fx: 'splash' }),
       jump(1.0, 29.0, { h: 1.4, dur: 1.0, spin: TAU, fx: 'splash' }),
       drive(0.8, 31, { dur: 0.9, ease: 'out', fx: 'splash' }),
-      dismount('surf'),
+      dismount('boat'),
       hop(0, 32),
     ],
   },
   {
     id: 'trail',
-    era: 'future',
-    year: '2029',
-    label: 'MTB',
+    era: 'company',
+    year: '2024',
+    label: 'Scale',
     gear: 'helmet',
     pos: { x: 0, L: 46 },
-    title: 'Mountain biking',
-    role: 'Sending it',
-    blurb: 'Roots, rocks, and the occasional backflip (in my head).',
+    title: 'The first big step up',
+    role: 'Glossier, STANLEY, Yamaha',
+    milestone: 'Built for Shopify',
+    blurb: 'Household names came on board, so we scaled the apps and did a lot of security work to match. Every jump got bigger.',
     bubbles: [
       { text: 'Send it. Then write the postmortem.', at: [0.3, 1.8, 42] },
-      { text: 'Next: up the mountain', at: [2.6, 4.6, 46.3] },
+      { text: 'Up to basecamp', at: [2.6, 4.6, 46.3] },
     ],
     path: [
       hop(1.2, 32),
@@ -199,18 +252,24 @@ export const STOPS = [
     ],
   },
   {
-    id: 'lift',
-    era: 'future',
-    year: '2030',
-    label: 'Snow',
+    id: 'now',
+    era: 'now',
+    year: '2026',
+    label: 'Now',
     gear: 'beanie',
-    pos: { x: 0, L: 56 },
-    title: 'Snowboarding season',
-    role: 'Up the $100M mountain',
-    blurb: 'The climb is the fun part. Ride the lift, then drop in.',
+    pos: { x: 0, L: 57 },
+    title: 'Freshly Commerce today',
+    role: 'Co-founder & CTO',
+    milestone: '25,000 merchants',
+    blurb: 'Three apps and 25,000 merchants. This is where we are right now, and we are still climbing.',
+    links: [
+      { text: 'See the products', href: 'work/' },
+      { text: 'freshlycommerce.com', href: 'https://www.freshlycommerce.com/', ext: true },
+    ],
     bubbles: [
-      { text: 'Every season, bigger mountain', at: [-1, 1.6, 56] },
-      { text: 'Terrain park ahead', at: [0.4, 1.6, 59] },
+      { text: 'You are here', at: [0, 1.9, 57] },
+      { text: '25,000 merchants', at: [-4.5, 3.6, 57.6] },
+      { text: 'Built for Shopify', at: [-2.2, 2.6, 59.2] },
     ],
     path: [
       hop(1.2, 46),
@@ -220,74 +279,56 @@ export const STOPS = [
       drive(2.3, 55.8, { dur: 4, alt: 1.9, ease: 'linear' }),
       drive(2.3, 56.2, { dur: 0.5, alt: 0, ease: 'inout' }),
       dismount('chair'),
-      hop(1.2, 56),
-      hop(0, 56),
+      hop(1.2, 56.6),
+      hop(0, 57),
     ],
-  },
-  {
-    id: 'park',
-    era: 'future',
-    year: '2031',
-    label: 'Park',
-    gear: 'beanie',
-    pos: { x: 0, L: 65.8 },
-    title: 'The terrain park',
-    role: 'Shipping > perfect',
-    blurb: 'Small jumps, then bigger ones. Same as building a company.',
-    bubbles: [{ text: '720 (in my dreams)', at: [0.4, 2.2, 64] }],
-    path: [
-      hop(0.8, 56),
-      mount('board'),
-      drive(0.4, 58.3, { dur: 0.8, ease: 'in', fx: 'snow', rot: 0.5 }),
-      jump(0.4, 59.9, { h: 1.1, dur: 0.7, spin: TAU, fx: 'snow' }),
-      drive(0.4, 61.4, { dur: 0.5, ease: 'linear', fx: 'snow' }),
-      jump(0.4, 62.9, { h: 1.1, dur: 0.7, spin: -TAU, fx: 'snow' }),
-      drive(0.4, 64.2, { dur: 0.45, ease: 'linear', alt: 0.75 }),
-      jump(0.4, 65.8, { h: 2.4, dur: 1.2, alt: 0, spin: TAU * 2, fx: 'snow' }),
-      dismount('board'),
-      hop(0, 65.8),
-    ],
-  },
-  {
-    id: 'summit',
-    era: 'future',
-    year: '20XX',
-    label: '$100M',
-    gear: 'beanie',
-    pos: { x: 0, L: 72 },
-    title: 'The $100M summit',
-    role: 'Where Freshly is headed',
-    blurb: 'Building Freshly Commerce into a $100M company. Still climbing.',
-    links: [{ text: 'Freshly Commerce', href: 'https://www.freshlycommerce.com/', ext: true }],
-    bubbles: [
-      { text: '$100M or bust', at: [-1.1, 4.2, 72.2] },
-      { text: 'One more thing', at: [2.6, 5, 73] },
-    ],
-    path: [hop(0, 66), ...hops(0, 66, 72)],
   },
   {
     id: 'launch',
     era: 'future',
-    year: '???',
-    label: 'Launch',
+    year: 'NEXT',
+    label: 'Moon',
     gear: 'suit',
-    pos: { x: 2.6, L: 73, alt: 40 },
-    title: "What's next?",
-    role: "Let's build it together",
-    blurb: 'Building something in commerce, or want to trade trail recs? Say hi.',
+    pos: { x: 2.6, L: 74, alt: 40 },
+    title: 'To the moon',
+    role: 'We are still going up',
+    milestone: "We're hiring",
+    blurb: 'Building something ambitious in commerce. Want to build it with us, or just say hi? Come find us.',
     links: [
-      { text: 'Contact me', href: 'contact/' },
+      { text: 'Say hi', href: 'contact/' },
       { text: 'Read my thoughts', href: 'thoughts/' },
     ],
     bubbles: [],
     path: [
-      hop(1.3, 72.5),
-      hop(2.6, 73),
+      hop(0.8, 57),
+      mount('board'),
+      drive(0.4, 59.8, { dur: 0.8, ease: 'in', fx: 'snow', rot: 0.5 }),
+      jump(0.4, 61.3, { h: 1.1, dur: 0.7, spin: TAU, fx: 'snow' }),
+      drive(0.4, 62.5, { dur: 0.45, ease: 'linear', fx: 'snow' }),
+      jump(0.4, 63.9, { h: 1.1, dur: 0.7, spin: -TAU, fx: 'snow' }),
+      drive(0.4, 65.6, { dur: 0.5, ease: 'linear', alt: 0.75 }),
+      jump(0.4, 67.8, { h: 2.4, dur: 1.2, alt: 0, spin: TAU * 2, fx: 'snow' }),
+      dismount('board'),
+      hop(0, 68),
+      ...hops(0, 68, 73),
+      hop(1.3, 73.5),
+      hop(2.6, 74),
       mount('rocket'),
       wait(0.9),
-      { type: 'move', x: 2.6, L: 73, alt: 40, dur: 3.6, ease: 'in', fx: 'flame' },
+      // Turn the porthole (Basil and Lichen) toward the camera as it lifts off.
+      { type: 'move', x: 2.6, L: 74, alt: 40, dur: 3.6, ease: 'in', fx: 'flame', rot: -2.9 },
     ],
   },
 ];
 
-export const START = STOPS.findIndex((s) => s.id === 'freshly');
+export const START = STOPS.findIndex((s) => s.id === 'now');
+export const FOUNDED = STOPS.findIndex((s) => s.id === 'founded');
+
+// Side milestones: small flags beside the route. Add one line per milestone.
+// `L` is the lane (the stop list above shows roughly where each year sits),
+// `x` is how far left (-) or right (+) of the path.
+export const MARKERS = [
+  { year: '2023', text: 'Simple Discounts launches', x: -2.1, L: 32.9, color: '#7b61ff' },
+  { year: '2024', text: 'Security + scaling up', x: 2.3, L: 34.4, color: '#2b6cff' },
+  { year: '2024', text: 'Built for Shopify', x: -2.7, L: 44.4, color: '#1f8f4e' },
+];
