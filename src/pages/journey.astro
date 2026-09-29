@@ -29,6 +29,7 @@ const company = STOPS.filter((s) => s.era === 'company').reverse();
           <span class="yr">{s.year}</span>
           <div>
             <h3>{s.title}</h3>
+            {s.milestone && <span class="tag">{s.milestone}</span>}
             <p>{s.blurb}</p>
           </div>
           <a class="jump" href={`${base}#${s.id}`}>Play</a>
@@ -42,8 +43,9 @@ const company = STOPS.filter((s) => s.era === 'company').reverse();
         <li class="panel pxcorners">
           <span class="yr yr--co">{s.year}</span>
           <div>
-            <h3>{s.milestone}</h3>
-            <p>{s.title}. {s.blurb}</p>
+            <h3>{s.title}</h3>
+            {s.milestone && <span class="tag">{s.milestone}</span>}
+            <p>{s.blurb}</p>
           </div>
           <a class="jump" href={`${base}#${s.id}`}>Play</a>
         </li>
@@ -71,6 +73,7 @@ const company = STOPS.filter((s) => s.era === 'company').reverse();
   .yr { font-family: var(--px); font-size: 11px; color: var(--pink); }
   .jump { font-family: var(--px); font-size: 10px; }
   .yr--co { color: var(--purple); }
+  .tag { display: inline-block; font-family: var(--px); font-size: 9px; background: var(--yellow); border: 2px solid var(--ink); padding: 3px 6px; margin: 2px 0 6px; }
   .badge { display: inline-block; font-family: var(--px); font-size: 10px; background: var(--yellow); border: 2px solid var(--ink); padding: 6px 8px; }
   .past { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 15px; color: var(--muted); }
   .past .yr { color: #b07a1a; margin-right: 8px; }
