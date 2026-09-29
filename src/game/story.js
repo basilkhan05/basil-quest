@@ -205,7 +205,7 @@ export const STOPS = [
     title: 'Simple Bundles 2.0',
     role: 'The boat launch',
     milestone: 'Simple Bundles 2.0 + Simple Discounts',
-    blurb: 'We rebuilt our biggest app from the ground up and launched Simple Discounts. I wakeboarded, Lichen surfed.',
+    blurb: 'We rebuilt our biggest app from the ground up and launched Simple Discounts. I wakeboarded, Lichen went scuba diving.',
     bubbles: [
       { text: 'Launch day', at: [-4, 2.4, 31.6] },
       { text: 'Next: bigger merchants', at: [1.2, 1.6, 32.4] },
@@ -216,7 +216,8 @@ export const STOPS = [
       mount('boat'),
       drive(0.8, 24.6, { dur: 0.9, ease: 'in', fx: 'splash' }),
       jump(0.4, 26.8, { h: 0.9, dur: 0.8, fx: 'splash' }),
-      jump(1.0, 29.0, { h: 1.4, dur: 1.0, spin: TAU, fx: 'splash' }),
+      // A dolphin scoops Basil up for the big one.
+      jump(1.0, 29.0, { h: 2.0, dur: 1.3, spin: TAU, fx: 'splash', dolphin: true }),
       drive(0.8, 31, { dur: 0.9, ease: 'out', fx: 'splash' }),
       dismount('boat'),
       hop(0, 32),

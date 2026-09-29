@@ -4,7 +4,7 @@ import { box, group, sign, mat, rand, pick } from './voxel.js';
 import { MARKERS } from './story.js';
 import {
   makeCar, makeTruck, makeBronco, makeBike, makeBoat, makeSnowboard, makeChair, makeRocket,
-  tree, autumnTree, pine, rock, cactus, mesa, flowers, makePlayer,
+  tree, autumnTree, pine, rock, cactus, mesa, flowers, makePlayer, makeDolphin,
 } from './models.js';
 
 // Lane index L maps to world z = -L. Positive L is the future, negative is the past.
@@ -185,6 +185,19 @@ export function buildWorld(scene) {
     crests.forEach((c, i) => (c.position.y = -0.36 + Math.sin(t * 1.6 + i * 2) * 0.1));
   });
   surfShack(stat, -4, z(31.6));
+  // Dolphins leaping across the water, each on its own loop.
+  [[-6.5, 25, 0], [5.5, 27, 1.3], [9, 24.5, 2.4], [-10, 28, 3.1]].forEach(([x, L0, phase]) => {
+    const d = makeDolphin();
+    root.add(d);
+    anim.push((dt, t) => {
+      const u = ((t + phase) % 4) / 4; // leap during the first 40% of each loop
+      const k = u / 0.4;
+      d.visible = k < 1;
+      if (!d.visible) return;
+      d.position.set(x, -0.7 + Math.sin(k * Math.PI) * 1.6, z(L0 + k * 2.4));
+      d.rotation.x = (0.5 - k) * 1.8;
+    });
+  });
   // Boat launch dock
   for (let L = 22.6; L <= 25.4; L += 0.4) box(stat, 1.2, 0.12, 0.36, '#b5875a', -0.9, L > 23.5 ? -0.15 : 0, z(L));
   for (const L of [23.8, 25.2]) {
