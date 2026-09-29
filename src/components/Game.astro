@@ -104,6 +104,9 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   }
   #game.is-past { --grain: 1; }
   #stage { position: absolute; inset: 0; }
+  #game[data-cursor='snow1'] { cursor: var(--cur-snow1); }
+  #game[data-cursor='snow2'] { cursor: var(--cur-snow2); }
+  #game[data-cursor='space'] { cursor: var(--cur-space); }
   #stage canvas { display: block; width: 100%; height: 100%; }
   #game.is-past #stage canvas { filter: sepia(0.35) saturate(1.1); }
 

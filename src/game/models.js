@@ -186,6 +186,8 @@ export function makeChair() {
   return g;
 }
 
+const HELMET_GLASS = new THREE.MeshLambertMaterial({ color: '#7fdcff', transparent: true, opacity: 0.35 });
+
 export function makeRocket(crew = false) {
   const g = group();
   const white = '#f7f7fb';
@@ -204,6 +206,11 @@ export function makeRocket(crew = false) {
     [[-0.15, PALETTE.skin, PALETTE.hair], [0.15, LICHEN.skin, LICHEN.hair]].forEach(([x, skin, hair]) => {
       box(g, 0.18, 0.16, 0.04, skin, x, 2.13, -0.55, { shadow: false });
       box(g, 0.2, 0.07, 0.045, hair, x, 2.28, -0.55, { shadow: false });
+      // Astronaut helmets: white shell with a glass front
+      box(g, 0.26, 0.05, 0.05, '#ffffff', x, 2.33, -0.56, { shadow: false });
+      box(g, 0.04, 0.26, 0.05, '#ffffff', x - 0.13, 2.08, -0.56, { shadow: false });
+      box(g, 0.04, 0.26, 0.05, '#ffffff', x + 0.13, 2.08, -0.56, { shadow: false });
+      box(g, 0.22, 0.2, 0.02, '#7fdcff', x, 2.11, -0.58, { shadow: false, material: HELMET_GLASS });
     });
   }
   // Fins

@@ -316,7 +316,8 @@ export async function startGame(root) {
     });
     trail.length = 0;
     const end = STOPS[idx].end;
-    Object.assign(actor, end, { rot: 0 });
+    // Face forward on arrival, except the rocket keeps its porthole toward the camera.
+    Object.assign(actor, end, { rot: end.vehicle === 'rocket' ? end.rot : 0 });
     setVehicle(end.vehicle);
   }
 
@@ -527,6 +528,8 @@ export async function startGame(root) {
     const c = SKY[id] || SKY[era] || SKY.freshly;
     root.style.setProperty('--sky', c);
     root.classList.toggle('is-space', id === 'launch');
+    // The cursor picks up the weather: snow as you climb, a visor in space.
+    root.dataset.cursor = id === 'launch' ? 'space' : id === 'scale' || id === 'launchpad' ? 'snow2' : id === 'now' ? 'snow1' : '';
     root.classList.toggle('is-past', era === 'past');
   }
 
