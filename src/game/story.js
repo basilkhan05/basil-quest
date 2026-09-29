@@ -149,11 +149,8 @@ export const STOPS = [
     title: 'Simple Bundles launches',
     role: 'Our first $10K MRR',
     milestone: '$10K MRR',
-    blurb: 'Simple Bundles took off and got us to our first $10K in monthly recurring revenue.',
-    bubbles: [
-      { text: '$10K MRR!', at: [5.6, 4.2, 9.2] },
-      { text: 'Look both ways', at: [-2.5, 1.2, 5] },
-    ],
+    blurb: 'Freshly Inventory showed us a gap: bundles and inventory did not play well together on Shopify. We launched Simple Bundles to fix it, and it took us to our first $10K MRR.',
+    bubbles: [{ text: 'Look both ways', at: [-2.5, 1.2, 5] }],
     path: [...hops(0, 0, 8), hop(-0.4, 9), hop(-0.8, 10)],
   },
   {
@@ -167,7 +164,7 @@ export const STOPS = [
     role: 'A remote, global team',
     milestone: 'Growing our team',
     blurb: 'Growing past $10K was the hard part. We started hiring and built a remote team around the world.',
-    links: [{ text: 'Open roles', href: CAREERS, ext: true }],
+    links: [{ text: 'Join us: open roles', href: CAREERS, ext: true }],
     bubbles: [
       { text: 'Campfire debugging', at: [-1.5, 1.4, 21.2] },
       { text: "We're hiring: open roles", at: [-6.8, 2.4, 21.6], href: CAREERS },
@@ -224,7 +221,7 @@ export const STOPS = [
     title: 'Freshly Commerce today',
     role: 'Co-founder & CTO',
     milestone: '25,000 merchants',
-    blurb: 'Three apps and 25,000 merchants, including Glossier, STANLEY and Yamaha. Built for Shopify, scaled up and security hardened along the way. This is where we are.',
+    blurb: '25,000 merchants on three apps, including Glossier, STANLEY and Yamaha. We scaled up, hardened security and built to handle huge volumes of order data reliably, and we have thrived through five BFCMs of peak traffic.',
     links: [
       { text: 'See the products', href: 'work/' },
       { text: 'freshlycommerce.com', href: 'https://www.freshlycommerce.com/', ext: true },
