@@ -259,10 +259,11 @@ export function buildWorld(scene) {
   liftSystem(stat, root, anim);
   [60.5, 63].forEach((L) => {
     const y = groundAt(L);
-    box(stat, 1.8, 0.3, 0.9, '#ffffff', 0.4, y, z(L));
-    box(stat, 1.2, 0.3, 0.6, '#ffffff', 0.4, y + 0.3, z(L));
+    box(stat, 3.0, 0.35, 1.2, '#ffffff', 0.4, y, z(L));
+    box(stat, 2.2, 0.35, 0.85, '#f4f8ff', 0.4, y + 0.35, z(L));
+    box(stat, 1.3, 0.3, 0.5, '#ffffff', 0.4, y + 0.7, z(L));
   });
-  for (let i = 0; i < 4; i++) box(stat, 1.6, 0.18 * (i + 1), 0.2, '#dfe9f7', 0.4, groundAt(64.9 + i * 0.2), z(64.9 + i * 0.2));
+  for (let i = 0; i < 5; i++) box(stat, 2.4, 0.26 * (i + 1), 0.2, '#dfe9f7', 0.4, groundAt(64.7 + i * 0.2), z(64.7 + i * 0.2));
   sign(stat, ['TERRAIN', 'PARK'], { x: -2.8, z: z(61.6), y: groundAt(61.6), w: 2.2, h: 0.8, post: 0.5, bg: '#2b6cff', fg: '#fff', size: 16 });
   basecamp(stat, anim);
   summit(stat, root, anim);

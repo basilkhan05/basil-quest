@@ -38,7 +38,6 @@ const LICHEN_SEATS = {
 };
 const LICHEN_SIDE = {
   boat: { dx: -1.6, dL: 0.4, ride: 'scuba' },
-  board: { dx: 1.2, dL: -0.3, ride: 'board' },
 };
 
 // The tow boat runs ahead of Basil and peels off to the side near the far shore.
@@ -177,7 +176,8 @@ export async function startGame(root) {
     const scuba = side?.ride === 'scuba';
     lichen.gear.scuba.visible = scuba;
     lichen.gear.shades.visible = !scuba && gearNow === 'shades';
-    const riding = scuba ? null : side ? side.ride : v === 'bike' ? 'bike' : null;
+    // On the bike and snowboard she follows Basil's line, a beat behind.
+    const riding = scuba ? null : side ? side.ride : v === 'bike' || v === 'board' ? v : null;
     Object.entries(lRides).forEach(([k, m]) => (m.visible = k === riding));
     lichen.root.position.set(0, riding === 'bike' ? 0.42 : riding ? 0.08 : 0, riding === 'bike' ? 0.08 : 0);
     lichen.root.rotation.y = riding && riding !== 'bike' ? -0.7 : 0;
@@ -191,8 +191,8 @@ export async function startGame(root) {
     } else if (side) {
       p = { ...actor, x: actor.x + side.dx, L: actor.L + side.dL, arc: actor.arc || 0, spin: -(actor.spin || 0) };
     } else {
-      const s = sampleTrail(v === 'bike' ? 0.4 : 0.26);
-      p = { ...s, x: s.x + (v === 'bike' ? 0 : 0.85) };
+      const s = sampleTrail(riding ? 0.45 : 0.26);
+      p = { ...s, x: s.x + (riding ? 0 : 0.85) };
     }
     if (scuba) {
       // Swim alongside: dive under, surface, repeat, with bubbles while under.
