@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import { STOPS } from '../game/story.js';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const past = STOPS.filter((s) => s.era === 'past').reverse();
+const now = STOPS.find((s) => s.era === 'now');
+const future = STOPS.filter((s) => s.era === 'future');
+---
+<Base title="Journey" active="journey" description="Where Basil Khan has been and where he is going.">
+  <div class="wrap page">
+    <p class="eyebrow">Text version of the game</p>
+    <h1>Where I'm going</h1>
+    <p class="lede">The short version of the 3D world. Most of it is about what comes next.</p>
+
+    <section class="now panel pxcorners">
+      <p class="eyebrow">Now</p>
+      <h2>{now.role}, {now.title}</h2>
+      <p>{now.blurb}</p>
+      <a class="pxbtn pxbtn--sm" href={`${base}work/`}>See the products</a>
+    </section>
+
+    <h2 class="sec">Next</h2>
+    <ol class="future">
+      {future.map((s) => (
+        <li class="panel pxcorners">
+          <span class="yr">{s.year}</span>
+          <div>
+            <h3>{s.title}</h3>
+            <p>{s.blurb}</p>
+          </div>
+          <a class="jump" href={`${base}#${s.id}`}>Play</a>
+        </li>
+      ))}
+    </ol>
+
+    <h2 class="sec">Before</h2>
+    <ul class="past">
+      {past.map((s) => (
+        <li><span class="yr">{s.year}</span> <b>{s.title}</b>, {s.role}</li>
+      ))}
+    </ul>
+  </div>
+</Base>
+
+<style>
+  h1 { font-size: clamp(22px, 4vw, 32px); margin: 12px 0; }
+  .now { margin: 32px 0; background: var(--sky); }
+  .now h2 { font-size: 16px; margin: 6px 0 8px; }
+  .sec { font-size: 16px; margin: 48px 0 16px; }
+  .future { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  .future li { display: grid; grid-template-columns: 70px 1fr auto; gap: 16px; align-items: center; padding: 16px 20px; }
+  .future h3 { font-size: 13px; margin: 0 0 4px; }
+  .future p { margin: 0; }
+  .yr { font-family: var(--px); font-size: 11px; color: var(--pink); }
+  .jump { font-family: var(--px); font-size: 10px; }
+  .past { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 15px; color: var(--muted); }
+  .past .yr { color: #b07a1a; margin-right: 8px; }
+  @media (max-width: 560px) { .future li { grid-template-columns: 1fr; gap: 6px; } }
+</style>

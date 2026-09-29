@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const posts = (await getCollection('thoughts', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const fmt = (d: Date) => d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+---
+<Base title="Thoughts" active="thoughts" description="Notes from Basil Khan on building Shopify apps, engineering and the outdoors.">
+  <div class="wrap page">
+    <p class="eyebrow">Thoughts</p>
+    <h1>Notes from the trail</h1>
+    <p class="lede">Building Freshly, engineering, and whatever I learned on the mountain this week.</p>
+    <ul class="posts">
+      {posts.map((p) => (
+        <li>
+          <a class="post panel pxcorners" href={`${base}thoughts/${p.id}/`}>
+            <span class="meta"><span class="tag">{p.data.tag}</span> {fmt(p.data.date)}</span>
+            <h2>{p.data.title}</h2>
+            <p>{p.data.summary}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>
+
+<style>
+  h1 { font-size: clamp(22px, 4vw, 32px); margin: 12px 0; }
+  .posts { list-style: none; padding: 0; margin: 40px 0 0; display: grid; gap: 20px; }
+  .post { display: block; text-decoration: none; transition: transform 0.1s, box-shadow 0.1s; }
+  .post:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
+  .post h2 { font-size: 15px; margin: 10px 0 8px; }
+  .post p { margin: 0; color: var(--muted); }
+  .meta { font-family: var(--px); font-size: 9px; color: var(--muted); }
+  .tag { background: var(--yellow); border: 2px solid var(--ink); padding: 3px 6px; margin-right: 8px; color: var(--ink); text-transform: uppercase; }
+</style>

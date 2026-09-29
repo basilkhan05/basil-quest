@@ -1,0 +1,136 @@
+:root {
+  --ink: #1b1b1f;
+  --paper: #fffaf0;
+  --paper-2: #fff1d6;
+  --teal: #15c2b0;
+  --pink: #ff3b5c;
+  --yellow: #ffd23f;
+  --purple: #7b61ff;
+  --sky: #bdeeff;
+  --grass: #a9e35b;
+  --muted: #5a5a66;
+  --px: 'Press Start 2P', ui-monospace, monospace;
+  --body: 'Space Grotesk', system-ui, sans-serif;
+  --shadow: 4px 4px 0 var(--ink);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+h1, h2, h3 { font-family: var(--px); font-weight: 400; line-height: 1.35; letter-spacing: 0.02em; }
+
+/* Chunky pixel corners, used by buttons and panels */
+.pxcorners {
+  clip-path: polygon(
+    0 6px, 6px 6px, 6px 0, calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
+    6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+  );
+}
+
+.pxbtn {
+  --bg: var(--yellow);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--px);
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--bg);
+  border: 3px solid var(--ink);
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s;
+  white-space: nowrap;
+}
+.pxbtn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+.pxbtn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.pxbtn:disabled { opacity: 0.35; cursor: default; transform: none; box-shadow: var(--shadow); }
+.pxbtn:focus-visible { outline: 3px dashed var(--pink); outline-offset: 3px; }
+.pxbtn--sm { font-size: 10px; padding: 9px 11px; }
+.pxbtn--pink { --bg: var(--pink); color: #fff; }
+.pxbtn--teal { --bg: var(--teal); }
+.pxbtn--white { --bg: #fff; }
+
+.panel {
+  background: #fff;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 24px;
+}
+
+/* ---------- Site chrome for content pages ---------- */
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px clamp(16px, 4vw, 40px);
+  border-bottom: 3px solid var(--ink);
+  background: var(--sky);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand {
+  font-family: var(--px);
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.brand__mark {
+  width: 22px;
+  height: 22px;
+  background: var(--teal);
+  border: 3px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.nav-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.nav-links a {
+  font-family: var(--px);
+  font-size: 10px;
+  text-decoration: none;
+  padding: 8px 10px;
+  border: 3px solid transparent;
+}
+.nav-links a:hover, .nav-links a[aria-current='page'] { border-color: var(--ink); background: #fff; box-shadow: 3px 3px 0 var(--ink); }
+
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+.page { padding: 56px 0 96px; }
+.eyebrow { font-family: var(--px); font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.08em; }
+.lede { font-size: 20px; max-width: 640px; }
+
+.site-foot {
+  border-top: 3px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+  padding: 32px 0 40px;
+  font-size: 14px;
+}
+.site-foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; }
+.site-foot a { color: var(--yellow); }
+
+/* Grass strip divider, echoing the game's lanes */
+.lanes { height: 36px; background: repeating-linear-gradient(180deg, #a9e35b 0 12px, #9dd752 12px 24px, #4b5160 24px 36px); border-top: 3px solid var(--ink); }
+
+@media (max-width: 560px) {
+  .brand__name { display: none; }
+  .nav-links a { font-size: 9px; padding: 8px 6px; }
+}

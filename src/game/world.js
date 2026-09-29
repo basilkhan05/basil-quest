@@ -1,0 +1,505 @@
+import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { box, group, sign, mat, rand, pick } from './voxel.js';
+import {
+  makeCar, makeTruck, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket,
+  tree, autumnTree, pine, rock, cactus, mesa, flowers,
+} from './models.js';
+
+// Lane index L maps to world z = -L. Positive L is the future, negative is the past.
+export const L_MIN = -34;
+export const L_MAX = 84;
+const WIDTH = 44;
+
+export const ROAD_LANES = new Set([3, 4, 6, 7]);
+const WATER = [24, 30];
+const MUD = [14, 17];
+const TRAIL = [33, 45];
+
+export function laneType(L) {
+  if (L < -1) return 'past';
+  if (ROAD_LANES.has(L)) return 'road';
+  if (L <= 10) return 'grass';
+  if (L <= 23) return 'sand';
+  if (L <= WATER[1]) return L >= WATER[0] ? 'water' : 'sand';
+  if (L <= 32) return 'sand';
+  if (L <= TRAIL[1]) return 'forest';
+  return 'snow';
+}
+
+export function laneHeight(L) {
+  if (laneType(L) === 'water') return -0.3;
+  if (L <= 46) return 0;
+  if (L <= 56) return (L - 46) * 0.8;
+  if (L <= 66) return 8 - (L - 56) * 0.2;
+  if (L <= 72) return 6 + (L - 66) * 0.9;
+  return 11.4;
+}
+
+// Smooth height for moving actors between lane centers.
+export function groundAt(Lf) {
+  const a = Math.floor(Lf);
+  const t = Lf - a;
+  return laneHeight(a) * (1 - t) + laneHeight(a + 1) * t;
+}
+
+const COLORS = {
+  past: ['#d9cf7c', '#cfc471'],
+  grass: ['#a9e35b', '#9dd752'],
+  road: ['#4b5160', '#4b5160'],
+  sand: ['#f3d89b', '#ecce8b'],
+  water: ['#4fc3f7', '#49bbef'],
+  forest: ['#86c95a', '#7cbf51'],
+  snow: ['#f5f9ff', '#e7eff9'],
+};
+
+const z = (L) => -L;
+
+export function buildWorld(scene) {
+  const root = group(scene);
+  const stat = group(root); // merged into a handful of meshes after build
+  const anim = []; // per-frame updaters
+  const cars = [];
+  const props = {};
+
+  // ---------- Terrain ----------
+  for (let L = L_MIN; L <= L_MAX; L++) {
+    const t = laneType(L);
+    const top = laneHeight(L);
+    const c = COLORS[t][((L % 2) + 2) % 2];
+    box(stat, WIDTH, top + 4, 1, c, 0, -4, z(L), { shadow: false });
+    if (t === 'forest') box(stat, 3, 0.04, 1, L % 2 ? '#b27b4f' : '#a8714a', 0, top, z(L), { shadow: false });
+    if (t === 'road') {
+      box(stat, WIDTH, 0.02, 0.06, '#5c6272', 0, top, z(L) - 0.47, { shadow: false });
+      if (ROAD_LANES.has(L + 1)) {
+        for (let x = -20; x < 20; x += 2.2) box(stat, 1, 0.03, 0.08, '#f2f2f2', x, top, z(L) - 0.5, { shadow: false });
+      }
+    }
+    // Rock face on rising lanes so the mountain reads as a climb from above.
+    const rise = top - laneHeight(L - 1);
+    if (t === 'snow' && rise > 0.05) {
+      box(stat, WIDTH, rise, 0.04, '#aebdd6', 0, top - rise, z(L) + 0.5, { shadow: false });
+      box(stat, WIDTH, 0.08, 0.06, '#ffffff', 0, top - 0.08, z(L) + 0.5, { shadow: false });
+    }
+    if (t === 'past' && L % 3 === 0) {
+      // Faded cobblestone "memory lane"
+      box(stat, 1.2, 0.03, 0.8, '#c2b56a', 0, top, z(L), { shadow: false });
+    }
+  }
+  // Edge fence at the very beginning of the timeline.
+  for (let x = -8; x <= 8; x += 0.8) box(stat, 0.12, 0.6, 0.12, '#8b6a4a', x, 0, z(L_MIN + 1));
+  box(stat, 16.4, 0.1, 0.1, '#8b6a4a', 0, 0.45, z(L_MIN + 1));
+
+  // ---------- Scatter helpers ----------
+  const sideX = () => (rand() < 0.5 ? -1 : 1) * (2.2 + rand() * 8);
+  const scatter = (L, n, fn) => {
+    for (let i = 0; i < n; i++) fn(sideX(), laneHeight(L), z(L) + (rand() - 0.5) * 0.4);
+  };
+
+  // ---------- The past ----------
+  for (let L = L_MIN + 2; L <= -2; L++) {
+    if ([-28, -22, -16, -11, -6].some((s) => Math.abs(s - L) <= 1)) continue;
+    scatter(L, 2, (x, y, zz) => (rand() < 0.5 ? autumnTree(stat, x, y, zz) : tree(stat, x, y, zz)));
+    if (rand() < 0.6) flowers(stat, sideX(), 0, z(L));
+  }
+  pastLandmarks(stat, anim);
+
+  // ---------- The present ----------
+  for (let L = -1; L <= 2; L++) if (rand() < 0.8) flowers(stat, sideX(), 0, z(L));
+  [-9, -8.2, 8.4, 9.2].forEach((x) => tree(stat, x, 0, z(0)));
+  presentLandmarks(stat, root, anim);
+
+  // ---------- Road ----------
+  [
+    [3, 1, 2.6], [4, -1, 3.4], [6, 1, 2.2], [7, -1, 3.0],
+  ].forEach(([L, dir, speed]) => {
+    for (let i = 0; i < 3; i++) {
+      const truck = rand() < 0.3;
+      const m = truck ? makeTruck() : makeCar();
+      m.position.set(-16 + i * 11 + rand() * 3, 0, z(L));
+      if (dir < 0) m.rotation.y = Math.PI;
+      root.add(m);
+      cars.push({ mesh: m, L, v: dir * speed, len: truck ? 2.6 : 1.8 });
+    }
+  });
+  [8, 9, 10].forEach((L) => scatter(L, 2, (x, y, zz) => tree(stat, x, y, zz)));
+  [1, 2, 5, 8, 9].forEach((L) => scatter(L, 1, (x, y, zz) => rock(stat, x, y, zz)));
+  sign(stat, ['ROAD TRIP', '--->'], { x: -1.8, z: z(10) - 0.2, w: 1.6, h: 0.7, post: 0.5, bg: '#ffd23f', fg: '#1b1b1f', size: 14 });
+
+  // ---------- Desert + mud pit + campsite ----------
+  for (let L = 11; L <= 21; L++) {
+    if (rand() < 0.7) cactus(stat, sideX(), 0, z(L));
+    if (rand() < 0.3) rock(stat, sideX(), 0, z(L), '#d9a36b');
+  }
+  mesa(stat, -9, 0, z(13), 3.5, 2.8);
+  mesa(stat, 8.5, 0, z(16), 4, 3.4);
+  mesa(stat, -8, 0, z(19), 2.6, 2);
+  for (let L = MUD[0]; L <= MUD[1]; L++) {
+    box(stat, 5.4, 0.06, 1, L % 2 ? '#6b4a2f' : '#5e4028', 0, 0, z(L), { shadow: false });
+    for (let i = 0; i < 4; i++) box(stat, 0.3 + rand() * 0.4, 0.12, 0.3 + rand() * 0.3, '#4f3521', -2.4 + rand() * 4.8, 0, z(L) + (rand() - 0.5) * 0.7);
+  }
+  sign(stat, ['MUD', 'PIT'], { x: -3.4, z: z(13), w: 1.1, h: 0.7, post: 0.4, bg: '#6b4a2f', fg: '#ffd23f', size: 14 });
+  campsite(stat, anim);
+
+  // ---------- Beach + ocean ----------
+  [22, 23, 31, 32].forEach((L) => {
+    palm(stat, pick([-6, -4.5, 5, 6.5]) + rand(), 0, z(L));
+    if (rand() < 0.5) box(stat, 0.9, 0.04, 0.5, pick(['#ff6fa8', '#7fdcff', '#ffd23f']), sideX(), 0, z(L), { shadow: false });
+  });
+  const foam = [];
+  for (let L = WATER[0]; L <= WATER[1]; L++) {
+    for (let i = 0; i < 9; i++) {
+      const f = box(root, 0.3 + rand() * 0.6, 0.06, 0.2, '#e8fbff', -10 + rand() * 20, -0.31, z(L) + (rand() - 0.5) * 0.6, { shadow: false });
+      foam.push({ m: f, p: rand() * 6, x0: f.position.x });
+    }
+  }
+  // Two rolling wave crests to launch off.
+  const crests = [26, 28].map((L) => {
+    const g = group(root, 0, -0.3, z(L));
+    box(g, 12, 0.3, 0.7, '#3fb0e6', 0, 0, 0, { shadow: false });
+    box(g, 12, 0.08, 0.4, '#ffffff', 0, 0.3, -0.1, { shadow: false });
+    return g;
+  });
+  anim.push((dt, t) => {
+    foam.forEach((f) => {
+      f.m.position.y = -0.3 + Math.sin(t * 2 + f.p) * 0.04;
+      f.m.position.x = f.x0 + Math.sin(t * 0.5 + f.p) * 0.4;
+    });
+    crests.forEach((c, i) => (c.position.y = -0.36 + Math.sin(t * 1.6 + i * 2) * 0.1));
+  });
+  surfShack(stat, -4, z(31.6));
+
+  // ---------- Forest trail ----------
+  for (let L = TRAIL[0]; L <= TRAIL[1]; L++) {
+    scatter(L, 3, (x, y, zz) => (rand() < 0.6 ? pine(stat, x, y, zz) : tree(stat, x, y, zz)));
+    if (rand() < 0.4) rock(stat, sideX(), 0, z(L));
+  }
+  [36, 39].forEach((L) => {
+    box(stat, 2.6, 0.36, 0.38, '#7a4b33', 0, 0, z(L));
+    box(stat, 0.06, 0.3, 0.3, '#d9a36b', -1.31, 0.03, z(L));
+    box(stat, 0.06, 0.3, 0.3, '#d9a36b', 1.31, 0.03, z(L));
+  });
+  // Kicker ramp rising toward the future (z decreasing).
+  for (let i = 0; i < 5; i++) box(stat, 1.6, 0.16 * (i + 1), 0.2, '#9b6b43', 0.3, 0, z(41.3 + i * 0.2));
+  box(stat, 1.6, 0.05, 1.0, '#c89163', 0.3, 0.8, z(41.9));
+  sign(stat, ['SEND IT'], { x: -2.2, z: z(40.5), w: 1.4, h: 0.5, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 14 });
+
+  // ---------- Mountain ----------
+  for (let L = 46; L <= L_MAX; L++) {
+    const y = laneHeight(L);
+    if (rand() < 0.8) pine(stat, pick([-1, 1]) * (4.5 + rand() * 6), y, z(L), true);
+    if (rand() < 0.3) rock(stat, sideX(), y, z(L), '#c9d3e3');
+  }
+  // Big backdrop peaks on both sides.
+  [[-13, 58, 14], [12, 64, 16], [-11, 74, 12], [13, 78, 10]].forEach(([x, L, h]) => peak(stat, x, z(L), h));
+  liftSystem(stat, root, anim);
+  [59, 62].forEach((L) => {
+    const y = laneHeight(L);
+    box(stat, 1.8, 0.3, 0.9, '#ffffff', 0.4, y, z(L));
+    box(stat, 1.2, 0.3, 0.6, '#ffffff', 0.4, y + 0.3, z(L));
+  });
+  for (let i = 0; i < 4; i++) box(stat, 1.6, 0.18 * (i + 1), 0.2, '#dfe9f7', 0.4, laneHeight(64), z(63.5 + i * 0.2));
+  sign(stat, ['TERRAIN', 'PARK'], { x: -2.2, z: z(57), y: laneHeight(57), w: 1.4, h: 0.7, post: 0.5, bg: '#2b6cff', fg: '#fff', size: 12 });
+  summit(stat, root, anim);
+
+  // ---------- Rideable props (moved around by the story) ----------
+  props.bronco = makeBronco();
+  props.bike = makeBike();
+  props.surf = makeSurfboard();
+  props.board = makeSnowboard();
+  props.chair = makeChair();
+  props.rocket = makeRocket();
+  Object.values(props).forEach((p) => root.add(p));
+
+  bake(stat);
+
+  return {
+    root,
+    cars,
+    props,
+    update(dt, t, actor) {
+      anim.forEach((fn) => fn(dt, t));
+      for (const c of cars) {
+        let v = c.v;
+        // Polite drivers: brake for Basil if he's standing in their lane.
+        if (actor && Math.round(actor.L) === c.L && Math.abs(actor.L - c.L) < 0.3) {
+          const ahead = (actor.x - c.mesh.position.x) * Math.sign(v);
+          if (ahead > 0 && ahead < c.len / 2 + 1.1) v = 0;
+        }
+        c.mesh.position.x += v * dt;
+        if (c.mesh.position.x > 18) c.mesh.position.x -= 36;
+        if (c.mesh.position.x < -18) c.mesh.position.x += 36;
+      }
+    },
+    laneClear(L, x, horizon = 0.45) {
+      return cars.every((c) => {
+        if (c.L !== L) return true;
+        const r = c.len / 2 + 0.6;
+        const x0 = c.mesh.position.x;
+        const x1 = x0 + c.v * horizon;
+        const lo = Math.min(x0, x1) - r;
+        const hi = Math.max(x0, x1) + r;
+        return x < lo || x > hi;
+      });
+    },
+  };
+}
+
+// Merge every static mesh into one mesh per material: thousands of boxes -> ~50 draw calls.
+function bake(g) {
+  g.updateMatrixWorld(true);
+  const buckets = new Map();
+  const keep = [];
+  g.traverse((o) => {
+    if (!o.isMesh) return;
+    if (Array.isArray(o.material)) {
+      keep.push(o);
+      return;
+    }
+    const geo = o.geometry.clone().applyMatrix4(o.matrixWorld);
+    const key = o.material.uuid + (o.castShadow ? 's' : 'n');
+    if (!buckets.has(key)) buckets.set(key, { mat: o.material, cast: o.castShadow, geos: [] });
+    buckets.get(key).geos.push(geo);
+  });
+  // Detach sign meshes with their world transform before clearing.
+  keep.forEach((o) => {
+    const m = o.matrixWorld.clone();
+    o.removeFromParent();
+    m.decompose(o.position, o.quaternion, o.scale);
+  });
+  g.clear();
+  g.position.set(0, 0, 0);
+  for (const b of buckets.values()) {
+    const mesh = new THREE.Mesh(mergeGeometries(b.geos), b.mat);
+    mesh.castShadow = b.cast;
+    mesh.receiveShadow = true;
+    g.add(mesh);
+  }
+  keep.forEach((o) => g.add(o));
+}
+
+function palm(p, x, y, zz) {
+  const g = group(p, x, y, zz);
+  for (let i = 0; i < 5; i++) box(g, 0.22, 0.3, 0.22, '#9b6b43', i * 0.05, i * 0.3, 0);
+  const top = 1.5;
+  box(g, 0.3, 0.2, 0.3, '#3fae6a', 0.25, top, 0);
+  box(g, 1.4, 0.1, 0.3, '#48c774', 0.25, top + 0.1, 0);
+  box(g, 0.3, 0.1, 1.4, '#48c774', 0.25, top + 0.1, 0);
+  box(g, 0.14, 0.14, 0.14, '#7a4b33', 0.1, top - 0.1, 0.12);
+}
+
+function peak(p, x, zz, h) {
+  const g = group(p, x, 0, zz);
+  for (let i = 0; i < h; i++) {
+    const w = (h - i) * 1.1;
+    const c = i > h * 0.6 ? '#ffffff' : i > h * 0.35 ? '#c9d3e3' : '#9aa8bd';
+    box(g, w, 1, w * 0.8, c, (rand() - 0.5) * 0.4, i, 0, { shadow: false });
+  }
+}
+
+function building(p, x, L, { w = 2.4, d = 1.6, h = 1.6, color, roof, windows = '#9fdcff', name, sub, bg, fg = '#fff' }) {
+  const g = group(p, x, 0, z(L));
+  box(g, w, h, d, color, 0, 0, 0);
+  box(g, w + 0.2, 0.18, d + 0.2, roof, 0, h, 0);
+  for (let i = 0; i < Math.floor(w / 0.6); i++) {
+    const wx = -w / 2 + 0.4 + i * 0.6;
+    box(g, 0.3, 0.3, 0.04, windows, wx, h * 0.55, d / 2 + 0.01, { shadow: false });
+  }
+  box(g, 0.44, 0.6, 0.04, '#3a2a22', w / 2 - 0.5, 0, d / 2 + 0.01, { shadow: false });
+  if (name) sign(g, sub ? [name, sub] : [name], { z: d / 2 + 0.2, x: 0, y: 0, w: Math.min(w, 2.2), h: 0.62, post: 0.45, bg: bg || roof, fg, size: 12 });
+  return g;
+}
+
+function pastLandmarks(p, anim) {
+  // University of Waterloo
+  const uw = building(p, -4.2, -28.3, { w: 3.4, d: 1.8, h: 2.2, color: '#e9dcc0', roof: '#1b1b1f', name: 'UWATERLOO', sub: '2012-16', bg: '#1b1b1f', fg: '#ffd54f' });
+  box(uw, 0.6, 1.0, 0.6, '#e9dcc0', -1.2, 2.2, 0);
+  box(uw, 0.7, 0.2, 0.7, '#ffd54f', -1.2, 3.2, 0);
+  box(uw, 0.8, 0.8, 0.1, '#ffd54f', 0.6, 1.2, 0.92);
+  box(uw, 0.5, 0.5, 0.12, '#c62828', 0.6, 1.35, 0.93);
+  goose(p, 2.4, -27.8, anim);
+  goose(p, 3.4, -28.6, anim);
+  // Chem lab beaker
+  const bk = group(p, 3.8, 0, z(-29.5));
+  box(bk, 0.5, 0.7, 0.5, '#bfe8ff', 0, 0, 0);
+  box(bk, 0.46, 0.35, 0.46, '#7cf29a', 0, 0.02, 0);
+  box(bk, 0.26, 0.3, 0.26, '#bfe8ff', 0, 0.7, 0);
+
+  building(p, -4, -22.3, { w: 2.6, d: 1.6, h: 2.6, color: '#dfe7ea', roof: '#1a9e5a', name: 'LANSA', sub: '2016', bg: '#1a9e5a' });
+
+  building(p, -4, -16.3, { w: 2.8, d: 1.6, h: 1.8, color: '#e8fff4', roof: '#1fbf8f', name: 'VIDYARD', sub: '2017-19', bg: '#1fbf8f' });
+  // Vidyard robot mascot
+  const bot = group(p, 3, 0, z(-16));
+  box(bot, 0.7, 0.6, 0.6, '#1fbf8f', 0, 0.3, 0);
+  box(bot, 0.9, 0.7, 0.7, '#1fbf8f', 0, 0.9, 0);
+  box(bot, 0.2, 0.2, 0.05, '#fff', -0.2, 1.15, -0.36);
+  box(bot, 0.2, 0.2, 0.05, '#fff', 0.2, 1.15, -0.36);
+  box(bot, 0.06, 0.4, 0.06, '#333', -0.25, 1.6, 0);
+  box(bot, 0.06, 0.4, 0.06, '#333', 0.25, 1.6, 0);
+  const tip = box(bot, 0.14, 0.14, 0.14, '#ff3b5c', 0.25, 2.0, 0);
+  box(bot, 0.18, 0.3, 0.18, '#333', -0.2, 0, 0);
+  box(bot, 0.18, 0.3, 0.18, '#333', 0.2, 0, 0);
+  anim.push((dt, t) => (tip.visible = Math.sin(t * 5) > 0));
+  bot.rotation.y = -0.4;
+
+  building(p, -4, -11.3, { w: 2.2, d: 1.5, h: 1.5, color: '#e6e3f5', roof: '#5d6bff', name: 'ASTEROIDX', sub: '2018', bg: '#5d6bff' });
+  const ast = group(p, 3, 2.2, z(-11));
+  box(ast, 0.9, 0.8, 0.8, '#8d8a99', 0, 0, 0);
+  box(ast, 0.5, 0.5, 0.5, '#6f6c7c', 0.3, 0.5, 0.2);
+  box(ast, 0.4, 0.3, 0.4, '#a9a6b6', -0.35, 0.2, -0.3);
+  anim.push((dt, t) => {
+    ast.rotation.y = t * 0.8;
+    ast.rotation.x = t * 0.5;
+    ast.position.y = 2.2 + Math.sin(t * 1.5) * 0.15;
+  });
+
+  building(p, -4, -6.3, { w: 2.6, d: 1.6, h: 1.8, color: '#fff3c4', roof: '#f7c843', name: 'PODIA', sub: '2019-21', bg: '#f7c843', fg: '#1b1b1f' });
+  // Creator's laptop + course stack
+  const lap = group(p, 3, 0, z(-6));
+  box(lap, 0.9, 0.3, 0.6, '#7a4b33', 0, 0, 0);
+  box(lap, 0.7, 0.04, 0.45, '#333', 0, 0.3, 0);
+  box(lap, 0.7, 0.45, 0.04, '#333', 0, 0.3, 0.22);
+  box(lap, 0.6, 0.35, 0.02, '#f7c843', 0, 0.36, 0.2);
+}
+
+function goose(p, x, L, anim) {
+  const g = group(p, x, 0, z(L));
+  box(g, 0.5, 0.35, 0.3, '#6b5a4a', 0, 0.2, 0);
+  box(g, 0.1, 0.4, 0.1, '#1b1b1f', -0.22, 0.45, 0);
+  box(g, 0.2, 0.14, 0.12, '#1b1b1f', -0.28, 0.82, 0);
+  box(g, 0.1, 0.05, 0.13, '#fff', -0.26, 0.74, 0);
+  box(g, 0.06, 0.2, 0.06, '#1b1b1f', 0, 0, 0);
+  const head = g;
+  let seed = x;
+  anim.push((dt, t) => (head.rotation.y = Math.sin(t * 0.7 + seed) * 0.6));
+  return g;
+}
+
+function presentLandmarks(p, root, anim) {
+  // Freshly HQ
+  const hq = group(p, -4.6, 0, z(1.4));
+  box(hq, 3.6, 2.4, 2.2, '#f7f7f2', 0, 0, 0);
+  box(hq, 3.8, 0.2, 2.4, '#111111', 0, 2.4, 0);
+  box(hq, 3.62, 0.14, 2.22, '#111111', 0, 1.2, 0);
+  for (let i = 0; i < 5; i++) {
+    box(hq, 0.4, 0.5, 0.04, '#9fdcff', -1.4 + i * 0.7, 1.55, 1.11, { shadow: false });
+    if (i !== 2) box(hq, 0.4, 0.5, 0.04, '#9fdcff', -1.4 + i * 0.7, 0.45, 1.11, { shadow: false });
+  }
+  box(hq, 0.7, 0.9, 0.05, '#15c2b0', 0, 0, 1.12, { shadow: false });
+  sign(hq, ['FRESHLY', 'COMMERCE'], { z: 1.5, x: 1.9, w: 1.5, h: 0.62, post: 0.35, bg: '#111', fg: '#15c2b0', size: 11 });
+
+  // Product booths on the right
+  booth(p, 3.2, 0.3, '#ffe3ec', '#ff4d6d', 'SIMPLE', 'BUNDLES');
+  booth(p, 6.2, 0.3, '#e7e3ff', '#7b61ff', 'SIMPLE', 'DISCOUNTS');
+  booth(p, 4.7, 2.2, '#e1fbf6', '#15c2b0', 'FRESHLY', 'INVENTORY');
+  // Discount "%" above the discounts booth
+  const pct = group(p, 6.2, 2.0, z(0.3));
+  const P = ['#..#', '..#.', '.#..', '#..#'];
+  P.forEach((row, r) => row.split('').forEach((ch, c) => ch === '#' && box(pct, 0.2, 0.2, 0.2, '#7b61ff', -0.3 + c * 0.2, (3 - r) * 0.2, 0)));
+  // Inventory crates
+  const crates = group(p, 4.7, 0, z(3.2 - 0.6));
+  [[-0.9, 0, 0], [-0.9, 0.45, 0], [0.9, 0, 0], [0.9, 0, 0.5], [0.9, 0.45, 0.2]].forEach(([x, y, zz]) => {
+    box(crates, 0.42, 0.42, 0.42, '#d9a36b', x, y, zz);
+    box(crates, 0.44, 0.06, 0.44, '#9b6b43', x, y + 0.18, zz);
+  });
+  sign(p, ['YOU ARE', 'HERE'], { x: 1.5, z: z(-0.6), w: 1.1, h: 0.62, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 11 });
+}
+
+function booth(p, x, L, wall, accent, a, b) {
+  const g = group(p, x, 0, z(L));
+  box(g, 2.1, 1.1, 1.2, wall, 0, 0, 0);
+  box(g, 2.3, 0.14, 1.4, accent, 0, 1.1, 0);
+  for (let i = 0; i < 5; i++) box(g, 0.46, 0.12, 0.3, i % 2 ? '#ffffff' : accent, -0.92 + i * 0.46, 1.0, 0.72, { shadow: false });
+  box(g, 1.8, 0.1, 0.3, accent, 0, 0.5, 0.64);
+  sign(g, [a, b], { z: 0.62, y: 0, w: 1.6, h: 0.44, post: 0, bg: accent, fg: '#fff', size: 9 });
+}
+
+function campsite(p, anim) {
+  const L = 21.4;
+  const g = group(p, -3.2, 0, z(L));
+  // Tent
+  for (let i = 0; i < 5; i++) box(g, 1.8 - i * 0.36, 0.22, 1.5, i % 2 ? '#ff8a1f' : '#ffa94d', 0, i * 0.22, 0);
+  box(g, 0.36, 0.6, 0.04, '#5a3a22', 0, 0, 0.76, { shadow: false });
+  // Logs around the fire
+  box(p, 0.9, 0.24, 0.3, '#7a4b33', -1.6, 0, z(L) + 0.6);
+  box(p, 0.3, 0.24, 0.9, '#7a4b33', -0.6, 0, z(L));
+  const fire = group(p, -1.5, 0, z(L - 0.2));
+  box(fire, 0.5, 0.1, 0.5, '#5a3a22', 0, 0, 0);
+  const f1 = box(fire, 0.3, 0.35, 0.3, '#ff8a1f', 0, 0.1, 0, { shadow: false });
+  const f2 = box(fire, 0.16, 0.25, 0.16, '#ffe14d', 0, 0.3, 0, { shadow: false });
+  anim.push((dt, t) => {
+    f1.scale.y = 0.3 + Math.abs(Math.sin(t * 9)) * 0.15;
+    f2.position.y = 0.3 + Math.sin(t * 13) * 0.05 + 0.12;
+  });
+  sign(p, ['CAMP', 'BRONCO'], { x: -5.2, z: z(20.4), w: 1.3, h: 0.62, post: 0.45, bg: '#2f6b3a', fg: '#ffe14d', size: 11 });
+}
+
+function surfShack(p, x, zz) {
+  const g = group(p, x, 0, zz);
+  box(g, 2.2, 1.3, 1.4, '#7fdcff', 0, 0, 0);
+  for (let i = 0; i < 5; i++) box(g, 2.6, 0.12, 1.8, i % 2 ? '#ffffff' : '#ff6fa8', 0, 1.3 + i * 0.05, 0);
+  sign(g, ['SURF', 'SHACK'], { z: 0.9, w: 1.4, h: 0.5, post: 0, y: 0.5, bg: '#ff6fa8', fg: '#fff', size: 10 });
+  [-0.8, 0.8].forEach((bx, i) => box(g, 0.35, 1.4, 0.1, i ? '#ffd23f' : '#20c997', bx * 1.6, 0, 0.8));
+}
+
+function liftSystem(p, root, anim) {
+  const upX = 2.3;
+  const downX = 3.1;
+  // Stations
+  [[46, 0], [56, 1]].forEach(([L, top]) => {
+    const y = laneHeight(L);
+    const g = group(p, 2.7, y, z(L + (top ? 0.3 : -0.3)));
+    box(g, 2.2, 0.2, 1.4, '#7a4b33', 0, 0, 0);
+    box(g, 0.2, 3.6, 0.2, '#555c68', -0.9, 0, -0.5);
+    box(g, 0.2, 3.6, 0.2, '#555c68', 0.9, 0, -0.5);
+    box(g, 2.0, 0.4, 1.1, '#ff3b5c', 0, 3.6, -0.3);
+    box(g, 1.4, 0.2, 1.4, '#9aa0a8', 0, 4.0, 0);
+  });
+  sign(p, ['SKI', 'LIFT'], { x: 1.1, z: z(45.4), w: 1.0, h: 0.62, post: 0.6, bg: '#ff3b5c', fg: '#fff', size: 12 });
+  // Towers
+  [49, 52, 55].forEach((L) => {
+    const y = laneHeight(L);
+    box(p, 0.24, 4.4, 0.24, '#555c68', 2.7, y, z(L));
+    box(p, 1.2, 0.14, 0.2, '#555c68', 2.7, y + 4.3, z(L));
+  });
+  // Cables: rider sits 1.9 above ground, cable is 2.3 above the seat.
+  const cableAt = (L) => laneHeight(46) + (L - 46) * 0.8 + 4.2;
+  [upX, downX].forEach((x) => {
+    const a = new THREE.Vector3(x, cableAt(46), z(46));
+    const b = new THREE.Vector3(x, cableAt(56), z(56));
+    const len = a.distanceTo(b);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, len), mat('#2b2f36'));
+    m.position.copy(a).lerp(b, 0.5);
+    m.lookAt(b);
+    root.add(m);
+  });
+  // Empty chairs riding down.
+  const chairs = [0, 0.25, 0.5, 0.75].map((o) => {
+    const c = makeChair();
+    root.add(c);
+    return { c, o };
+  });
+  anim.push((dt, t) => {
+    chairs.forEach(({ c, o }) => {
+      const u = (t * 0.06 + o) % 1;
+      const L = 56 - u * 10;
+      c.position.set(downX, cableAt(L) - 2.3, z(L));
+      c.rotation.y = Math.PI;
+    });
+  });
+}
+
+function summit(p, root, anim) {
+  const y = laneHeight(72);
+  // $100M flag pole
+  box(p, 0.14, 4, 0.14, '#dfe3ea', -2.2, y, z(72.2));
+  box(p, 0.24, 0.24, 0.24, '#ffd23f', -2.2, y + 4, z(72.2));
+  const flag = sign(root, ['$100M'], { x: -1.1, y: y + 2.7, z: z(72.2), w: 2.1, h: 1.1, bg: '#ffd23f', fg: '#1b1b1f', size: 30 });
+  anim.push((dt, t) => (flag.rotation.y = Math.sin(t * 3) * 0.12));
+  // Launch pad
+  box(p, 1.8, 0.3, 1.8, '#555c68', 2.6, y, z(73));
+  box(p, 1.9, 0.06, 1.9, '#ffd23f', 2.6, y + 0.3, z(73), { shadow: false });
+  box(p, 0.2, 4.2, 0.2, '#ff3b5c', 3.7, y, z(73.4));
+  box(p, 0.6, 0.12, 0.12, '#ff3b5c', 3.4, y + 3.0, z(73.4));
+  sign(p, ['SUMMIT'], { x: 0.2, y, z: z(71.3), w: 1.3, h: 0.45, post: 0.4, bg: '#1b1b1f', fg: '#fff', size: 12 });
+}

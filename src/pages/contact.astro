@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Contact" active="contact" description="Get in touch with Basil Khan.">
+  <div class="wrap page contact">
+    <div>
+      <p class="eyebrow">Say hi</p>
+      <h1>Contact</h1>
+      <p class="lede">Building on Shopify, hiring, or have a trail or surf spot I should know about? Send a note.</p>
+      <ul class="socials">
+        <li><a class="pxbtn pxbtn--white" href="https://www.linkedin.com/in/basilkh" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a class="pxbtn pxbtn--white" href="https://twitter.com/basilakhan" target="_blank" rel="noopener">Twitter</a></li>
+        <li><a class="pxbtn pxbtn--white" href="https://github.com/basilkhan05" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+    <form class="panel pxcorners" method="post" action="https://formspree.io/basil.khan@uwaterloo.ca">
+      <label>Name<input name="name" type="text" required autocomplete="name" /></label>
+      <label>Email<input name="email" type="email" required autocomplete="email" /></label>
+      <label>Message<textarea name="message" rows="6" required></textarea></label>
+      <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button class="pxbtn pxbtn--pink" type="submit">Send message</button>
+    </form>
+  </div>
+</Base>
+
+<style>
+  .contact { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: start; }
+  h1 { font-size: clamp(22px, 4vw, 32px); margin: 12px 0; }
+  .socials { list-style: none; padding: 0; display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  form { display: grid; gap: 16px; background: var(--paper-2); }
+  label { display: grid; gap: 6px; font-family: var(--px); font-size: 10px; text-transform: uppercase; }
+  input, textarea {
+    font: inherit; font-family: var(--body); font-size: 16px; text-transform: none;
+    padding: 12px; border: 3px solid var(--ink); background: #fff; border-radius: 0;
+  }
+  input:focus, textarea:focus { outline: none; box-shadow: 4px 4px 0 var(--teal); }
+  .hp { display: none; }
+  button { justify-self: start; }
+  @media (max-width: 760px) { .contact { grid-template-columns: 1fr; } }
+</style>
