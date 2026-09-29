@@ -4,11 +4,11 @@ import { box, group, sign, mat, rand, pick } from './voxel.js';
 import { MARKERS } from './story.js';
 import {
   makeCar, makeTruck, makeBronco, makeBike, makeBoat, makeSnowboard, makeChair, makeRocket,
-  tree, autumnTree, pine, rock, cactus, mesa, flowers,
+  tree, autumnTree, pine, rock, cactus, mesa, flowers, makePlayer,
 } from './models.js';
 
 // Lane index L maps to world z = -L. Positive L is the future, negative is the past.
-export const L_MIN = -34;
+export const L_MIN = -44;
 export const L_MAX = 84;
 const WIDTH = 44;
 
@@ -18,6 +18,7 @@ const MUD = [14, 17];
 const TRAIL = [33, 45];
 
 export function laneType(L) {
+  if (L <= -39) return 'sand'; // Saudi Arabia, 2005
   if (L < -1) return 'past';
   if (ROAD_LANES.has(L)) return 'road';
   if (L <= 10) return 'grass';
@@ -100,11 +101,23 @@ export function buildWorld(scene) {
 
   // ---------- The past ----------
   for (let L = L_MIN + 2; L <= -2; L++) {
-    if ([-28, -22, -16, -11, -6].some((s) => Math.abs(s - L) <= 1)) continue;
+    if ([-36, -28, -26, -22, -16, -11, -6].some((s) => Math.abs(s - L) <= 1)) continue;
+    if (L <= -39) {
+      if (rand() < 0.6) palm(stat, sideX(), 0, z(L));
+      continue;
+    }
     scatter(L, 2, (x, y, zz) => (rand() < 0.5 ? autumnTree(stat, x, y, zz) : tree(stat, x, y, zz)));
     if (rand() < 0.6) flowers(stat, sideX(), 0, z(L));
   }
   pastLandmarks(stat, anim);
+  movingToCanada(stat, root, anim);
+  tobiStage(stat, anim);
+  [
+    [-2.2, -35.6], [3.2, -36.8], [-5.8, -34.2], [-6.8, -27.4], [2.4, -21.3], [4.4, -10.1], [-2.2, -0.3], [-7.2, 57.2],
+  ].forEach(([x, L]) => canadaFlag(stat, root, anim, x, L));
+  // Shopify bags around the App Challenge
+  shopifyBag(stat, -1.8, 0, z(2.6), 0.09);
+  shopifyBag(stat, 6.4, 0, z(-0.9), 0.07);
 
   // ---------- The present ----------
   for (let L = -1; L <= 2; L++) if (rand() < 0.8) flowers(stat, sideX(), 0, z(L));
@@ -271,7 +284,8 @@ function bake(g) {
   g.updateMatrixWorld(true);
   const buckets = new Map();
   const keep = [];
-  g.traverse((o) => {
+  // Hidden meshes (e.g. unused character gear) are dropped from the merge.
+  g.traverseVisible((o) => {
     if (!o.isMesh) return;
     if (Array.isArray(o.material)) {
       keep.push(o);
@@ -657,4 +671,137 @@ function marker(stat, root, anim, { year, text, x, L, color = '#ff3b5c' }) {
   const cloth = [];
   for (let i = 0; i < 4; i++) cloth.push(box(flag, 0.2, 0.55, 0.05, color, 0.1 + i * 0.2, 0, 0, { shadow: false }));
   anim.push((dt, t) => cloth.forEach((c, i) => (c.position.z = Math.sin(t * 5 - i * 0.9) * 0.06 * i)));
+}
+
+// ---------- 2005 to 2015 ----------
+function movingToCanada(stat, root, anim) {
+  // Saudi house with a crenellated roof
+  const h = group(stat, -4.5, 0, z(-40.4));
+  box(h, 2.4, 1.5, 1.8, '#e8cfa0', 0, 0, 0);
+  for (let i = 0; i < 6; i++) box(h, 0.24, 0.24, 0.24, '#d9b980', -1.05 + i * 0.42, 1.5, 0.78);
+  box(h, 0.5, 0.8, 0.05, '#7a4b33', 0.4, 0, 0.91, { shadow: false });
+  box(h, 0.34, 0.34, 0.05, '#2b6cff', -0.6, 0.8, 0.91, { shadow: false });
+  sign(stat, ['SAUDI ARABIA'], { x: 3.2, z: z(-41), w: 2.4, h: 0.55, post: 0.5, bg: '#1e6b3a', fg: '#fff', size: 18 });
+  sign(stat, ['WELCOME TO', 'CANADA'], { x: 3.4, z: z(-35.2), w: 2.4, h: 0.9, post: 0.6, bg: '#d52b1e', fg: '#fff', size: 20 });
+  // Maple trees on the Canadian side
+  [[-7.6, -37.4], [6.4, -38.2], [7.8, -34.8], [-8.6, -35.2]].forEach(([x, L]) => {
+    const g = group(stat, x, 0, z(L));
+    box(g, 0.3, 0.6, 0.3, '#6b3f2a', 0, 0, 0);
+    box(g, 1.0, 0.8, 1.0, '#d52b1e', 0, 0.6, 0);
+    box(g, 0.6, 0.4, 0.6, '#e8543f', 0, 1.4, 0);
+  });
+  // Plane flying from Saudi Arabia toward Canada, on a loop.
+  const plane = group(root, -1.5, 4.2, 0);
+  box(plane, 0.6, 0.6, 3.0, '#ffffff', 0, 0, 0);
+  box(plane, 0.5, 0.3, 0.5, '#d52b1e', 0, 0.12, -1.6);
+  box(plane, 3.6, 0.1, 0.8, '#e8ecf2', 0, 0.2, 0.1);
+  box(plane, 1.4, 0.08, 0.5, '#e8ecf2', 0, 0.45, 1.3);
+  box(plane, 0.08, 0.7, 0.5, '#d52b1e', 0, 0.5, 1.3);
+  for (let i = 0; i < 5; i++) box(plane, 0.62, 0.14, 0.14, '#7fdcff', 0, 0.35, -0.9 + i * 0.4, { shadow: false });
+  anim.push((dt, t) => {
+    const u = (t * 0.12) % 1;
+    const L = -43 + u * 12;
+    plane.position.set(-1.5 + Math.sin(u * 6) * 0.4, 4.2 + Math.sin(u * Math.PI) * 0.8, z(L));
+    plane.rotation.z = Math.cos(u * 6) * 0.15;
+  });
+}
+
+function tobiStage(stat, anim) {
+  // UWaterloo, 2015: Tobi on stage talking about Shopify Plus.
+  const x = 4.4;
+  const L = -25.8;
+  const g = group(stat, x, 0, z(L));
+  box(g, 3.0, 0.35, 1.6, '#3a3f4b', 0, 0, 0);
+  box(g, 3.0, 1.9, 0.14, '#95bf47', 0, 0.35, -0.73);
+  sign(g, ['SHOPIFY PLUS'], { x: 0.4, y: 1.3, z: -0.64, w: 1.9, h: 0.5, post: 0, bg: '#ffffff', fg: '#5e8e3e', size: 18 });
+  shopifyBag(g, -1.0, 0.75, -0.6, 0.08);
+  // Speaker + mic
+  const tobi = makePlayer({ hair: '#b58a5a', beard: '#b58a5a', skin: '#f0c9a8', shirt: '#1b1b1f', shirtDark: '#111111', pants: '#2c3a57' });
+  tobi.root.position.set(0.3, 0.35, 0);
+  tobi.root.rotation.y = Math.PI + 0.2; // facing the audience
+  g.add(tobi.root);
+  box(g, 0.06, 0.7, 0.06, '#222', 0.3, 0.35, 0.4);
+  box(g, 0.12, 0.12, 0.12, '#444', 0.3, 1.05, 0.4);
+  // Audience (a younger Basil in the front row)
+  const kid = makePlayer();
+  kid.root.position.set(-0.4, 0, 1.4);
+  g.add(kid.root);
+  [[0.6, 1.5], [1.3, 1.4], [-1.1, 1.6]].forEach(([ax, az], i) => {
+    const a = makePlayer({ hair: ['#3b2a20', '#e0c070', '#1c1512'][i], beard: null, shirt: ['#ffd23f', '#2ec4ff', '#ff6fa8'][i] });
+    a.root.position.set(ax, 0, az);
+    g.add(a.root);
+  });
+  sign(stat, ['2015'], { x: x + 1.9, z: z(L) + 0.9, w: 0.9, h: 0.45, post: 0.4, bg: '#95bf47', fg: '#fff', size: 18 });
+}
+
+// Pixel Shopify bag, built from a small bitmap. `s` is the voxel size.
+function shopifyBag(parent, x, y, zz, s) {
+  const BAG = [
+    '...####...',
+    '..#....#..',
+    '..#....#..',
+    'GGGGGGGGGG',
+    'GGGGWWWGGG',
+    'GGGWGGGGGG',
+    'GGGGWWGGGG',
+    'GGGGGGWGGG',
+    'GGGWWWGGGG',
+    'GGGGGGGGGG',
+  ];
+  const g = group(parent, x, y, zz);
+  const C = { '#': '#5e8e3e', G: '#95bf47', W: '#ffffff' };
+  BAG.forEach((row, r) =>
+    row.split('').forEach((ch, c) => {
+      if (ch === '.') return;
+      box(g, s, s, s * 2, C[ch], (c - 4.5) * s, (BAG.length - 1 - r) * s, 0, { shadow: ch !== 'W' });
+    }),
+  );
+  return g;
+}
+
+// Canadian flag: a waving textured plane on a pole.
+let flagTex;
+function canadaFlagTexture() {
+  if (flagTex) return flagTex;
+  const c = document.createElement('canvas');
+  c.width = 16;
+  c.height = 8;
+  const g = c.getContext('2d');
+  g.fillStyle = '#d52b1e';
+  g.fillRect(0, 0, 16, 8);
+  g.fillStyle = '#ffffff';
+  g.fillRect(4, 0, 8, 8);
+  g.fillStyle = '#d52b1e';
+  // Pixel maple leaf
+  [[7, 1], [8, 1], [6, 2], [7, 2], [8, 2], [9, 2], [5, 3], [6, 3], [7, 3], [8, 3], [9, 3], [10, 3], [6, 4], [7, 4], [8, 4], [9, 4], [7, 5], [8, 5], [7, 6], [8, 6]].forEach(([px, py]) =>
+    g.fillRect(px, py, 1, 1),
+  );
+  flagTex = new THREE.CanvasTexture(c);
+  flagTex.magFilter = THREE.NearestFilter;
+  flagTex.minFilter = THREE.NearestFilter;
+  flagTex.colorSpace = THREE.SRGBColorSpace;
+  return flagTex;
+}
+
+function canadaFlag(stat, root, anim, x, L) {
+  const y = groundAt(L);
+  box(stat, 0.1, 2.6, 0.1, '#dfe3ea', x, y, z(L));
+  box(stat, 0.16, 0.16, 0.16, '#ffd23f', x, y + 2.6, z(L));
+  const geo = new THREE.PlaneGeometry(1.4, 0.7, 10, 1);
+  geo.translate(0.7, 0, 0);
+  const base = geo.attributes.position.array.slice();
+  const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: canadaFlagTexture(), side: THREE.DoubleSide }));
+  m.position.set(x + 0.05, y + 2.2, z(L));
+  m.castShadow = true;
+  root.add(m);
+  const seed = x * 1.7 + L;
+  anim.push((dt, t) => {
+    const pos = geo.attributes.position.array;
+    for (let i = 0; i < pos.length; i += 3) {
+      const fx = base[i];
+      pos[i + 2] = Math.sin(t * 5 + seed - fx * 4) * 0.09 * fx;
+      pos[i + 1] = base[i + 1] - Math.sin(t * 3 + fx * 2) * 0.03 * fx;
+    }
+    geo.attributes.position.needsUpdate = true;
+  });
 }

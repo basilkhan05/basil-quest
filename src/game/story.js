@@ -32,6 +32,20 @@ export function storyFor(mode) {
 
 export const STOPS = [
   {
+    id: 'canada',
+    era: 'past',
+    year: '2005',
+    label: 'Canada',
+    pos: { x: 0, L: -36 },
+    title: 'Moving to Canada',
+    role: 'From Saudi Arabia',
+    blurb: 'Moved from Saudi Arabia to Canada in 2005. This is where the journey starts.',
+    bubbles: [
+      { text: 'Hello, Canada', at: [-2.2, 3.2, -35.6] },
+      { text: 'Next stop: Canada', at: [-4.5, 2.6, -40] },
+    ],
+  },
+  {
     id: 'uw',
     era: 'past',
     year: '2016',
@@ -39,12 +53,13 @@ export const STOPS = [
     pos: { x: 0, L: -28 },
     title: 'University of Waterloo',
     role: 'BASc, Chemical Engineering + Management Sciences',
-    blurb: 'Where it started. Studied reactors, ended up shipping code.',
+    blurb: "Studied Chem Eng. In 2015 I watched Tobi talk about Shopify Plus and Shopify's new Waterloo office, and got hooked on commerce.",
     bubbles: [
       { text: 'Chem Eng grad who ended up writing code', at: [-4.2, 3.9, -28.3] },
-      { text: "Startup Weekend + UW Apprentice '15", at: [3.8, 1.4, -29.5] },
+      { text: '2015: Tobi on stage. Shopify Plus + a Waterloo office. Inspired.', at: [4.4, 3.4, -25.8] },
       { text: 'Honk.', at: [2.8, 1.2, -28.2] },
     ],
+    path: hops(0, -36, -28),
   },
   {
     id: 'lansa',
