@@ -18,8 +18,17 @@ const dismount = (name) => ({ type: 'dismount', name });
 const wait = (dur) => ({ type: 'wait', dur });
 const TAU = Math.PI * 2;
 
-// Where Lichen waits until Basil meets her at Vidyard.
-export const LICHEN_SPOT = { x: 1.3, L: -16 };
+// Where Lichen waits until Basil reaches her. In the personal route they meet
+// at Vidyard; in the professional route she joins when they found Freshly.
+export const LICHEN_SPOTS = {
+  personal: { x: 1.3, L: -16 },
+  pro: { x: 1.4, L: 0.2 },
+};
+
+// Per-route copy lives under `personal` / `pro` on a stop and overrides the base.
+export function storyFor(mode) {
+  return STOPS.map((s) => ({ ...s, ...(s[mode] || {}) }));
+}
 
 export const STOPS = [
   {
@@ -55,13 +64,21 @@ export const STOPS = [
     year: '2017',
     label: 'Vidyard',
     pos: { x: 0, L: -16 },
-    title: 'Vidyard, and meeting Lichen',
+    title: 'Vidyard',
     role: 'Developer, Professional Services',
-    blurb: 'Moved to Waterloo for Vidyard and met Lichen, now my spouse and co-founder. Everything after this, we did together.',
+    blurb: 'Moved to Waterloo for Vidyard. Built custom video integrations for big customers.',
     bubbles: [
-      { text: 'Hi, Lichen', at: [LICHEN_SPOT.x, 1.9, LICHEN_SPOT.L] },
+      { text: 'Integrations for days', at: [3, 2.4, -16] },
       { text: 'Moving to Waterloo', at: [5.6, 2.2, -16.6] },
     ],
+    personal: {
+      title: 'Vidyard, and meeting Lichen',
+      blurb: 'Moved to Waterloo for Vidyard and met Lichen, now my spouse and co-founder. Everything after this, we did together.',
+      bubbles: [
+        { text: 'Hi, Lichen', at: [1.3, 1.9, -16] },
+        { text: 'Moving to Waterloo', at: [5.6, 2.2, -16.6] },
+      ],
+    },
     path: hops(0, -22, -16),
   },
   {
@@ -105,9 +122,15 @@ export const STOPS = [
     milestone: 'Company founded',
     blurb: 'Lichen and I started Freshly Commerce. First app: batch and expiry tracking for Shopify.',
     bubbles: [
-      { text: 'Day one', at: [-4.6, 3.8, 1.4] },
+      { text: "Let's build this together", at: [1.4, 1.9, 0.2] },
       { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
     ],
+    personal: {
+      bubbles: [
+        { text: 'Day one', at: [-4.6, 3.8, 1.4] },
+        { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
+      ],
+    },
     path: hops(0, -6, 0),
   },
   {

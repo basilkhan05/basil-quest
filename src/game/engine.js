@@ -3,7 +3,7 @@ import { buildWorld, groundAt, laneHeight, ROAD_LANES } from './world.js';
 import {
   makePlayer, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket, makeWakeboard, makeBoat, LICHEN,
 } from './models.js';
-import { STOPS, START, FOUNDED, LICHEN_SPOT } from './story.js';
+import { storyFor, START, FOUNDED, LICHEN_SPOTS } from './story.js';
 import { box, group } from './voxel.js';
 
 const HOP_DUR = 0.17;
@@ -62,8 +62,14 @@ const SKY = {
   launch: '#0a0f2c',
 };
 
+// Set per route in startGame; module-level so the UI helpers can read it.
+let STOPS = storyFor('pro');
+
 export async function startGame(root) {
   const base = root.dataset.base || '/';
+  const mode = root.dataset.mode === 'personal' ? 'personal' : 'pro';
+  STOPS = storyFor(mode);
+  const LICHEN_SPOT = LICHEN_SPOTS[mode];
   const $ = (sel) => root.querySelector(sel);
   const canvasWrap = $('#stage');
 
@@ -301,6 +307,7 @@ export async function startGame(root) {
     flame: { colors: ['#ffb020', '#ff5a1f', '#ffe14d', '#dddddd'], up: -6, spread: 1.4, size: 0.24, life: 0.8 },
     dust: { colors: ['#ffffff'], up: 1, spread: 0.8, size: 0.08, life: 0.35 },
     heart: { colors: ['#ff3b5c', '#ff6fa8', '#ffb3c7'], up: 1.6, spread: 0.9, size: 0.16, life: 1.6, grav: 0 },
+    confetti: { colors: ['#15c2b0', '#ffd23f', '#ff4d6d', '#7b61ff'], up: 4, spread: 2.4, size: 0.12, life: 1.4, grav: 5 },
   };
   function emit(kind, x, y, zz, n) {
     const f = FX[kind];
@@ -478,7 +485,8 @@ export async function startGame(root) {
     rides.rocket.userData.flame.visible = stop.id === 'launch';
     setGear(stop.gear || null);
     setSky(stop.id, stop.era);
-    if (stop.id === 'vidyard') emit('heart', (actor.x + LICHEN_SPOT.x) / 2, 1.2, -LICHEN_SPOT.L, 24);
+    if (mode === 'personal' && stop.id === 'vidyard') emit('heart', (actor.x + LICHEN_SPOT.x) / 2, 1.2, -LICHEN_SPOT.L, 24);
+    if (mode === 'pro' && stop.id === 'founded') emit('confetti', (actor.x + LICHEN_SPOT.x) / 2, 1.4, -LICHEN_SPOT.L, 30);
     ui.arrived(cur);
     history.replaceState(null, '', `#${stop.id}`);
   }
