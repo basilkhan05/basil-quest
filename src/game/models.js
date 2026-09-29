@@ -78,6 +78,11 @@ export function makePlayer(look = {}) {
   box(gear.beanie, 0.5, 0.18, 0.5, P.beanie, 0, 1.1, 0);
   box(gear.beanie, 0.14, 0.12, 0.14, '#fff', 0, 1.28, 0);
   box(gear.beanie, 0.48, 0.1, 0.04, '#7fdcff', 0, 0.92, -0.225);
+  gear.scuba = group(body);
+  box(gear.scuba, 0.26, 0.5, 0.2, '#ffd23f', 0, 0.22, 0.26);
+  box(gear.scuba, 0.1, 0.1, 0.1, '#555', 0, 0.72, 0.26);
+  box(gear.scuba, 0.48, 0.18, 0.05, '#2ec4ff', 0, 0.84, -0.23);
+  box(gear.scuba, 0.06, 0.36, 0.06, '#ff8a1f', 0.25, 0.8, -0.1);
   gear.suit = group(body);
   box(gear.suit, 0.56, 0.56, 0.56, '#ffffff', 0, 0.68, 0, { material: new THREE.MeshLambertMaterial({ color: '#bfe8ff', transparent: true, opacity: 0.45 }) });
   Object.values(gear).forEach((g) => (g.visible = false));
@@ -328,5 +333,20 @@ export function makeBoat() {
   box(g, 0.08, 0.8, 0.08, '#9aa0a8', 0.55, 0.45, 0.2);
   box(g, 1.18, 0.08, 0.08, '#9aa0a8', 0, 1.25, 0.2);
   box(g, 0.3, 0.2, 0.3, '#2b3240', 0, 0.45, 1.1);
+  return g;
+}
+
+// Faces -z. Origin at the belly so it can sit under a rider.
+export function makeDolphin() {
+  const g = group();
+  box(g, 0.5, 0.45, 1.5, '#6f8fb3', 0, 0.05, 0);
+  box(g, 0.42, 0.12, 1.2, '#dfe9f5', 0, 0, -0.05);
+  box(g, 0.34, 0.3, 0.3, '#6f8fb3', 0, 0.1, -0.85);
+  box(g, 0.18, 0.12, 0.3, '#8fa9c8', 0, 0.1, -1.1);
+  box(g, 0.08, 0.3, 0.3, '#5d7ca0', 0, 0.5, 0.1);
+  box(g, 0.2, 0.2, 0.4, '#6f8fb3', 0, 0.15, 0.9);
+  box(g, 0.8, 0.06, 0.26, '#5d7ca0', 0, 0.2, 1.15);
+  box(g, 0.52, 0.08, 0.08, '#1b1b1f', 0, 0.3, -0.72, { shadow: false });
+  box(g, 0.7, 0.06, 0.24, '#5d7ca0', 0, 0.02, -0.3);
   return g;
 }

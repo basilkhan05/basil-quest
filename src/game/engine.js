@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { buildWorld, groundAt, laneHeight, ROAD_LANES } from './world.js';
 import {
-  makePlayer, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket, makeWakeboard, makeBoat, LICHEN,
+  makePlayer, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket, makeWakeboard, makeBoat, makeDolphin, LICHEN,
 } from './models.js';
 import { storyFor, START, FOUNDED, LICHEN_SPOTS } from './story.js';
 import { box, group } from './voxel.js';
@@ -37,7 +37,7 @@ const LICHEN_SEATS = {
   chair: [0.28, -0.2, 0],
 };
 const LICHEN_SIDE = {
-  boat: { dx: -1.5, dL: 0.2, ride: 'surf' },
+  boat: { dx: -1.6, dL: 0.4, ride: 'scuba' },
   board: { dx: 1.2, dL: -0.3, ride: 'board' },
 };
 
@@ -123,6 +123,11 @@ export async function startGame(root) {
     aInner.add(m);
   });
 
+  // The dolphin that scoops Basil up on the big wakeboard jump.
+  const scoop = makeDolphin();
+  scoop.visible = false;
+  scene.add(scoop);
+
   // Tow boat + rope for the wakeboard ride.
   const towBoat = makeBoat();
   towBoat.visible = false;
@@ -166,7 +171,10 @@ export async function startGame(root) {
     lichenSeat.root.visible = !!seat;
     if (seat) lichenSeat.root.position.set(...seat);
     const side = LICHEN_SIDE[v];
-    const riding = side ? side.ride : v === 'bike' ? 'bike' : null;
+    const scuba = side?.ride === 'scuba';
+    lichen.gear.scuba.visible = scuba;
+    lichen.gear.shades.visible = !scuba && gearNow === 'shades';
+    const riding = scuba ? null : side ? side.ride : v === 'bike' ? 'bike' : null;
     Object.entries(lRides).forEach(([k, m]) => (m.visible = k === riding));
     lichen.root.position.set(0, riding === 'bike' ? 0.42 : riding ? 0.08 : 0, riding === 'bike' ? 0.08 : 0);
     lichen.root.rotation.y = riding && riding !== 'bike' ? -0.7 : 0;
@@ -182,6 +190,17 @@ export async function startGame(root) {
     } else {
       const s = sampleTrail(v === 'bike' ? 0.4 : 0.26);
       p = { ...s, x: s.x + (v === 'bike' ? 0 : 0.85) };
+    }
+    if (scuba) {
+      // Swim alongside: dive under, surface, repeat, with bubbles while under.
+      const dive = Math.sin(t * 2.2);
+      const y = -1.5 + (dive + 1) * 0.45;
+      lGroup.position.set(p.x, y, -p.L);
+      lGroup.rotation.y = p.rot;
+      lSpin.rotation.set(-0.35, 0, 0);
+      if (y < -1 && Math.random() < 0.35) emit('bubble', p.x, -0.3, -p.L - 0.2, 1);
+      lichen.body.scale.set(1, 1, 1);
+      return;
     }
     lGroup.position.set(p.x, groundAt(p.L) + p.alt + p.arc, -p.L);
     lGroup.rotation.y = p.rot;
@@ -223,7 +242,9 @@ export async function startGame(root) {
     if (name && world.props[name]) world.props[name].visible = false;
   }
 
+  let gearNow = null;
   function setGear(name) {
+    gearNow = name;
     [player, lichen, lichenSeat].forEach((c) => Object.entries(c.gear).forEach(([k, g]) => (g.visible = k === name)));
   }
 
@@ -312,6 +333,7 @@ export async function startGame(root) {
     flame: { colors: ['#ffb020', '#ff5a1f', '#ffe14d', '#dddddd'], up: -6, spread: 1.4, size: 0.24, life: 0.8 },
     dust: { colors: ['#ffffff'], up: 1, spread: 0.8, size: 0.08, life: 0.35 },
     heart: { colors: ['#ff3b5c', '#ff6fa8', '#ffb3c7'], up: 1.6, spread: 0.9, size: 0.16, life: 1.6, grav: 0 },
+    bubble: { colors: ['#ffffff', '#d6f6ff'], up: 1.4, spread: 0.3, size: 0.09, life: 0.9, grav: 0 },
     confetti: { colors: ['#15c2b0', '#ffd23f', '#ff4d6d', '#7b61ff'], up: 4, spread: 2.4, size: 0.12, life: 1.4, grav: 5 },
   };
   function emit(kind, x, y, zz, n) {
@@ -454,6 +476,7 @@ export async function startGame(root) {
     if (op.bumpy) arc += Math.abs(Math.sin(fu * 28)) * op.bumpy;
     actor.arc = arc;
     actor.flip = op.flip ? op.flip * fu : 0;
+    actor.dolphin = op.dolphin ? fu : null;
     actor.spin = op.spin ? op.spin * fu : 0;
     // Squash & stretch on hops
     const sq = op.type === 'hop' ? 1 + Math.sin(fu * Math.PI) * 0.12 : 1;
@@ -595,6 +618,11 @@ export async function startGame(root) {
     world.update(dt, t, actor);
     updateParticles(dt);
     updateTow();
+    scoop.visible = run != null && actor.dolphin != null;
+    if (scoop.visible) {
+      scoop.position.set(actor.x, groundAt(actor.L) + actor.alt + actor.arc - 0.55, -actor.L);
+      scoop.rotation.set((0.5 - actor.dolphin) * 1.4, 0, 0);
+    }
     updateLichen();
     space.update(dt, groundAt(actor.L) + actor.alt, actor.vehicle === 'rocket' && actor.alt > 12);
 
