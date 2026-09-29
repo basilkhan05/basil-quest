@@ -1,7 +1,24 @@
 ---
 import Base from '../layouts/Base.astro';
 import Game from '../components/Game.astro';
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Basil Khan',
+  url: 'https://www.basilkhan.ca/',
+  jobTitle: 'Co-founder & CTO',
+  worksFor: { '@type': 'Organization', name: 'Freshly Commerce', url: 'https://www.freshlycommerce.com/' },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'University of Waterloo' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Waterloo', addressRegion: 'ON', addressCountry: 'CA' },
+  sameAs: ['https://www.linkedin.com/in/basilkh', 'https://twitter.com/basilakhan', 'https://github.com/basilkhan05'],
+};
 ---
-<Base bare>
+<Base
+  bare
+  title="Co-founder & CTO, Freshly Commerce"
+  description="Basil Khan is co-founder and CTO of Freshly Commerce, makers of Simple Bundles, Simple Discounts and Freshly Inventory for 25,000 Shopify merchants. Explore the journey as a voxel world."
+  jsonld={person}
+>
   <Game mode="pro" />
 </Base>
