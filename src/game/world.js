@@ -100,6 +100,7 @@ export function buildWorld(scene) {
     ...[36, 39, 41.6].map((L) => [-2.6, L, 1.8]),
     ...MARKERS.map((m) => [m.x - 0.4, m.L, 1.9]),
     [2.9, 23.2, 1.7],
+    [5.8, 73.8, 2.8], // launch pad team
   ];
   const clear = (x, L) => KEEP.every(([kx, kL, r]) => Math.hypot(x - kx, L - kL) > r);
   const scatter = (L, n, fn) => {
@@ -244,8 +245,10 @@ export function buildWorld(scene) {
   for (let L = 46; L <= L_MAX; L++) {
     const y = laneHeight(L);
     if (L >= 55 && L <= 60) continue; // basecamp
-    if (rand() < 0.8) pine(stat, pick([-1, 1]) * (4.5 + rand() * 6), y, z(L), true);
-    if (rand() < 0.3) rock(stat, sideX(), y, z(L), '#c9d3e3');
+    const px = pick([-1, 1]) * (4.5 + rand() * 6);
+    if (rand() < 0.8 && clear(px, L)) pine(stat, px, y, z(L), true);
+    const rx = sideX();
+    if (rand() < 0.3 && clear(rx, L)) rock(stat, rx, y, z(L), '#c9d3e3');
   }
   // Big backdrop peaks on both sides.
   [[-13, 58, 14], [12, 64, 16], [-11, 74, 12], [13, 78, 10]].forEach(([x, L, h]) => peak(stat, x, z(L), h));
@@ -626,7 +629,7 @@ function summit(p, root, anim) {
   box(p, 1.9, 0.06, 1.9, '#ffd23f', 2.6, y + 0.3, z(74), { shadow: false });
   box(p, 0.2, 4.2, 0.2, '#ff3b5c', 3.7, y, z(74.4));
   box(p, 0.6, 0.12, 0.12, '#ff3b5c', 3.4, y + 3.0, z(74.4));
-  // Your AI team: little robots at the pad, one planning, one doing.
+  // Your newest team member: little robots at the pad, one planning, two doing.
   [[4.9, 72.8, '#15c2b0', 'plan'], [6.1, 73.9, '#7b61ff', 'act'], [5.4, 75, '#ff4d6d', 'act']].forEach(([bx, bL, c, role], i) => {
     const bot = group(root, bx, y, z(bL));
     box(bot, 0.5, 0.4, 0.4, '#dfe3ea', 0, 0.2, 0);
@@ -645,7 +648,7 @@ function summit(p, root, anim) {
       led.visible = Math.sin(t * 3 + i * 2) > -0.3;
     });
   });
-  sign(p, ['YOUR', 'AI TEAM'], { x: 7.4, y, z: z(72.4), w: 1.4, h: 0.7, post: 0.5, bg: '#15c2b0', fg: '#1b1b1f', size: 16 });
+  sign(p, ['EFFICIENCY', 'AS A SERVICE'], { x: 7.6, y, z: z(72.4), w: 1.9, h: 0.7, post: 0.5, bg: '#15c2b0', fg: '#1b1b1f', size: 16 });
   sign(p, ['LAUNCH PAD'], { x: -1.4, y: laneHeight(72), z: z(72.3), w: 1.8, h: 0.5, post: 0.4, bg: '#1b1b1f', fg: '#fff', size: 16 });
 }
 
