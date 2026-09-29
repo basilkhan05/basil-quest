@@ -3,7 +3,7 @@ import { buildWorld, groundAt, laneHeight, ROAD_LANES } from './world.js';
 import {
   makePlayer, makeBronco, makeBike, makeSurfboard, makeSnowboard, makeChair, makeRocket, makeWakeboard, makeBoat, makeDolphin, LICHEN,
 } from './models.js';
-import { storyFor, START, FOUNDED, LICHEN_SPOTS } from './story.js';
+import { storyFor, LICHEN_SPOTS } from './story.js';
 import { box, group } from './voxel.js';
 
 const HOP_DUR = 0.17;
@@ -64,6 +64,8 @@ const SKY = {
 
 // Set per route in startGame; module-level so the UI helpers can read it.
 let STOPS = storyFor('pro');
+// Indexes differ per route (the personal route has extra stops), so look them up by id.
+const indexOf = (id) => STOPS.findIndex((s) => s.id === id);
 
 export async function startGame(root) {
   const base = root.dataset.base || '/';
@@ -265,7 +267,8 @@ export async function startGame(root) {
   STOPS.forEach((stop, i) => {
     const s = { x: stop.pos.x, L: stop.pos.L, alt: stop.pos.alt || 0, rot: 0, vehicle: null };
     stop.ops = [];
-    if (!stop.path) {
+    // The first stop of a route is where the journey begins, so it has no path in.
+    if (!stop.path || i === 0) {
       stop.end = { ...s };
       return;
     }
@@ -385,8 +388,8 @@ export async function startGame(root) {
   }
 
   // ---------- Playback ----------
-  let cur = START;
-  let target = START;
+  let cur = indexOf('now');
+  let target = cur;
   let run = null; // { ops, i, t, reverse, speed }
   const ui = makeUI(root, base, { go: (i) => go(i), actor });
 
@@ -862,8 +865,8 @@ function makeUI(root, base, { go, actor }) {
 
   $('#next').addEventListener('click', () => nextCb());
   $('#prev').addEventListener('click', () => prevCb());
-  $('#start')?.addEventListener('click', () => go(START + 1));
-  $('#rewind')?.addEventListener('click', () => go(FOUNDED));
+  $('#start')?.addEventListener('click', () => go(indexOf('now') + 1));
+  $('#rewind')?.addEventListener('click', () => go(indexOf('founded')));
 
   const href = (l) => (l.ext ? l.href : base + l.href);
 

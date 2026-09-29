@@ -26,13 +26,15 @@ export const LICHEN_SPOTS = {
 };
 
 // Per-route copy lives under `personal` / `pro` on a stop and overrides the base.
+// Stops with `only: 'personal'` appear on the personal route only.
 export function storyFor(mode) {
-  return STOPS.map((s) => ({ ...s, ...(s[mode] || {}) }));
+  return STOPS.filter((s) => !s.only || s.only === mode).map((s) => ({ ...s, ...(s[mode] || {}) }));
 }
 
 export const STOPS = [
   {
     id: 'canada',
+    only: 'personal',
     era: 'past',
     year: '2005',
     label: 'Canada',
@@ -320,8 +322,6 @@ export const STOPS = [
   },
 ];
 
-export const START = STOPS.findIndex((s) => s.id === 'now');
-export const FOUNDED = STOPS.findIndex((s) => s.id === 'founded');
 
 // Side milestones: small flags beside the route. Add one line per milestone.
 // `L` is the lane (the stop list above shows roughly where each year sits),
