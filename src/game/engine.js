@@ -55,8 +55,8 @@ const SKY = {
   road: '#bdeeff',
   roadtrip: '#ffd6a0',
   wake: '#9fe3ff',
-  trail: '#c9f2cf',
-  now: '#dce9ff',
+  now: '#c9f2cf',
+  scale: '#dce9ff',
   park: '#dce9ff',
   summit: '#cfdcff',
   launch: '#0a0f2c',
@@ -388,7 +388,7 @@ export async function startGame(root) {
   let cur = START;
   let target = START;
   let run = null; // { ops, i, t, reverse, speed }
-  const ui = makeUI(root, base, { go: (i) => go(i) });
+  const ui = makeUI(root, base, { go: (i) => go(i), actor });
 
   function go(i) {
     target = Math.max(0, Math.min(STOPS.length - 1, i));
@@ -837,7 +837,7 @@ function makeSpace(scene, anchor) {
 const ERA_LABEL = { past: 'The past', company: 'Freshly Commerce', now: 'Now', future: 'The future' };
 
 // ---------- DOM UI ----------
-function makeUI(root, base, { go }) {
+function makeUI(root, base, { go, actor }) {
   const $ = (s) => root.querySelector(s);
   const card = $('#card');
   const bubbles = $('#bubbles');
@@ -927,7 +927,9 @@ function makeUI(root, base, { go }) {
       const w = bubbles.clientWidth;
       const h = bubbles.clientHeight;
       bubbleEls.forEach(({ el, at }) => {
-        v.set(at[0], laneHeight(Math.round(at[2])) + at[1], -at[2]).project(camera);
+        // 'me' anchors the bubble above Basil, so spoken lines come from him.
+        if (at === 'me') v.set(actor.x, groundAt(actor.L) + actor.alt + 1.5, -actor.L).project(camera);
+        else v.set(at[0], laneHeight(Math.round(at[2])) + at[1], -at[2]).project(camera);
         el.style.transform = `translate(${((v.x + 1) / 2) * w}px, ${((1 - v.y) / 2) * h}px) translate(-50%, -100%)`;
       });
     },

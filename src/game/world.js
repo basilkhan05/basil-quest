@@ -525,6 +525,7 @@ function liftSystem(p, root, anim) {
     box(g, 1.4, 0.2, 1.4, '#9aa0a8', 0, 4.0, 0);
   });
   sign(p, ['SKI', 'LIFT'], { x: 1.1, z: z(45.4), w: 1.0, h: 0.62, post: 0.6, bg: '#ff3b5c', fg: '#fff', size: 12 });
+  sign(p, ['YOU ARE', 'HERE'], { x: -1.5, z: z(45.5), w: 1.3, h: 0.7, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 16 });
   // Towers
   [49, 52, 55].forEach((L) => {
     const y = laneHeight(L);
@@ -643,7 +644,7 @@ function basecamp(p, anim) {
   box(lodge, 3.9, 0.12, 2.5, '#ffffff', 0, 2.1, 0);
   box(lodge, 0.7, 0.9, 0.05, '#15c2b0', 0.8, 0, 1.11, { shadow: false });
   box(lodge, 0.5, 0.4, 0.04, '#ffe9a8', -0.9, 0.7, 1.11, { shadow: false });
-  sign(lodge, ['25,000+', 'MERCHANTS'], { x: -0.6, y: 0.2, z: 1.3, w: 2.0, h: 0.8, post: 0, bg: '#111', fg: '#15c2b0', size: 20 });
+  sign(lodge, ['NEXT: 100,000', 'MERCHANTS'], { x: -0.6, y: 0.2, z: 1.3, w: 2.0, h: 0.8, post: 0, bg: '#111', fg: '#15c2b0', size: 20 });
 
   // Three app shops
   booth(p, -8.4, 58.4, '#e1fbf6', '#15c2b0', 'FRESHLY', 'INVENTORY', y);
@@ -671,7 +672,7 @@ function basecamp(p, anim) {
   );
   anim.push((dt, t) => (b.rotation.y = Math.sin(t * 1.2) * 0.5));
   sign(p, ['BUILT FOR', 'SHOPIFY'], { x: -2.2, y, z: z(58.6), w: 1.6, h: 0.5, post: 0, bg: '#1f8f4e', fg: '#fff', size: 14 });
-  sign(p, ['YOU ARE', 'HERE'], { x: -1.4, y, z: z(56.6), w: 1.3, h: 0.7, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 16 });
+
 }
 
 // A side milestone: flag on a pole plus a year/label sign at its foot.
