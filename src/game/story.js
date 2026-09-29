@@ -27,10 +27,22 @@ export const LICHEN_SPOTS = {
   pro: { x: 1.4, L: 0.2 },
 };
 
-// Per-route copy lives under `personal` / `pro` on a stop and overrides the base.
-// Stops with `only: 'personal'` appear on the personal route only.
+// One story, two routes. /personal/ is the regular journey plus extras:
+// - A `personal: { ... }` block on a stop can swap text (title, role,
+//   milestone, blurb) and ADD bubbles/links with `addBubbles` / `addLinks`.
+//   Everything else on the stop, including its bubbles, carries over.
+// - Stops with `only: 'personal'` are extra stops on the personal route
+//   (trips, life moments); every other stop appears on both routes.
 export function storyFor(mode) {
-  return STOPS.filter((s) => !s.only || s.only === mode).map((s) => ({ ...s, ...(s[mode] || {}) }));
+  return STOPS.filter((s) => !s.only || s.only === mode).map((s) => {
+    const { addBubbles = [], addLinks = [], ...swap } = s[mode] || {};
+    return {
+      ...s,
+      ...swap,
+      bubbles: [...(s.bubbles || []), ...addBubbles],
+      links: s.links || addLinks.length ? [...(s.links || []), ...addLinks] : undefined,
+    };
+  });
 }
 
 export const STOPS = [
@@ -94,11 +106,7 @@ export const STOPS = [
     personal: {
       title: 'Vidyard, and meeting Lichen',
       blurb: 'Moved to Waterloo for Vidyard and met Lichen, now my spouse and co-founder. Everything after this, we did together. On the side: AsteroidX, my first dollar online.',
-      bubbles: [
-        { text: 'Hi, Lichen', at: 'me' },
-        { text: 'Moving to Waterloo', at: [5.6, 2.2, -16.6] },
-        { text: 'AsteroidX on the side: my first dollar online, with Amazon PPC', at: [-4, 2.6, -11.3] },
-      ],
+      addBubbles: [{ text: 'Hi, Lichen', at: 'me' }],
     },
     path: hops(0, -22, -16),
   },
@@ -132,12 +140,6 @@ export const STOPS = [
       { text: "Lichen, let's build this together!", at: 'me' },
       { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
     ],
-    personal: {
-      bubbles: [
-        { text: 'Day one', at: [-4.6, 3.8, 1.4] },
-        { text: 'Freshly Inventory ships', at: [4.2, 2.4, 0.6] },
-      ],
-    },
     path: hops(0, -6, 0),
   },
   {
