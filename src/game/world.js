@@ -486,14 +486,15 @@ function presentLandmarks(p, root, anim) {
   sign(p, ['EST. 2020'], { x: 1.6, z: z(-0.6), w: 1.6, h: 0.55, post: 0.5, bg: '#111', fg: '#15c2b0', size: 18 });
   // Shopify App Challenge 2020 trophy: Shopify-green plinth, gold cup with
   // the Shopify bag on it, slowly turning.
-  const tr = group(p, 1.8, 0, z(3.1));
+  // On the grass between the start and the road (lanes 1-2), clear of traffic.
+  const tr = group(p, 2.2, 0, z(1.6));
   tr.scale.setScalar(1.3);
   box(tr, 1.4, 0.3, 1.2, '#5e8e3e', 0, 0, 0);
   box(tr, 1.1, 0.5, 0.9, '#95bf47', 0, 0.3, 0);
   sign(tr, [{ text: 'SHOPIFY APP', size: 13 }, { text: 'CHALLENGE 2020', size: 13 }, { text: '3RD PLACE', size: 16 }], {
     y: 0.02, z: 0.62, w: 1.3, h: 0.72, post: 0, bg: '#1b1b1f', fg: '#f6c453', size: 13,
   });
-  const cup = group(root, 1.8, 1.04, z(3.1));
+  const cup = group(root, 2.2, 1.04, z(1.6));
   cup.scale.setScalar(1.3);
   const gold = '#f6c453';
   const deep = '#e0a526';
