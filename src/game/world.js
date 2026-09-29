@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { box, group, sign, mat, rand, pick } from './voxel.js';
+import { MARKERS } from './story.js';
 import {
   makeCar, makeTruck, makeBronco, makeBike, makeBoat, makeSnowboard, makeChair, makeRocket,
   tree, autumnTree, pine, rock, cactus, mesa, flowers,
@@ -228,6 +229,8 @@ export function buildWorld(scene) {
   props.chair = makeChair();
   props.rocket = makeRocket();
   Object.values(props).forEach((p) => root.add(p));
+
+  MARKERS.forEach((m) => marker(stat, root, anim, m));
 
   bake(stat);
 
@@ -642,4 +645,16 @@ function basecamp(p, anim) {
   anim.push((dt, t) => (b.rotation.y = Math.sin(t * 1.2) * 0.5));
   sign(p, ['BUILT FOR', 'SHOPIFY'], { x: -2.2, y, z: z(58.6), w: 1.6, h: 0.5, post: 0, bg: '#1f8f4e', fg: '#fff', size: 14 });
   sign(p, ['YOU ARE', 'HERE'], { x: -1.4, y, z: z(56.6), w: 1.3, h: 0.7, post: 0.5, bg: '#ff3b5c', fg: '#fff', size: 16 });
+}
+
+// A side milestone: flag on a pole plus a year/label sign at its foot.
+function marker(stat, root, anim, { year, text, x, L, color = '#ff3b5c' }) {
+  const y = groundAt(L);
+  box(stat, 0.1, 2.4, 0.1, '#dfe3ea', x - 0.95, y, z(L));
+  box(stat, 0.18, 0.18, 0.18, '#ffd23f', x - 0.95, y + 2.4, z(L));
+  sign(stat, [{ text: year, size: 22 }, { text, size: 18 }], { x, y, z: z(L) + 0.05, w: 2.3, h: 0.9, post: 0.3, bg: '#ffffff', fg: '#1b1b1f', border: color, size: 13 });
+  const flag = group(root, x - 0.9, y + 1.7, z(L));
+  const cloth = [];
+  for (let i = 0; i < 4; i++) cloth.push(box(flag, 0.2, 0.55, 0.05, color, 0.1 + i * 0.2, 0, 0, { shadow: false }));
+  anim.push((dt, t) => cloth.forEach((c, i) => (c.position.z = Math.sin(t * 5 - i * 0.9) * 0.06 * i)));
 }

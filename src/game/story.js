@@ -308,3 +308,12 @@ export const STOPS = [
 
 export const START = STOPS.findIndex((s) => s.id === 'now');
 export const FOUNDED = STOPS.findIndex((s) => s.id === 'founded');
+
+// Side milestones: small flags beside the route. Add one line per milestone.
+// `L` is the lane (the stop list above shows roughly where each year sits),
+// `x` is how far left (-) or right (+) of the path.
+export const MARKERS = [
+  { year: '2023', text: 'Simple Discounts launches', x: -2.1, L: 32.9, color: '#7b61ff' },
+  { year: '2024', text: 'Security + scaling up', x: 2.3, L: 34.4, color: '#2b6cff' },
+  { year: '2024', text: 'Built for Shopify', x: -2.7, L: 44.4, color: '#1f8f4e' },
+];
