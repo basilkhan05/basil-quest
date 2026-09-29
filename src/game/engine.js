@@ -946,6 +946,22 @@ function makeUI(root, base, { go, actor }) {
   });
   const dots = [...track.children];
 
+  // Collapsible card: hide it to the side, pull it back with the Info tab.
+  const tab = $('#card-tab');
+  const setCollapsed = (on) => {
+    root.classList.toggle('card-collapsed', on);
+    tab.hidden = !on;
+    tab.setAttribute('aria-expanded', String(!on));
+    try {
+      sessionStorage.setItem('card-collapsed', on ? '1' : '');
+    } catch {}
+  };
+  card.addEventListener('click', (e) => e.target.closest('[data-hide]') && setCollapsed(true));
+  tab.addEventListener('click', () => setCollapsed(false));
+  try {
+    if (sessionStorage.getItem('card-collapsed')) setCollapsed(true);
+  } catch {}
+
   $('#next').addEventListener('click', () => nextCb());
   $('#prev').addEventListener('click', () => prevCb());
   $('#start')?.addEventListener('click', () => go(indexOf('now') + 1));
@@ -957,6 +973,7 @@ function makeUI(root, base, { go, actor }) {
     const s = STOPS[i];
     card.dataset.era = s.era;
     card.innerHTML = `
+      <button class="card__hide" type="button" data-hide aria-label="Hide details" title="Hide">–</button>
       <div class="card__era">${s.eraLabel || ERA_LABEL[s.era]}</div>
       ${s.milestone ? `<div class="card__badge">${s.milestone}</div>` : ''}
       <h2 class="card__title">${s.title}</h2>

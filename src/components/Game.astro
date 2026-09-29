@@ -38,6 +38,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
     <div class="dock">
       <section id="card" class="panel pxcorners" aria-live="polite"></section>
+      <button id="card-tab" class="card-tab" type="button" aria-controls="card" aria-expanded="false" hidden>Info</button>
       <div class="controls">
         <button id="prev" class="pxbtn pxbtn--white" aria-label="Previous stop">◀ <small id="prev-label"></small></button>
         <button id="next" class="pxbtn" aria-label="Next stop"><small id="next-label"></small> ▶</button>
@@ -178,9 +179,22 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   #game.has-title .dock > * { pointer-events: none; }
   #game.has-title #bubbles { opacity: 0; }
 
-  #card { grid-area: card; padding: 18px 20px; transition: opacity 0.25s, transform 0.25s; }
+  #card { grid-area: card; position: relative; padding: 18px 20px; transition: opacity 0.25s, transform 0.3s; }
+  #game.card-collapsed #card { transform: translateX(calc(-100% - 32px)); opacity: 0; pointer-events: none; }
+  .card__hide {
+    position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; padding: 0;
+    font-family: var(--px); font-size: 14px; line-height: 1; background: #fff; color: var(--ink);
+    border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+  }
+  .card-tab {
+    position: absolute; left: 0; bottom: 118px; padding: 14px 8px; writing-mode: vertical-rl; transform: rotate(180deg);
+    font-family: var(--px); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--yellow); color: var(--ink); border: 3px solid var(--ink); border-left: 0; box-shadow: -3px -3px 0 var(--ink);
+    pointer-events: auto;
+  }
+  .card-tab[hidden] { display: none; }
   #game.is-moving #card { opacity: 0; transform: translateY(12px); }
-  .card__era { font-family: var(--px); font-size: 9px; text-transform: uppercase; color: var(--muted); }
+  .card__era { padding-right: 36px; font-family: var(--px); font-size: 9px; text-transform: uppercase; color: var(--muted); }
   #card[data-era='past'] .card__era { color: #b07a1a; }
   #card[data-era='now'] .card__era { color: var(--teal); }
   #card[data-era='future'] .card__era { color: var(--pink); }
@@ -189,7 +203,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     display: inline-block; margin-top: 8px; font-family: var(--px); font-size: 9px; line-height: 1.4;
     background: var(--yellow); border: 2px solid var(--ink); padding: 5px 7px; box-shadow: 2px 2px 0 var(--ink);
   }
-  .card__title { font-size: 16px; margin: 8px 0 6px; }
+  .card__title { font-size: 16px; margin: 8px 0 6px; overflow-wrap: anywhere; }
   .card__role { font-weight: 700; font-size: 15px; }
   .card__blurb { margin: 6px 0 0; font-size: 15px; line-height: 1.5; }
   .card__links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
@@ -237,7 +251,8 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   #game.is-broken::after { content: 'The 3D world could not start on this device.'; position: absolute; top: 45%; left: 0; right: 0; text-align: center; font-family: var(--px); font-size: 12px; }
 
   @media (max-width: 760px) {
-    .dock { grid-template-columns: 1fr auto; grid-template-areas: 'card card' 'track controls'; gap: 10px; }
+    .dock { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'card card' 'track controls'; gap: 10px; }
+    #card { min-width: 0; max-width: 100%; }
     #card { padding: 14px 16px; }
     .card__title { font-size: 13px; }
     .card__blurb { font-size: 14px; }
