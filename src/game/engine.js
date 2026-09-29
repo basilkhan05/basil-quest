@@ -853,11 +853,11 @@ function makeSpace(scene, anchor) {
 }
 
 function makeEgg(scene) {
-  const L = 47.1;
-  const x = 4.4;
-  const y = laneHeight(Math.round(L));
+  // Tucked on the slope beside the lift, among the pines: spot it on the ride up.
+  const L = 50.6;
+  const x = 5.9;
+  const y = groundAt(Math.round(L));
   const g = group(scene, x, y, -L);
-  g.scale.setScalar(1.35);
   const bottom = group(g);
   const top = group(g, 0, 0.36, 0);
   const shell = '#fff4dc';
@@ -900,8 +900,8 @@ function makeEgg(scene) {
     update(dt, t, root) {
       clock = t;
       if (hatchedAt < 0) {
-        // A little wobble every few seconds to catch the eye.
-        const w = t % 4;
+        // A rare little wobble for anyone looking closely.
+        const w = t % 9;
         g.rotation.z = w < 0.6 ? Math.sin(w * 30) * 0.12 : 0;
         return;
       }

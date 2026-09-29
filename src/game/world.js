@@ -101,7 +101,7 @@ export function buildWorld(scene) {
     ...MARKERS.map((m) => [m.x - 0.4, m.L, 1.9]),
     [2.9, 23.2, 1.7],
     [5.8, 73.8, 2.8], // launch pad team
-    [4.4, 47.1, 1.3], // the Easter egg
+    [5.9, 50.6, 0.6], // the Easter egg (trees around it, not on it)
   ];
   const clear = (x, L) => KEEP.every(([kx, kL, r]) => Math.hypot(x - kx, L - kL) > r);
   const scatter = (L, n, fn) => {
@@ -251,6 +251,9 @@ export function buildWorld(scene) {
     const rx = sideX();
     if (rand() < 0.3 && clear(rx, L)) rock(stat, rx, y, z(L), '#c9d3e3');
   }
+  // Pines around the hidden Easter egg on the slope.
+  pine(stat, 6.9, laneHeight(50), z(50.2), true);
+  pine(stat, 5.0, laneHeight(51), z(51.2), true);
   // Big backdrop peaks on both sides.
   [[-13, 58, 14], [12, 64, 16], [-11, 74, 12], [13, 78, 10]].forEach(([x, L, h]) => peak(stat, x, z(L), h));
   liftSystem(stat, root, anim);
