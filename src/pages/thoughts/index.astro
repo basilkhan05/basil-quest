@@ -12,6 +12,7 @@ const fmt = (d: Date) => d.toLocaleDateString('en-CA', { year: 'numeric', month:
     <p class="eyebrow">Thoughts</p>
     <h1>Notes from the trail</h1>
     <p class="lede">Building Freshly, engineering, and whatever I learned on the mountain this week.</p>
+    {posts.length === 0 && <p class="empty panel pxcorners">First post coming soon.</p>}
     <ul class="posts">
       {posts.map((p) => (
         <li>
@@ -28,6 +29,7 @@ const fmt = (d: Date) => d.toLocaleDateString('en-CA', { year: 'numeric', month:
 
 <style>
   h1 { font-size: clamp(22px, 4vw, 32px); margin: 12px 0; }
+  .empty { margin-top: 40px; font-family: var(--px); font-size: 12px; }
   .posts { list-style: none; padding: 0; margin: 40px 0 0; display: grid; gap: 20px; }
   .post { display: block; text-decoration: none; transition: transform 0.1s, box-shadow 0.1s; }
   .post:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--ink); }
