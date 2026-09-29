@@ -88,5 +88,29 @@ const links = [
         </footer>
       </>
     )}
+    <script is:inline>
+      // Click feedback: pixel sparks at the click point.
+      (() => {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const colors = ['#ffd23f', '#ff3b5c', '#15c2b0', '#7b61ff', '#ff8a1f'];
+        addEventListener('pointerdown', (e) => {
+          const b = document.createElement('div');
+          b.className = 'pxburst';
+          b.style.left = e.clientX + 'px';
+          b.style.top = e.clientY + 'px';
+          for (let i = 0; i < 8; i++) {
+            const s = document.createElement('i');
+            const a = (i / 8) * Math.PI * 2 + Math.random() * 0.3;
+            const r = 26 + Math.random() * 18;
+            s.style.setProperty('--dx', Math.cos(a) * r + 'px');
+            s.style.setProperty('--dy', Math.sin(a) * r + 'px');
+            s.style.background = colors[i % colors.length];
+            b.appendChild(s);
+          }
+          document.body.appendChild(b);
+          setTimeout(() => b.remove(), 600);
+        }, { passive: true });
+      })();
+    </script>
   </body>
 </html>
