@@ -95,8 +95,19 @@ export function buildWorld(scene) {
 
   // ---------- Scatter helpers ----------
   const sideX = () => (rand() < 0.5 ? -1 : 1) * (2.2 + rand() * 8);
+  // Areas kept free of random trees and rocks so signs and banners stay readable.
+  const KEEP = [
+    ...[36, 39, 41.6].map((L) => [-2.6, L, 1.8]),
+    ...MARKERS.map((m) => [m.x - 0.4, m.L, 1.9]),
+    [2.9, 23.2, 1.7],
+  ];
+  const clear = (x, L) => KEEP.every(([kx, kL, r]) => Math.hypot(x - kx, L - kL) > r);
   const scatter = (L, n, fn) => {
-    for (let i = 0; i < n; i++) fn(sideX(), laneHeight(L), z(L) + (rand() - 0.5) * 0.4);
+    for (let i = 0; i < n; i++) {
+      const x = sideX();
+      const dz = (rand() - 0.5) * 0.4;
+      if (clear(x, L - dz)) fn(x, laneHeight(L), z(L) + dz);
+    }
   };
 
   // ---------- The past ----------
@@ -160,7 +171,8 @@ export function buildWorld(scene) {
 
   // ---------- Beach + ocean ----------
   [22, 23, 31, 32].forEach((L) => {
-    palm(stat, pick([-6, -4.5, 5, 6.5]) + rand(), 0, z(L));
+    const px = pick([-6, -4.5, 5, 6.5]) + rand();
+    if (clear(px, L)) palm(stat, px, 0, z(L));
     if (rand() < 0.5) box(stat, 0.9, 0.04, 0.5, pick(['#ff6fa8', '#7fdcff', '#ffd23f']), sideX(), 0, z(L), { shadow: false });
   });
   const foam = [];
@@ -204,12 +216,13 @@ export function buildWorld(scene) {
     box(stat, 0.14, 0.7, 0.14, '#7a4b33', -1.45, -0.6, z(L));
     box(stat, 0.14, 0.7, 0.14, '#7a4b33', -0.35, -0.6, z(L));
   }
-  sign(stat, ['SIMPLE BUNDLES', '2.0 LAUNCH'], { x: -2.6, z: z(22.4), w: 2.4, h: 0.8, post: 0.5, bg: '#ff4d6d', fg: '#fff', size: 16 });
+  sign(stat, ['SIMPLE BUNDLES', '2.0 LAUNCH'], { x: 2.9, z: z(23.2), w: 2.6, h: 0.9, post: 0.6, bg: '#ff4d6d', fg: '#fff', size: 20 });
 
   // ---------- Forest trail ----------
   for (let L = TRAIL[0]; L <= TRAIL[1]; L++) {
     scatter(L, 3, (x, y, zz) => (rand() < 0.6 ? pine(stat, x, y, zz) : tree(stat, x, y, zz)));
-    if (rand() < 0.4) rock(stat, sideX(), 0, z(L));
+    const rx = sideX();
+    if (rand() < 0.4 && clear(rx, L)) rock(stat, rx, 0, z(L));
   }
   [36, 39].forEach((L) => {
     box(stat, 2.6, 0.36, 0.38, '#7a4b33', 0, 0, z(L));
@@ -500,7 +513,35 @@ function campsite(p, anim) {
     f1.scale.y = 0.3 + Math.abs(Math.sin(t * 9)) * 0.15;
     f2.position.y = 0.3 + Math.sin(t * 13) * 0.05 + 0.12;
   });
-  sign(p, ['CAMP', 'BRONCO'], { x: -5.2, z: z(20.4), w: 1.3, h: 0.62, post: 0.45, bg: '#2f6b3a', fg: '#ffe14d', size: 11 });
+  sign(p, ['TEAM CAMP', 'WORLDWIDE'], { x: -5.6, z: z(20.2), w: 2.0, h: 0.7, post: 0.45, bg: '#2f6b3a', fg: '#ffe14d', size: 16 });
+
+  // The team around the fire.
+  [
+    [-1.5, 20.45, 0, { hair: '#e0c070', skin: '#f0c9a8', shirt: '#2ec4ff', beard: null, longHair: true }],
+    [-2.35, 21.35, -Math.PI / 2, { hair: '#1c1512', skin: '#8d5a3b', shirt: '#ffd23f', beard: null }],
+    [-0.75, 21.95, Math.PI * 0.8, { hair: '#6b3f2a', skin: '#e2b08c', shirt: '#7b61ff', beard: '#6b3f2a' }],
+    [-1.9, 22.05, Math.PI, { hair: '#141012', skin: '#c68a64', shirt: '#ff7a8a', beard: null, longHair: true }],
+  ].forEach(([x, L2, rot, look]) => {
+    const m = makePlayer(look);
+    m.legs.rotation.x = -Math.PI / 2;
+    m.legs.position.set(0, 0.3, 0.05);
+    m.root.position.set(x, -0.08, z(L2));
+    m.root.rotation.y = rot;
+    p.add(m.root);
+  });
+
+  // A spinning voxel globe: the team is spread around the world.
+  const globe = group(p.parent || p, -6.8, 1.2, z(21.6));
+  const land = (a, b, c) => Math.sin(a * 1.7) + Math.cos(b * 2.3 + c) > 0.6;
+  for (let i = -3; i <= 3; i++)
+    for (let j = -3; j <= 3; j++)
+      for (let k = -3; k <= 3; k++) {
+        const d = Math.hypot(i, j, k);
+        if (d > 3.2 || d < 2.2) continue;
+        box(globe, 0.2, 0.2, 0.2, land(i, j, k) ? '#48c774' : '#2b6cff', i * 0.2, j * 0.2 - 0.1, k * 0.2, { shadow: false });
+      }
+  box(p, 0.14, 0.9, 0.14, '#7a4b33', -6.8, 0, z(21.6));
+  anim.push((dt, t) => (globe.rotation.y = t * 0.6));
 }
 
 function surfShack(p, x, zz) {

@@ -180,7 +180,7 @@ export const STOPS = [
     blurb: 'Growing past $10K was the hard part. We started hiring and built a remote team around the world.',
     bubbles: [
       { text: 'Campfire debugging', at: [-1.5, 1.4, 21.2] },
-      { text: '4x4 engaged', at: [1.3, 2.1, 20.6] },
+      { text: 'Hiring around the world', at: [-6.8, 2.4, 21.6] },
     ],
     path: [
       hop(0.2, 10),
@@ -345,7 +345,7 @@ export const STOPS = [
 // `L` is the lane (the stop list above shows roughly where each year sits),
 // `x` is how far left (-) or right (+) of the path.
 export const MARKERS = [
-  { year: '2023', text: 'Simple Discounts launches', x: -2.1, L: 32.9, color: '#7b61ff' },
+  { year: '2023', text: 'Simple Discounts launches', x: -2.4, L: 33.9, color: '#7b61ff' },
   { year: '2024', text: 'Security + scaling up', x: 2.3, L: 34.4, color: '#2b6cff' },
   { year: '2024', text: 'Built for Shopify', x: -2.7, L: 44.4, color: '#1f8f4e' },
 ];
