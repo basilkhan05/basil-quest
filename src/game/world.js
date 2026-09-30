@@ -1047,26 +1047,6 @@ const memoryKinds = {
       box(g, 0.62, 0.08, 0.62, '#ffffff', px, 0.7, pz);
     });
   },
-  // 2023: Mont-Tremblant
-  tremblant(g, live, anim) {
-    for (let i = 0; i < 5; i++) {
-      const w = 2.4 - i * 0.45;
-      box(g, w, 0.45, w * 0.7, i >= 3 ? '#ffffff' : '#e8f0f8', 0.4, i * 0.45, -0.8);
-    }
-    box(g, 0.14, 1.8, 0.05, '#c9d3e3', -0.1, 0.1, -0.2, { shadow: false });
-    box(g, 0.14, 1.6, 0.05, '#c9d3e3', 0.9, 0.1, -0.35, { shadow: false });
-    const gondola = live(0, 0, 0);
-    box(gondola, 0.26, 0.24, 0.24, '#ff3b5c', 0, 0, 0);
-    anim.push((dt, t) => {
-      const u = (t * 0.15) % 1;
-      gondola.position.set(9.2 - 0.9 + u * 1.8, groundAt(31.3) + 0.6 + u * 1.6, z(31.3) - 0.3);
-    });
-    [['#ff3b5c', -1.1], ['#ffd23f', -0.5], ['#2b6cff', 0.1]].forEach(([c, px]) => {
-      box(g, 0.5, 0.6, 0.5, '#f4efe4', px, 0, 0.6);
-      box(g, 0.56, 0.2, 0.56, c, px, 0.6, 0.6);
-      box(g, 0.3, 0.16, 0.3, c, px, 0.8, 0.6);
-    });
-  },
   // 2019: Tofino, Vancouver Island
   tofino(g, live, anim) {
     box(g, 2.8, 0.05, 0.9, '#f3d89b', 0, 0, 0.4, { shadow: false });
