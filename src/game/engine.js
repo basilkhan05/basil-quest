@@ -98,6 +98,8 @@ export async function startGame(root) {
   sun.shadow.mapSize.set(2048, 2048);
   Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 16, bottom: -16, near: 1, far: 60 });
   sun.shadow.bias = -0.0008;
+  // Pushes shadow lookups off the surface to stop striped "shadow acne" shimmer.
+  sun.shadow.normalBias = 0.04;
   scene.add(sun, sun.target);
 
   await document.fonts.load('16px "Press Start 2P"').catch(() => {});

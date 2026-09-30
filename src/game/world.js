@@ -81,8 +81,9 @@ export function buildWorld(scene) {
     // Rock face on rising lanes so the mountain reads as a climb from above.
     const rise = top - laneHeight(L - 1);
     if (t === 'snow' && rise > 0.05) {
-      box(stat, WIDTH, rise, 0.04, '#aebdd6', 0, top - rise, z(L) + 0.5, { shadow: false });
-      box(stat, WIDTH, 0.08, 0.06, '#ffffff', 0, top - 0.08, z(L) + 0.5, { shadow: false });
+      // Sit just in front of the lane's front face (never in the same plane, or it flickers).
+      box(stat, WIDTH - 0.02, rise - 0.01, 0.02, '#aebdd6', 0, top - rise, z(L) + 0.512, { shadow: false });
+      box(stat, WIDTH - 0.02, 0.08, 0.02, '#ffffff', 0, top - 0.09, z(L) + 0.535, { shadow: false });
     }
     if (t === 'past' && L % 3 === 0) {
       // Faded cobblestone "memory lane"
@@ -351,9 +352,10 @@ function palm(p, x, y, zz) {
   const g = group(p, x, y, zz);
   for (let i = 0; i < 5; i++) box(g, 0.22, 0.3, 0.22, '#9b6b43', i * 0.05, i * 0.3, 0);
   const top = 1.5;
-  box(g, 0.3, 0.2, 0.3, '#3fae6a', 0.25, top, 0);
+  // Leaves at slightly different heights so their crossing doesn't flicker.
+  box(g, 0.3, 0.15, 0.3, '#3fae6a', 0.25, top, 0);
   box(g, 1.4, 0.1, 0.3, '#48c774', 0.25, top + 0.1, 0);
-  box(g, 0.3, 0.1, 1.4, '#48c774', 0.25, top + 0.1, 0);
+  box(g, 0.3, 0.1, 1.4, '#48c774', 0.25, top + 0.12, 0);
   box(g, 0.14, 0.14, 0.14, '#7a4b33', 0.1, top - 0.1, 0.12);
 }
 
@@ -575,7 +577,8 @@ function campsite(p, anim) {
 function surfShack(p, x, zz) {
   const g = group(p, x, 0, zz);
   box(g, 2.2, 1.3, 1.4, '#7fdcff', 0, 0, 0);
-  for (let i = 0; i < 5; i++) box(g, 2.6, 0.12, 1.8, i % 2 ? '#ffffff' : '#ff6fa8', 0, 1.3 + i * 0.05, 0);
+  // Striped roof: stacked, non-overlapping layers (overlapping ones flicker).
+  for (let i = 0; i < 5; i++) box(g, 2.6, 0.06, 1.8, i % 2 ? '#ffffff' : '#ff6fa8', 0, 1.3 + i * 0.06, 0);
   sign(g, ['SURF', 'SHACK'], { z: 0.9, w: 1.4, h: 0.5, post: 0, y: 0.5, bg: '#ff6fa8', fg: '#fff', size: 10 });
   [-0.8, 0.8].forEach((bx, i) => box(g, 0.35, 1.4, 0.1, i ? '#ffd23f' : '#20c997', bx * 1.6, 0, 0.8));
 }
