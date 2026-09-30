@@ -1025,12 +1025,6 @@ const memoryKinds = {
       const w = 1.6 - i * 0.35;
       box(g, w, 0.5, w * 0.8, i >= 2 ? '#ffffff' : '#dfe9f7', 0.9, i * 0.5, -0.7);
     }
-    const car = live(0, 0, 0);
-    box(car, 0.24, 0.22, 0.22, '#15c2b0', 0, 0, 0);
-    anim.push((dt, t) => {
-      const u = (t * 0.12 + 0.5) % 1;
-      car.position.set(7.4 + 0.2 + u * 1.2, groundAt(43.6) + 0.5 + u * 1.5, z(43.6) - 0.2);
-    });
   },
   // 2024: Canmore and the Three Sisters
   canmore(g, live, anim) {
