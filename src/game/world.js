@@ -973,6 +973,22 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2019: Tofino, Vancouver Island
+  tofino(g, live, anim) {
+    box(g, 2.8, 0.05, 0.9, '#f3d89b', 0, 0, 0.4, { shadow: false });
+    box(g, 2.8, 0.05, 0.9, '#3fa9d8', 0, 0, -0.5, { shadow: false });
+    const tail = live(0.8, 0, -0.6);
+    box(tail, 0.14, 0.4, 0.14, '#3a4a5c', 0, 0, 0);
+    box(tail, 0.7, 0.12, 0.2, '#3a4a5c', 0, 0.4, 0);
+    anim.push((dt, t) => (tail.position.y = -0.4 + Math.max(0, Math.sin(t * 0.8)) * 0.5));
+    const b = box(g, 0.35, 1.1, 0.08, '#ff8a1f', -0.6, 0, 0.5);
+    b.rotation.z = 0.15;
+    [[-1.3, -0.2], [1.4, 0.7], [-1.1, 0.8]].forEach(([px, pz], i) => {
+      box(g, 0.24, 0.8, 0.24, '#5a3a22', px, 0, pz);
+      box(g, 0.8, 0.6, 0.8, i % 2 ? '#1f6b45' : '#2a7d52', px, 0.8, pz);
+      box(g, 0.5, 0.5, 0.5, '#1f6b45', px, 1.4, pz);
+    });
+  },
   // 2019: Banff, Alberta
   banff(g, live, anim) {
     box(g, 2.6, 0.06, 1.3, '#3fd0c9', 0, 0, 0.1, { shadow: false });
