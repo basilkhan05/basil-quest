@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { box, group, sign, mat, rand, pick } from './voxel.js';
-import { MARKERS } from './story.js';
+import { MARKERS, MEMORIES } from './story.js';
 import {
   makeCar, makeTruck, makeBronco, makeBike, makeBoat, makeSnowboard, makeChair, makeRocket,
   tree, autumnTree, pine, rock, cactus, mesa, flowers, makePlayer, makeDolphin,
@@ -58,7 +58,7 @@ const COLORS = {
 
 const z = (L) => -L;
 
-export function buildWorld(scene) {
+export function buildWorld(scene, mode = 'pro') {
   const root = group(scene);
   const stat = group(root); // merged into a handful of meshes after build
   const anim = []; // per-frame updaters
@@ -100,6 +100,7 @@ export function buildWorld(scene) {
   const KEEP = [
     ...[36, 39, 41.6].map((L) => [-2.6, L, 1.8]),
     ...MARKERS.map((m) => [m.x - 0.4, m.L, 1.9]),
+    ...MEMORIES.map((m) => [m.x, m.L, 2.6]),
     [2.9, 23.2, 1.7],
     [5.8, 73.8, 2.8], // launch pad team
     [5.9, 50.6, 0.6], // the Easter egg (trees around it, not on it)
@@ -279,6 +280,7 @@ export function buildWorld(scene) {
   Object.values(props).forEach((p) => root.add(p));
 
   MARKERS.forEach((m) => marker(stat, root, anim, m));
+  if (mode === 'personal') MEMORIES.forEach((m) => memory(stat, root, anim, m));
 
   bake(stat);
 
@@ -939,3 +941,57 @@ function canadaFlag(stat, root, anim, x, L) {
     geo.attributes.position.needsUpdate = true;
   });
 }
+
+// ---------- Personal memories (dioramas beside the route) ----------
+function memory(stat, root, anim, m) {
+  const y = groundAt(m.L);
+  const g = group(stat, m.x, y, z(m.L));
+  // Animated bits live under root, positioned relative to the diorama.
+  const live = (dx = 0, dy = 0, dz = 0) => group(root, m.x + dx, y + dy, z(m.L) + dz);
+  memoryKinds[m.kind]?.(g, live, anim);
+  sign(stat, [{ text: m.year, size: 18 }, { text: m.title.toUpperCase(), size: 15 }], {
+    x: m.x, y, z: z(m.L) + 1.7, w: 2.6, h: 0.85, post: 0.35, bg: '#fffaf0', fg: '#1b1b1f', border: '#ff6fa8', size: 15,
+  });
+}
+
+// Friends who show up in trip memories (short, light beards).
+const FRIENDS = {
+  shared: { hair: '#4a3426', skin: '#e2b08c', beard: '#7a5a44', shirt: '#2ec4ff', shirtDark: '#1f9fd0' },
+  b: { hair: '#1c1512', skin: '#c68a64', beard: '#4a3426', shirt: '#ffd23f', shirtDark: '#e0b52a' },
+  c: { hair: '#b58a5a', skin: '#f0c9a8', beard: '#caa27c', shirt: '#ff7a8a', shirtDark: '#e0566a' },
+  d: { hair: '#2b1e18', skin: '#b87a55', beard: '#5a4030', shirt: '#48c774', shirtDark: '#36a35c' },
+  e: { hair: '#6b3f2a', skin: '#e8b996', beard: '#9b6b4a', shirt: '#7b61ff', shirtDark: '#5d47d6' },
+};
+function crew(g, looks, x0, zz, rot = 0) {
+  looks.forEach((look, i) => {
+    const p = makePlayer(look);
+    p.root.position.set(x0 + i * 0.55, 0, zz + (i % 2) * 0.15);
+    p.root.rotation.y = rot;
+    p.root.scale.setScalar(0.85);
+    g.add(p.root);
+  });
+}
+
+const memoryKinds = {
+  // 2016: music festivals
+  festival(g, live, anim) {
+    box(g, 2.8, 0.3, 1.4, '#2b2f3a', 0, 0, -0.4);
+    box(g, 0.14, 2.0, 0.14, '#555c68', -1.3, 0.3, -1.0);
+    box(g, 0.14, 2.0, 0.14, '#555c68', 1.3, 0.3, -1.0);
+    box(g, 2.74, 0.14, 0.14, '#555c68', 0, 2.3, -1.0);
+    box(g, 2.5, 1.4, 0.06, '#1b1b1f', 0, 0.5, -1.05);
+    box(g, 0.5, 0.8, 0.4, '#1b1b1f', -1.15, 0.3, -0.3);
+    box(g, 0.5, 0.8, 0.4, '#1b1b1f', 1.15, 0.3, -0.3);
+    const lights = live(0, 2.15, -0.9);
+    const colors = ['#ff3b5c', '#ffd23f', '#15c2b0', '#7b61ff', '#ff8a1f'];
+    const bulbs = colors.map((c, i) => box(lights, 0.22, 0.18, 0.18, c, -1.0 + i * 0.5, 0, 0, { shadow: false }));
+    anim.push((dt, t) => bulbs.forEach((b, i) => (b.visible = Math.sin(t * 6 + i * 1.3) > -0.2)));
+    // Crowd facing the stage
+    ['#ff6fa8', '#2ec4ff', '#ffd23f', '#48c774'].forEach((shirt, i) => {
+      const p = makePlayer({ shirt, beard: null, hair: ['#1c1512', '#e0c070', '#6b3f2a', '#1c1512'][i], longHair: i % 2 === 0 });
+      p.root.position.set(-1.0 + i * 0.65, 0, 1.0 + (i % 2) * 0.25);
+      p.root.scale.setScalar(0.8);
+      g.add(p.root);
+    });
+  },
+};

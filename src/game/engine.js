@@ -103,7 +103,7 @@ export async function startGame(root) {
   scene.add(sun, sun.target);
 
   await document.fonts.load('16px "Press Start 2P"').catch(() => {});
-  const world = buildWorld(scene);
+  const world = buildWorld(scene, mode);
   addLogos(scene, base);
   const space = makeSpace(scene, new THREE.Vector3(2.6, 0, -74));
 
