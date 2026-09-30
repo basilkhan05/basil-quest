@@ -283,7 +283,7 @@ export const STOPS = [
     title: 'Small teams, giant brands',
     role: "We're building the platform to run it",
     milestone: 'Do more with less',
-    blurb: "We're building a platform where merchants set the goal, like lift AOV by 17% or cut fulfillment issues by 30%, and a crew plans the work, makes the changes and reports what moved. Then it runs the whole operation, so a team of five can build a brand that used to take fifty.",
+    blurb: "We're building a platform where merchants set the goal, like lift AOV by 17% or cut fulfillment issues by 30%, and a crew plans the work, makes the changes and reports what moved. Then it runs the whole operation, so a team of five can run a brand that used to take 500.",
     bubbles: [
       { text: 'Increase my AOV by 17%', at: [4.2, 1.8, 72.6] },
       { text: 'Cut fulfillment issues by 30%', at: [6.8, 2.5, 74.2] },
