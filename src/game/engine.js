@@ -538,10 +538,8 @@ export async function startGame(root) {
 
   // Deep link: #surf, #summit, ...
   const fromHash = STOPS.findIndex((s) => `#${s.id}` === location.hash);
-  if (fromHash >= 0) {
-    cur = target = fromHash;
-    ui.hideTitle();
-  }
+  // Deep links (#uw, #launch...) start at that stop, still showing the title card.
+  if (fromHash >= 0) cur = target = fromHash;
   syncProps(cur);
   arrive();
 
@@ -981,8 +979,18 @@ function makeUI(root, base, { go, actor }) {
 
   $('#next').addEventListener('click', () => nextCb());
   $('#prev').addEventListener('click', () => prevCb());
-  $('#start')?.addEventListener('click', () => go(indexOf('now') + 1));
-  $('#rewind')?.addEventListener('click', () => go(indexOf('founded')));
+  // Title buttons depend on where you are: forward goes to the next stop;
+  // back rewinds to the founding (or to the very start if you're before it).
+  let here = 0;
+  const backTarget = () => (here > indexOf('founded') ? indexOf('founded') : 0);
+  $('#start')?.addEventListener('click', () => go(here + 1));
+  $('#rewind')?.addEventListener('click', () => go(backTarget()));
+  const updateTitleButtons = () => {
+    const start = $('#start');
+    const rewind = $('#rewind');
+    if (start) start.hidden = here >= STOPS.length - 1;
+    if (rewind) rewind.hidden = here === 0;
+  };
 
   const href = (l) => (l.ext ? l.href : base + l.href);
 
@@ -1040,6 +1048,8 @@ function makeUI(root, base, { go, actor }) {
       year.textContent = dest.year;
     },
     arrived(i) {
+      here = i;
+      updateTitleButtons();
       root.classList.remove('is-moving');
       renderCard(i);
       showBubbles(i);

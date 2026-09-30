@@ -168,6 +168,8 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   .logo span + span { transform: rotate(-4deg) translateX(8%); }
   .title__sub { font-family: var(--px); font-size: clamp(10px, 2.2vw, 13px); background: var(--yellow); display: inline-block; padding: 8px 10px; border: 3px solid var(--ink); margin: 26px 0 18px; }
   .title__btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .title__btns [hidden] { display: none; }
+  #game.is-space .title__hint { color: #fff; }
   .title__hint { font-family: var(--px); font-size: 9px; color: var(--ink); opacity: 0.7; margin-top: 18px; }
 
   .dock {
