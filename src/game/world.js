@@ -973,6 +973,33 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2016: Netherlands, Germany, Prague, Switzerland
+  europe(g, live, anim) {
+    // Dutch windmill
+    box(g, 0.9, 1.4, 0.9, '#8b5e3c', -0.9, 0, -0.6);
+    box(g, 0.7, 0.6, 0.7, '#7a4f31', -0.9, 1.4, -0.6);
+    box(g, 0.4, 0.3, 0.4, '#5a3a22', -0.9, 2.0, -0.6);
+    const blades = live(-0.9, 1.7, -0.6 + 0.4);
+    box(blades, 0.18, 2.0, 0.05, '#f4efe4', 0, -1.0, 0);
+    box(blades, 2.0, 0.18, 0.05, '#f4efe4', 0, -0.09, 0);
+    anim.push((dt, t) => (blades.rotation.z = t * 0.8));
+    // Tulips
+    ['#ff3b5c', '#ffd23f', '#ff6fa8', '#ff8a1f', '#7b61ff'].forEach((c, i) => {
+      box(g, 0.06, 0.25, 0.06, '#3fae6a', -1.6 + i * 0.3, 0, 0.3);
+      box(g, 0.16, 0.16, 0.16, c, -1.6 + i * 0.3, 0.25, 0.3);
+    });
+    // Prague spire
+    box(g, 0.6, 1.6, 0.6, '#3a3f4b', 0.9, 0, -0.8);
+    box(g, 0.4, 0.5, 0.4, '#2b2f3a', 0.9, 1.6, -0.8);
+    box(g, 0.2, 0.5, 0.2, '#2b2f3a', 0.9, 2.1, -0.8);
+    box(g, 0.08, 0.3, 0.08, '#f6c453', 0.9, 2.6, -0.8);
+    // Swiss flag
+    box(g, 0.06, 1.3, 0.06, '#dfe3ea', 1.6, 0, 0.1);
+    box(g, 0.5, 0.5, 0.04, '#d52b1e', 1.87, 0.85, 0.1);
+    box(g, 0.3, 0.1, 0.05, '#ffffff', 1.87, 1.05, 0.1);
+    box(g, 0.1, 0.3, 0.05, '#ffffff', 1.87, 0.95, 0.1);
+    crew(g, [{}, FRIENDS.shared, FRIENDS.b, FRIENDS.c], -1.0, 0.9);
+  },
   // 2016: music festivals
   festival(g, live, anim) {
     box(g, 2.8, 0.3, 1.4, '#2b2f3a', 0, 0, -0.4);

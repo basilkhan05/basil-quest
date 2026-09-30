@@ -345,4 +345,5 @@ export const MARKERS = [
 // `x`/`L` place it (lane numbers as in STOPS), and a postcard sign shows year + title.
 export const MEMORIES = [
   { year: '2016', title: 'Festival season', kind: 'festival', x: 8.9, L: -19.8 },
+  { year: '2016', title: 'Europe with the boys', kind: 'europe', x: 9.2, L: -27.6 },
 ];
