@@ -354,4 +354,5 @@ export const MEMORIES = [
   { year: '2025', title: 'Whistler', kind: 'whistler', x: 7.4, L: 43.6 },
   { year: '2026', title: 'Hawaii', kind: 'hawaii', x: -7.6, L: 42.6 },
   { year: '2023', title: 'California: Yosemite and Joshua Tree', kind: 'california', x: 9.0, L: 33.4 },
+  { year: '2024', title: 'LEGO', kind: 'lego', x: 8.4, L: 38.8 },
 ];

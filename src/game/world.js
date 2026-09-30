@@ -998,6 +998,30 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2024-25: LEGO. A baseplate, a little brick build and loose bricks.
+  lego(g, live, anim) {
+    const brick = (bx, by, bz, w, d, c) => {
+      box(g, w * 0.2, 0.2, d * 0.2, c, bx, by, bz);
+      for (let i = 0; i < w; i++)
+        for (let j = 0; j < d; j++) box(g, 0.1, 0.05, 0.1, c, bx - (w - 1) * 0.1 + i * 0.2, by + 0.2, bz - (d - 1) * 0.1 + j * 0.2);
+    };
+    box(g, 2.0, 0.05, 1.4, '#3fae6a', 0, 0, 0);
+    for (let i = 0; i < 10; i++) for (let j = 0; j < 7; j++) box(g, 0.08, 0.03, 0.08, '#48c774', -0.9 + i * 0.2, 0.05, -0.6 + j * 0.2, { shadow: false });
+    // Little house: walls, window, roof
+    [0, 0.2, 0.4].forEach((y, r) => {
+      brick(-0.3, 0.05 + y, -0.2, 4, 1, r === 1 ? '#ffd23f' : '#ff3b5c');
+      brick(-0.3, 0.05 + y, 0.4, 4, 1, r === 1 ? '#ffd23f' : '#ff3b5c');
+      brick(-0.6, 0.05 + y, 0.1, 1, 2, '#ff3b5c');
+      brick(0.0, 0.05 + y, 0.1, 1, 2, '#ff3b5c');
+    });
+    box(g, 0.2, 0.2, 0.02, '#9fdcff', -0.3, 0.25, 0.51, { shadow: false });
+    brick(-0.3, 0.65, 0.1, 5, 4, '#2b6cff');
+    brick(-0.3, 0.85, 0.1, 3, 2, '#2b6cff');
+    // Loose bricks
+    brick(0.6, 0.05, -0.4, 2, 1, '#ffd23f');
+    brick(0.75, 0.05, 0.3, 2, 2, '#ff8a1f');
+    brick(0.62, 0.25, 0.3, 1, 1, '#ffffff');
+  },
   // 2023: California. Half Dome, giant sequoias and Joshua trees.
   california(g, live, anim) {
     // Half Dome: rounded on one side, sheer granite face on the other.
