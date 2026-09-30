@@ -998,6 +998,29 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2023: California. Half Dome, giant sequoias and Joshua trees.
+  california(g, live, anim) {
+    // Half Dome: rounded on one side, sheer granite face on the other.
+    [[1.6, 0.35], [1.4, 0.35], [1.1, 0.35], [0.75, 0.3], [0.4, 0.2]].forEach(([w, h], i) => {
+      box(g, w, h, 0.9, i > 2 ? '#d7d9dc' : '#b9bcc2', 0.9 - w / 2, [0, 0.35, 0.7, 1.05, 1.35][i], -0.9);
+    });
+    box(g, 0.04, 1.4, 0.9, '#9ea2a9', 0.91, 0, -0.9, { shadow: false });
+    // Giant sequoias: tall red trunks, small crowns
+    [[-0.9, -0.4, 2.3], [-0.4, -0.8, 2.0]].forEach(([sx, sz, h]) => {
+      box(g, 0.28, h, 0.28, '#8b4a2b', sx, 0, sz);
+      box(g, 0.6, 0.5, 0.6, '#2f5d3a', sx, h - 0.2, sz);
+      box(g, 0.4, 0.4, 0.4, '#2f5d3a', sx, h + 0.3, sz);
+    });
+    // Joshua trees on a patch of desert sand
+    box(g, 1.8, 0.04, 0.9, '#e8cf9a', 0.2, 0, 0.5, { shadow: false });
+    [[-0.3, 0.5], [0.7, 0.6]].forEach(([jx, jz]) => {
+      const t = group(g, jx, 0, jz);
+      box(t, 0.14, 0.7, 0.14, '#8a7355', 0, 0, 0);
+      box(t, 0.1, 0.35, 0.1, '#8a7355', -0.15, 0.6, 0).rotation.z = 0.6;
+      box(t, 0.1, 0.35, 0.1, '#8a7355', 0.15, 0.55, 0).rotation.z = -0.6;
+      [[-0.28, 0.85], [0.28, 0.8], [0, 0.78]].forEach(([tx, ty]) => box(t, 0.2, 0.18, 0.2, '#6b8f3e', tx, ty, 0));
+    });
+  },
   // 2026: Hawaii. Hula dancers in leis and grass skirts, tiki torches, a palm.
   hawaii(g, live, anim) {
     box(g, 3.2, 0.06, 1.8, '#f3d89b', 0, 0, 0, { shadow: false });
