@@ -350,4 +350,5 @@ export const MEMORIES = [
   { year: '2018', title: 'Portugal & Spain', kind: 'iberia', x: -9.2, L: -8.8 },
   { year: '2019', title: 'Banff', kind: 'banff', x: -9.0, L: -3.4 },
   { year: '2019', title: 'Tofino', kind: 'tofino', x: 9.0, L: -3.2 },
+  { year: '2023', title: 'Mont-Tremblant', kind: 'tremblant', x: 9.2, L: 31.3 },
 ];
