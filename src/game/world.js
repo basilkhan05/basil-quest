@@ -973,6 +973,21 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2024: Canmore and the Three Sisters
+  canmore(g, live, anim) {
+    [-0.9, 0.1, 1.1].forEach((px, k) => {
+      const h = [2.4, 2.8, 2.2][k];
+      for (let i = 0; i < 5; i++) {
+        const w = 1.0 - i * 0.18;
+        box(g, w, h / 5, w, i >= 3 ? '#ffffff' : '#7d8799', px, (i * h) / 5, -0.6 + k * 0.1);
+      }
+    });
+    [[-1.5, 0.6], [1.6, 0.5], [0.2, 0.8]].forEach(([px, pz]) => {
+      box(g, 0.2, 0.3, 0.2, '#6b3f2a', px, 0, pz);
+      box(g, 0.6, 0.4, 0.6, '#2f7d5b', px, 0.3, pz);
+      box(g, 0.62, 0.08, 0.62, '#ffffff', px, 0.7, pz);
+    });
+  },
   // 2023: Mont-Tremblant
   tremblant(g, live, anim) {
     for (let i = 0; i < 5; i++) {
