@@ -1016,7 +1016,7 @@ const memoryKinds = {
     box(car, 0.24, 0.22, 0.22, '#15c2b0', 0, 0, 0);
     anim.push((dt, t) => {
       const u = (t * 0.12 + 0.5) % 1;
-      car.position.set(8.8 + 0.2 + u * 1.2, groundAt(42.6) + 0.5 + u * 1.5, z(42.6) - 0.2);
+      car.position.set(7.4 + 0.2 + u * 1.2, groundAt(43.6) + 0.5 + u * 1.5, z(43.6) - 0.2);
     });
   },
   // 2024: Canmore and the Three Sisters
