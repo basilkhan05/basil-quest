@@ -222,7 +222,7 @@ export async function startGame(root) {
     towBoat.position.set(bp.x, -0.32 + Math.sin(t * 5) * 0.04, -bp.L);
     towBoat.rotation.set(Math.sin(t * 3) * 0.03, bp.rot, 0);
     if (rope.visible) {
-      const a = new THREE.Vector3(0, 0.9, 1.3).applyEuler(towBoat.rotation).add(towBoat.position);
+      const a = new THREE.Vector3(0, 0.55, 1.3).applyEuler(towBoat.rotation).add(towBoat.position);
       const b = new THREE.Vector3(actor.x, groundAt(actor.L) + actor.alt + (actor.arc || 0) + 0.45, -actor.L - 0.15);
       rope.position.copy(a).lerp(b, 0.5);
       rope.scale.z = a.distanceTo(b);
