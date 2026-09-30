@@ -116,6 +116,8 @@ export function buildWorld(scene, mode = 'pro') {
     ...MEMORIES.map((m) => [m.x, m.L, 2.6]),
     ...CANADA_FLAGS.map(([x, L]) => [x, L, 0.8]),
     [2.9, 23.2, 1.7],
+    // In front of the past company signs (UWaterloo, LANSA, Vidyard, AsteroidX, Podia)
+    ...[[-4.2, -29.6], [-4, -23.5], [-4, -17.5], [-4, -12.4], [-4, -7.5]].map(([x, L]) => [x, L - 0.9, 2.4]),
     [5.8, 73.8, 2.8], // launch pad team
     [5.9, 50.6, 0.6], // the Easter egg (trees around it, not on it)
   ];
@@ -458,7 +460,7 @@ function pastLandmarks(p, anim) {
     box(mv, 0.4, 0.4, 0.4, '#d9a36b', x, y, zz);
     box(mv, 0.42, 0.05, 0.1, '#9b6b43', x, y + 0.36, zz);
   });
-  sign(p, ['WATERLOO', 'POP. +1'], { x: 7.6, z: z(-15.4), w: 2.2, h: 0.8, post: 0.6, bg: '#1e6b3a', fg: '#fff', size: 18 });
+  sign(p, ['WELCOME TO', 'WATERLOO'], { x: 7.6, z: z(-15.4), w: 2.2, h: 0.8, post: 0.6, bg: '#1e6b3a', fg: '#fff', size: 18 });
 
   building(p, -4, -11.3, { w: 2.2, d: 1.5, h: 1.5, color: '#e6e3f5', roof: '#5d6bff', name: 'ASTEROIDX', sub: '2018', bg: '#5d6bff' });
   cnTower(p, 6.6, -12.5);
