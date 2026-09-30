@@ -963,10 +963,8 @@ function memory(stat, root, anim, m) {
   const g = group(stat, m.x, y, z(m.L));
   // Animated bits live under root, positioned relative to the diorama.
   const live = (dx = 0, dy = 0, dz = 0) => group(root, m.x + dx, y + dy, z(m.L) + dz);
+  // No sign: the scene should speak for itself (year/title stay in MEMORIES as notes).
   memoryKinds[m.kind]?.(g, live, anim);
-  sign(stat, [{ text: m.year, size: 18 }, { text: m.title.toUpperCase(), size: 15 }], {
-    x: m.x, y, z: z(m.L) + 1.7, w: 2.6, h: 0.85, post: 0.35, bg: '#fffaf0', fg: '#1b1b1f', border: '#ff6fa8', size: 15,
-  });
 }
 
 // Friends who show up in trip memories (short, light beards).

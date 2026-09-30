@@ -341,8 +341,8 @@ export const MARKERS = [
 ];
 
 // Personal memories: little dioramas beside the route, shown on /personal/ only.
-// They're scenery, not stops. `kind` picks the diorama in world.js (memoryKinds),
-// `x`/`L` place it (lane numbers as in STOPS), and a postcard sign shows year + title.
+// They're scenery, not stops, with no sign. `kind` picks the diorama in world.js
+// (memoryKinds), `x`/`L` place it (lane numbers as in STOPS); year/title are notes.
 export const MEMORIES = [
   { year: '2016', title: 'Festival season', kind: 'festival', x: 8.9, L: -19.8 },
   { year: '2016', title: 'Europe with the boys', kind: 'europe', x: 9.2, L: -27.6 },
