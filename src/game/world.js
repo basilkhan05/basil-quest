@@ -973,6 +973,23 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2019: Banff, Alberta
+  banff(g, live, anim) {
+    box(g, 2.6, 0.06, 1.3, '#3fd0c9', 0, 0, 0.1, { shadow: false });
+    box(g, 2.6, 0.03, 1.32, '#8fe8e0', 0, 0.02, 0.1, { shadow: false });
+    [[-0.9, 2.2], [0.3, 2.8], [1.2, 1.9]].forEach(([px, h]) => {
+      for (let i = 0; i < 4; i++) {
+        const w = 1.3 - i * 0.3;
+        box(g, w, h / 4, w * 0.8, i === 3 ? '#ffffff' : i === 2 ? '#c9d3e3' : '#8a94a6', px, (i * h) / 4, -0.9);
+      }
+    });
+    [[-1.6, 0.6], [1.7, 0.7]].forEach(([px, pz]) => {
+      box(g, 0.2, 0.3, 0.2, '#6b3f2a', px, 0, pz);
+      box(g, 0.6, 0.4, 0.6, '#2f7d5b', px, 0.3, pz);
+      box(g, 0.4, 0.4, 0.4, '#2f7d5b', px, 0.7, pz);
+    });
+    box(g, 0.9, 0.12, 0.26, '#d52b1e', 0.2, 0.06, 0.3);
+  },
   // 2018: Portugal and Spain
   iberia(g, live, anim) {
     // Lisbon's yellow tram

@@ -348,4 +348,5 @@ export const MEMORIES = [
   { year: '2016', title: 'Europe with the boys', kind: 'europe', x: 9.2, L: -27.6 },
   { year: '2017', title: 'EDC', kind: 'edc', x: -7.4, L: -17.1 },
   { year: '2018', title: 'Portugal & Spain', kind: 'iberia', x: -9.2, L: -8.8 },
+  { year: '2019', title: 'Banff', kind: 'banff', x: -9.0, L: -3.4 },
 ];
