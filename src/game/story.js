@@ -346,4 +346,5 @@ export const MARKERS = [
 export const MEMORIES = [
   { year: '2016', title: 'Festival season', kind: 'festival', x: 8.9, L: -19.8 },
   { year: '2016', title: 'Europe with the boys', kind: 'europe', x: 9.2, L: -27.6 },
+  { year: '2017', title: 'EDC', kind: 'edc', x: -9.2, L: -17.8 },
 ];

@@ -973,6 +973,32 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2017: EDC
+  edc(g, live, anim) {
+    // Ferris wheel
+    box(g, 0.14, 1.9, 0.14, '#555c68', -1.3, 0, -0.5);
+    box(g, 0.14, 1.9, 0.14, '#555c68', -0.3, 0, -0.5);
+    const wheel = live(-0.8, 1.9, -0.5);
+    const cars = ['#ff3b5c', '#ffd23f', '#15c2b0', '#7b61ff', '#ff8a1f', '#ff6fa8', '#48c774', '#2ec4ff'];
+    cars.forEach((c, i) => {
+      const a = (i / cars.length) * Math.PI * 2;
+      box(wheel, 0.06, 1.3, 0.06, '#dfe3ea', Math.cos(a) * 0.65, Math.sin(a) * 0.65 - 0.65, 0).rotation.z = a + Math.PI / 2;
+      box(wheel, 0.26, 0.22, 0.26, c, Math.cos(a) * 1.3, Math.sin(a) * 1.3 - 0.11, 0, { shadow: false });
+    });
+    anim.push((dt, t) => (wheel.rotation.z = t * 0.35));
+    // Giant daisy
+    box(g, 0.1, 1.0, 0.1, '#3fae6a', 0.9, 0, 0.3);
+    [[0.3, 0], [-0.3, 0], [0, 0.3], [0, -0.3]].forEach(([dx, dy]) => box(g, 0.3, 0.3, 0.08, '#ffffff', 0.9 + dx, 1.05 + dy, 0.3));
+    box(g, 0.3, 0.3, 0.1, '#ffd23f', 0.9, 1.05, 0.31);
+    // Stage with lasers
+    box(g, 1.6, 0.3, 0.9, '#2b2f3a', 1.0, 0, -0.9);
+    const lasers = live(1.0, 0.5, -1.2);
+    const beams = ['#ff3b5c', '#15c2b0', '#7b61ff'].map((c, i) => {
+      const b = box(lasers, 0.04, 1.6, 0.04, c, (i - 1) * 0.4, 0, 0, { shadow: false });
+      return b;
+    });
+    anim.push((dt, t) => beams.forEach((b, i) => (b.rotation.z = Math.sin(t * 2 + i) * 0.6)));
+  },
   // 2016: Netherlands, Germany, Prague, Switzerland
   europe(g, live, anim) {
     // Dutch windmill
