@@ -3,7 +3,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { box, group, sign, mat, rand, pick } from './voxel.js';
 import { MARKERS, MEMORIES } from './story.js';
 import {
-  makeCar, makeTruck, makeBronco, makeBike, makeBoat, makeSnowboard, makeChair, makeRocket,
+  makeCar, makeTruck, makeBronco, makeBike, makeBoat, makeSnowboard, makeChair, makeRocket, makeSalmon,
   tree, autumnTree, pine, rock, cactus, mesa, flowers, makePlayer, makeDolphin,
 } from './models.js';
 
@@ -205,17 +205,38 @@ export function buildWorld(scene, mode = 'pro') {
     });
   });
   surfShack(stat, -4, z(31.6));
-  // Dolphins leaping across the water, each on its own loop.
-  [[-6.5, 25, 0], [5.5, 27, 1.3], [9, 24.5, 2.4], [-10, 28, 3.1]].forEach(([x, L0, phase]) => {
-    const d = makeDolphin();
-    root.add(d);
+  // Dolphins and salmon leaping along the river, with and against the current.
+  // Each leap randomly picks a dolphin or a salmon.
+  [[25, 1, -6, 0], [26.5, -1, 7, 1.1], [27.8, 1, -9, 2.3], [29.2, -1, 4, 0.6], [24.6, -1, 10, 3.0]].forEach(([L, dir, x0, phase]) => {
+    const dolphin = makeDolphin();
+    const salmon = makeSalmon();
+    [dolphin, salmon].forEach((m) => {
+      m.rotation.order = 'YXZ';
+      m.rotation.y = dir > 0 ? -Math.PI / 2 : Math.PI / 2;
+      m.visible = false;
+      root.add(m);
+    });
+    let x = x0;
+    let cycle = -1;
+    let fish = dolphin;
+    const period = 3.4 + phase * 0.3;
     anim.push((dt, t) => {
-      const u = ((t + phase) % 4) / 4; // leap during the first 40% of each loop
-      const k = u / 0.4;
-      d.visible = k < 1;
-      if (!d.visible) return;
-      d.position.set(x, -0.7 + Math.sin(k * Math.PI) * 1.6, z(L0 + k * 2.4));
-      d.rotation.x = (0.5 - k) * 1.8;
+      const n = Math.floor((t + phase) / period);
+      const u = ((t + phase) % period) / period;
+      if (n !== cycle) {
+        cycle = n;
+        fish.visible = false;
+        fish = Math.random() < 0.45 ? salmon : dolphin;
+        x += dir * 3.2;
+        if (x > 13) x = -13;
+        if (x < -13) x = 13;
+      }
+      const k = u / 0.4; // leap during the first 40% of each loop
+      fish.visible = k < 1;
+      if (!fish.visible) return;
+      const small = fish === salmon;
+      fish.position.set(x + dir * k * (small ? 1.4 : 2.6), -0.6 + Math.sin(k * Math.PI) * (small ? 0.9 : 1.6), z(L));
+      fish.rotation.x = (0.5 - k) * 1.8;
     });
   });
   // Boat launch dock

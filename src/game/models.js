@@ -357,3 +357,15 @@ export function makeDolphin() {
   box(g, 0.7, 0.06, 0.24, '#5d7ca0', 0, 0.02, -0.3);
   return g;
 }
+
+// A small salmon. Faces -z.
+export function makeSalmon() {
+  const g = group();
+  box(g, 0.2, 0.22, 0.6, '#e8907e', 0, 0, 0);
+  box(g, 0.21, 0.08, 0.6, '#f6d6ca', 0, 0, 0);
+  box(g, 0.14, 0.07, 0.5, '#6f7c8f', 0, 0.2, 0.02);
+  box(g, 0.16, 0.16, 0.16, '#e8907e', 0, 0.03, -0.36);
+  box(g, 0.06, 0.2, 0.2, '#d97a68', 0, 0.01, 0.38);
+  box(g, 0.28, 0.06, 0.06, '#1b1b1f', 0, 0.12, -0.36, { shadow: false });
+  return g;
+}
