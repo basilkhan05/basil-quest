@@ -17,8 +17,20 @@ const WATER = [24, 30];
 const MUD = [14, 17];
 const TRAIL = [33, 45];
 
+// The 2005 Saudi Arabia to Canada scene is personal-route only.
+let personalWorld = false;
+
+// Canadian flags along the whole route (we're still in Canada).
+const CANADA_FLAGS = [
+  [-2.2, -35.6], [3.2, -36.8], [-5.8, -34.2], // behind UWaterloo
+  [-6.8, -27.4], [-2.6, -30.4], [2.6, -31.2], // UWaterloo
+  [2.4, -21.3], [4.4, -10.1], [-2.2, -0.3], // LANSA, Toronto, founding
+  [-3.4, 8.4], [-2.2, 22.9], [2.8, 32.4], [3.4, 38.2], // road, camp, beach, trail
+  [-3.6, 46.4], [-7.2, 57.2], [-2.6, 72.4], // Now, basecamp, launch pad
+];
+
 export function laneType(L) {
-  if (L <= -39) return 'sand'; // Saudi Arabia, 2005
+  if (personalWorld && L <= -39) return 'sand'; // Saudi Arabia, 2005
   if (L < -1) return 'past';
   if (ROAD_LANES.has(L)) return 'road';
   if (L <= 10) return 'grass';
@@ -59,6 +71,7 @@ const COLORS = {
 const z = (L) => -L;
 
 export function buildWorld(scene, mode = 'pro') {
+  personalWorld = mode === 'personal';
   const root = group(scene);
   const stat = group(root); // merged into a handful of meshes after build
   const anim = []; // per-frame updaters
@@ -101,6 +114,7 @@ export function buildWorld(scene, mode = 'pro') {
     ...[36, 39, 41.6].map((L) => [-2.6, L, 1.8]),
     ...MARKERS.map((m) => [m.x - 0.4, m.L, 1.9]),
     ...MEMORIES.map((m) => [m.x, m.L, 2.6]),
+    ...CANADA_FLAGS.map(([x, L]) => [x, L, 0.8]),
     [2.9, 23.2, 1.7],
     [5.8, 73.8, 2.8], // launch pad team
     [5.9, 50.6, 0.6], // the Easter egg (trees around it, not on it)
@@ -117,7 +131,7 @@ export function buildWorld(scene, mode = 'pro') {
   // ---------- The past ----------
   for (let L = L_MIN + 2; L <= -2; L++) {
     if ([-36, -28, -26, -22, -16, -11, -6].some((s) => Math.abs(s - L) <= 1)) continue;
-    if (L <= -39) {
+    if (personalWorld && L <= -39) {
       if (rand() < 0.6) palm(stat, sideX(), 0, z(L));
       continue;
     }
@@ -125,11 +139,9 @@ export function buildWorld(scene, mode = 'pro') {
     if (rand() < 0.6) flowers(stat, sideX(), 0, z(L));
   }
   pastLandmarks(stat, anim);
-  movingToCanada(stat, root, anim);
+  if (personalWorld) movingToCanada(stat, root, anim);
   tobiStage(stat, anim);
-  [
-    [-2.2, -35.6], [3.2, -36.8], [-5.8, -34.2], [-6.8, -27.4], [2.4, -21.3], [4.4, -10.1], [-2.2, -0.3], [-7.2, 57.2],
-  ].forEach(([x, L]) => canadaFlag(stat, root, anim, x, L));
+  CANADA_FLAGS.forEach(([x, L]) => canadaFlag(stat, root, anim, x, L));
   // Shopify bags around the App Challenge
   shopifyBag(stat, -1.8, 0, z(2.6), 0.09);
   shopifyBag(stat, 6.4, 0, z(-0.9), 0.07);
