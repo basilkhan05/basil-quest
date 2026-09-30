@@ -519,7 +519,8 @@ export async function startGame(root) {
     setGear(stop.gear || null);
     setSky(stop.id, stop.era);
     if (mode === 'personal' && stop.id === 'vidyard') emit('heart', (actor.x + LICHEN_SPOT.x) / 2, 1.2, -LICHEN_SPOT.L, 24);
-    if (mode === 'pro' && stop.id === 'founded') emit('confetti', (actor.x + LICHEN_SPOT.x) / 2, 1.4, -LICHEN_SPOT.L, 30);
+    // "Lichen, let's build this together!" gets confetti on both routes.
+    if (stop.id === 'founded') emit('confetti', actor.x + 0.5, 1.4, -actor.L, 30);
     ui.arrived(cur);
     history.replaceState(null, '', `#${stop.id}`);
   }

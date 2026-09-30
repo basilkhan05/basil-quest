@@ -152,7 +152,7 @@ export const STOPS = [
     role: 'Our first $10K MRR',
     milestone: '$10K MRR',
     blurb: 'Freshly Inventory showed us a gap: bundles and inventory did not play well together on Shopify. We launched Simple Bundles to fix it, and it took us to our first $10K MRR.',
-    bubbles: [{ text: 'Look both ways', at: [-2.5, 1.2, 5] }],
+    bubbles: [],
     path: [...hops(0, 0, 8), hop(-0.4, 9), hop(-0.8, 10)],
   },
   {
