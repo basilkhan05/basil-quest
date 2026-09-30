@@ -998,6 +998,29 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2026: crochet. Yarn basket, a granny-square blanket and a little plush.
+  crochet(g, live, anim) {
+    // Granny-square blanket
+    const sq = ['#ff6fa8', '#ffd23f', '#15c2b0', '#7b61ff', '#ff8a1f', '#ffffff'];
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 3; j++) {
+        box(g, 0.28, 0.04, 0.28, sq[(i + j * 2) % sq.length], -0.6 + i * 0.3, 0, -0.1 + j * 0.3);
+        box(g, 0.12, 0.045, 0.12, sq[(i + j + 3) % sq.length], -0.6 + i * 0.3, 0, -0.1 + j * 0.3, { shadow: false });
+      }
+    // Basket of yarn
+    box(g, 0.6, 0.3, 0.5, '#b5875a', 0.8, 0, 0.2);
+    box(g, 0.64, 0.06, 0.54, '#9b6b43', 0.8, 0.3, 0.2);
+    [[0.68, 0.1, '#ff6fa8'], [0.9, 0.2, '#15c2b0'], [0.78, 0.35, '#ffd23f']].forEach(([yx, yz, c]) => box(g, 0.24, 0.22, 0.24, c, yx, 0.3, yz));
+    const hook = box(g, 0.04, 0.5, 0.04, '#c0c4cc', 1.0, 0.35, 0.05);
+    hook.rotation.z = -0.5;
+    box(g, 0.02, 0.4, 0.02, '#15c2b0', 0.9, 0.36, 0.3, { shadow: false }).rotation.z = 0.9;
+    // A little crocheted bear
+    box(g, 0.3, 0.3, 0.26, '#e8b996', -0.2, 0.04, 0.5);
+    box(g, 0.24, 0.22, 0.22, '#e8b996', -0.2, 0.34, 0.5);
+    box(g, 0.08, 0.08, 0.06, '#e8b996', -0.3, 0.56, 0.5);
+    box(g, 0.08, 0.08, 0.06, '#e8b996', -0.1, 0.56, 0.5);
+    box(g, 0.1, 0.06, 0.02, '#8b5e3c', -0.2, 0.4, 0.62, { shadow: false });
+  },
   // 2024-25: LEGO. A baseplate, a little brick build and loose bricks.
   lego(g, live, anim) {
     const brick = (bx, by, bz, w, d, c) => {
