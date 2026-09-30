@@ -198,11 +198,14 @@ export function buildWorld(scene, mode = 'pro') {
       foam.push({ m: f, p: rand() * 6, x0: f.position.x });
     }
   }
-  // Two rolling wave crests to launch off.
-  const crests = [26, 28].map((L) => {
-    const g = group(root, 0, -0.3, z(L));
-    box(g, 12, 0.3, 0.7, '#3fb0e6', 0, 0, 0, { shadow: false });
-    box(g, 12, 0.08, 0.4, '#ffffff', 0, 0.3, -0.1, { shadow: false });
+  // Two short curling waves under the wakeboard line to launch off.
+  const crests = [[26, 0.5], [28, 0.9]].map(([L, cx]) => {
+    const g = group(root, cx, -0.3, z(L));
+    box(g, 3.2, 0.25, 0.8, '#3fb0e6', 0, 0, 0, { shadow: false });
+    box(g, 2.6, 0.2, 0.55, '#5cc4ef', 0, 0.25, 0.05, { shadow: false });
+    box(g, 2.2, 0.1, 0.3, '#ffffff', 0, 0.45, 0.15, { shadow: false });
+    box(g, 0.3, 0.08, 0.2, '#e8fbff', -1.4, 0.26, 0.3, { shadow: false });
+    box(g, 0.3, 0.08, 0.2, '#e8fbff', 1.4, 0.26, 0.3, { shadow: false });
     return g;
   });
   anim.push((dt, t) => {
