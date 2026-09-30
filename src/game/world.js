@@ -973,6 +973,31 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2018: Portugal and Spain
+  iberia(g, live, anim) {
+    // Lisbon's yellow tram
+    box(g, 1.6, 0.7, 0.7, '#ffd23f', -0.6, 0.12, -0.7);
+    box(g, 1.62, 0.18, 0.72, '#ffffff', -0.6, 0.82, -0.7);
+    for (let i = 0; i < 4; i++) box(g, 0.24, 0.24, 0.03, '#2c3240', -1.15 + i * 0.37, 0.45, -0.34, { shadow: false });
+    box(g, 0.2, 0.12, 0.2, '#1d1d22', -1.1, 0, -0.7);
+    box(g, 0.2, 0.12, 0.2, '#1d1d22', -0.1, 0, -0.7);
+    box(g, 0.04, 0.5, 0.04, '#333', -0.6, 1.0, -0.7);
+    // Azulejo-tiled house
+    box(g, 1.1, 1.3, 0.9, '#f4f4f4', 1.1, 0, -0.8);
+    box(g, 1.2, 0.2, 1.0, '#e8743b', 1.1, 1.3, -0.8);
+    for (let r = 0; r < 3; r++)
+      for (let c = 0; c < 4; c++)
+        if ((r + c) % 2 === 0) box(g, 0.2, 0.2, 0.03, '#2b6cff', 0.8 + c * 0.2, 0.25 + r * 0.3, -0.34, { shadow: false });
+    // Flags: Portugal and Spain
+    box(g, 0.06, 1.2, 0.06, '#dfe3ea', 1.9, 0, 0.2);
+    box(g, 0.2, 0.34, 0.04, '#046a38', 2.03, 0.8, 0.2);
+    box(g, 0.3, 0.34, 0.04, '#da291c', 2.28, 0.8, 0.2);
+    box(g, 0.06, 1.2, 0.06, '#dfe3ea', 1.9, 0, 0.7);
+    box(g, 0.5, 0.1, 0.04, '#c60b1e', 2.18, 0.98, 0.7);
+    box(g, 0.5, 0.16, 0.04, '#ffc400', 2.18, 0.84, 0.7);
+    box(g, 0.5, 0.1, 0.04, '#c60b1e', 2.18, 0.74, 0.7);
+    crew(g, [{}, FRIENDS.shared, FRIENDS.d, FRIENDS.e], -1.3, 0.6);
+  },
   // 2017: EDC
   edc(g, live, anim) {
     // Ferris wheel
