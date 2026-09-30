@@ -55,7 +55,7 @@ export const STOPS = [
     pos: { x: 0, L: -36 },
     title: 'Moving to Canada',
     role: 'From Saudi Arabia',
-    blurb: 'Moved from Saudi Arabia to Canada in 2005. This is where the journey starts.',
+    blurb: 'Moved from Saudi Arabia to Canada in 2005, in my teens. This is where the journey starts.',
     bubbles: [
       { text: 'Hello, Canada', at: [-2.2, 3.2, -35.6] },
       { text: 'Next stop: Canada', at: [-4.5, 2.6, -40] },
