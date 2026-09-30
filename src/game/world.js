@@ -973,6 +973,26 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2025: Whistler
+  whistler(g, live, anim) {
+    const stone = '#9aa0a8';
+    box(g, 0.3, 0.7, 0.3, stone, -0.9, 0, 0.2);
+    box(g, 0.3, 0.7, 0.3, stone, -0.3, 0, 0.2);
+    box(g, 1.0, 0.25, 0.35, '#8a909a', -0.6, 0.7, 0.2);
+    box(g, 0.35, 0.4, 0.3, stone, -0.6, 0.95, 0.2);
+    box(g, 1.3, 0.2, 0.3, '#8a909a', -0.6, 1.35, 0.2);
+    box(g, 0.35, 0.35, 0.3, stone, -0.6, 1.55, 0.2);
+    for (let i = 0; i < 4; i++) {
+      const w = 1.6 - i * 0.35;
+      box(g, w, 0.5, w * 0.8, i >= 2 ? '#ffffff' : '#dfe9f7', 0.9, i * 0.5, -0.7);
+    }
+    const car = live(0, 0, 0);
+    box(car, 0.24, 0.22, 0.22, '#15c2b0', 0, 0, 0);
+    anim.push((dt, t) => {
+      const u = (t * 0.12 + 0.5) % 1;
+      car.position.set(8.8 + 0.2 + u * 1.2, groundAt(42.6) + 0.5 + u * 1.5, z(42.6) - 0.2);
+    });
+  },
   // 2024: Canmore and the Three Sisters
   canmore(g, live, anim) {
     [-0.9, 0.1, 1.1].forEach((px, k) => {
