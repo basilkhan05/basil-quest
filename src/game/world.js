@@ -973,6 +973,32 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
+  // 2026: Hawaii
+  hawaii(g, live, anim) {
+    box(g, 2.8, 0.06, 1.6, '#f3d89b', 0, 0, 0, { shadow: false });
+    box(g, 0.9, 0.06, 1.6, '#3fc6e8', 1.4, 0, 0, { shadow: false });
+    for (let i = 0; i < 4; i++) {
+      const w = 1.4 - i * 0.28;
+      box(g, w, 0.35, w, i === 3 ? '#4a3a32' : '#6b5a4a', -0.7, i * 0.35, -0.5);
+    }
+    box(g, 0.24, 0.06, 0.24, '#ff5a1f', -0.7, 1.4, -0.5, { shadow: false });
+    const smoke = live(-0.7, 1.5, -0.5);
+    const puff = box(smoke, 0.2, 0.2, 0.2, '#e8e8ee', 0, 0, 0, { shadow: false });
+    anim.push((dt, t) => {
+      const u = (t * 0.4) % 1;
+      puff.position.y = u * 0.8;
+      puff.scale.setScalar(0.5 + u);
+    });
+    for (let i = 0; i < 5; i++) box(g, 0.18, 0.3, 0.18, '#9b6b43', 0.5 + i * 0.04, i * 0.3, 0.3);
+    box(g, 1.3, 0.1, 0.3, '#48c774', 0.7, 1.55, 0.3);
+    box(g, 0.3, 0.1, 1.3, '#48c774', 0.7, 1.57, 0.3);
+    const sb = box(g, 0.32, 1.0, 0.08, '#2ec4ff', 1.1, 0, 0.6);
+    sb.rotation.z = -0.2;
+    [[-1.2, 0.5], [-0.3, 0.6]].forEach(([px, pz]) => {
+      box(g, 0.16, 0.16, 0.16, '#ff3b5c', px, 0.06, pz);
+      box(g, 0.06, 0.06, 0.06, '#ffd23f', px, 0.22, pz);
+    });
+  },
   // 2025: Whistler
   whistler(g, live, anim) {
     const stone = '#9aa0a8';
