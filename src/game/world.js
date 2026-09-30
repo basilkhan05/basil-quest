@@ -1125,31 +1125,60 @@ const memoryKinds = {
     box(g, 0.5, 0.1, 0.04, '#c60b1e', 2.18, 0.74, 0.7);
     crew(g, [{}, FRIENDS.shared, FRIENDS.d, FRIENDS.e], -1.3, 0.6);
   },
-  // 2017: EDC
+  // 2017: EDC. A big stage, a crowd and lots of fireworks.
   edc(g, live, anim) {
-    // Ferris wheel
-    box(g, 0.14, 1.9, 0.14, '#555c68', -1.3, 0, -0.5);
-    box(g, 0.14, 1.9, 0.14, '#555c68', -0.3, 0, -0.5);
-    const wheel = live(-0.8, 1.9, -0.5);
-    const cars = ['#ff3b5c', '#ffd23f', '#15c2b0', '#7b61ff', '#ff8a1f', '#ff6fa8', '#48c774', '#2ec4ff'];
-    cars.forEach((c, i) => {
-      const a = (i / cars.length) * Math.PI * 2;
-      box(wheel, 0.06, 1.3, 0.06, '#dfe3ea', Math.cos(a) * 0.65, Math.sin(a) * 0.65 - 0.65, 0).rotation.z = a + Math.PI / 2;
-      box(wheel, 0.26, 0.22, 0.26, c, Math.cos(a) * 1.3, Math.sin(a) * 1.3 - 0.11, 0, { shadow: false });
+    // Stage, truss and screen
+    box(g, 3.2, 0.35, 1.4, '#2b2f3a', 0, 0, -0.7);
+    box(g, 0.16, 2.3, 0.16, '#555c68', -1.5, 0.35, -1.3);
+    box(g, 0.16, 2.3, 0.16, '#555c68', 1.5, 0.35, -1.3);
+    box(g, 3.16, 0.16, 0.16, '#555c68', 0, 2.65, -1.3);
+    box(g, 0.6, 1.0, 0.45, '#1b1b1f', -1.3, 0.35, -0.4);
+    box(g, 0.6, 1.0, 0.45, '#1b1b1f', 1.3, 0.35, -0.4);
+    const screen = live(0, 0.95, -1.36);
+    const panels = [];
+    for (let i = 0; i < 6; i++) panels.push(box(screen, 0.4, 1.3, 0.05, '#7b61ff', -1.0 + i * 0.4, 0, 0, { shadow: false }));
+    const hues = ['#7b61ff', '#ff3b5c', '#15c2b0', '#ffd23f', '#ff6fa8', '#2ec4ff'];
+    anim.push((dt, t) => panels.forEach((p, i) => p.material = mat(hues[(Math.floor(t * 2) + i) % hues.length])));
+    // Crowd (live, so they can dance)
+    const crowd = live(0, 0, 0);
+    ['#ff6fa8', '#2ec4ff', '#ffd23f', '#48c774', '#ff8a1f'].forEach((shirt, i) => {
+      const p = makePlayer({ shirt, beard: null, hair: ['#1c1512', '#e0c070', '#6b3f2a', '#1c1512', '#b58a5a'][i], longHair: i % 2 === 0 });
+      p.root.position.set(-1.3 + i * 0.65, 0, 0.7 + (i % 2) * 0.3);
+      p.root.scale.setScalar(0.8);
+      crowd.add(p.root);
+      p.armL.rotation.z = -2.6;
+      p.armR.rotation.z = 2.6;
+      anim.push((dt, t) => (p.root.position.y = Math.abs(Math.sin(t * 5 + i)) * 0.12));
     });
-    anim.push((dt, t) => (wheel.rotation.z = t * 0.35));
-    // Giant daisy
-    box(g, 0.1, 1.0, 0.1, '#3fae6a', 0.9, 0, 0.3);
-    [[0.3, 0], [-0.3, 0], [0, 0.3], [0, -0.3]].forEach(([dx, dy]) => box(g, 0.3, 0.3, 0.08, '#ffffff', 0.9 + dx, 1.05 + dy, 0.3));
-    box(g, 0.3, 0.3, 0.1, '#ffd23f', 0.9, 1.05, 0.31);
-    // Stage with lasers
-    box(g, 1.6, 0.3, 0.9, '#2b2f3a', 1.0, 0, -0.9);
-    const lasers = live(1.0, 0.5, -1.2);
-    const beams = ['#ff3b5c', '#15c2b0', '#7b61ff'].map((c, i) => {
-      const b = box(lasers, 0.04, 1.6, 0.04, c, (i - 1) * 0.4, 0, 0, { shadow: false });
-      return b;
-    });
-    anim.push((dt, t) => beams.forEach((b, i) => (b.rotation.z = Math.sin(t * 2 + i) * 0.6)));
+    // Fireworks: shells launch, then burst into sparks that fall and fade.
+    const colors = ['#ff3b5c', '#ffd23f', '#15c2b0', '#7b61ff', '#ff6fa8', '#ff8a1f'];
+    for (let f = 0; f < 5; f++) {
+      const fw = live(-1.6 + f * 0.8, 0, -1.6 - (f % 2) * 0.6);
+      const color = colors[f % colors.length];
+      const shell = box(fw, 0.12, 0.12, 0.12, '#ffffff', 0, 0, 0, { shadow: false });
+      const sparks = [];
+      for (let k = 0; k < 14; k++) {
+        const a = (k / 14) * Math.PI * 2;
+        const e = (k % 3) * 0.5 - 0.5;
+        sparks.push({ m: box(fw, 0.08, 0.08, 0.08, k % 4 === 0 ? '#ffffff' : color, 0, 0, 0, { shadow: false }), dx: Math.cos(a), dy: Math.sin(a) * 0.8 + e * 0.3, dz: Math.sin(a) * 0.3 });
+      }
+      const period = 2.6 + f * 0.37;
+      const peak = 3.2 + (f % 3) * 0.6;
+      anim.push((dt, t) => {
+        const u = ((t + f * 0.9) % period) / period;
+        const rise = 0.3;
+        shell.visible = u < rise;
+        if (u < rise) shell.position.set(0, (u / rise) * peak, 0);
+        const k = (u - rise) / (1 - rise);
+        sparks.forEach((sp) => {
+          sp.m.visible = u >= rise && k < 0.8;
+          if (!sp.m.visible) return;
+          const r = Math.pow(k, 0.35) * 1.8;
+          sp.m.position.set(sp.dx * r, peak + sp.dy * r - k * k * 1.2, sp.dz * r);
+          sp.m.scale.setScalar(1 - k);
+        });
+      });
+    }
   },
   // 2016: Netherlands, Germany, Prague, Switzerland
   europe(g, live, anim) {
