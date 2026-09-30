@@ -198,22 +198,11 @@ export function buildWorld(scene, mode = 'pro') {
       foam.push({ m: f, p: rand() * 6, x0: f.position.x });
     }
   }
-  // Two short curling waves under the wakeboard line to launch off.
-  const crests = [[26, 0.5], [28, 0.9]].map(([L, cx]) => {
-    const g = group(root, cx, -0.3, z(L));
-    box(g, 3.2, 0.25, 0.8, '#3fb0e6', 0, 0, 0, { shadow: false });
-    box(g, 2.6, 0.2, 0.55, '#5cc4ef', 0, 0.25, 0.05, { shadow: false });
-    box(g, 2.2, 0.1, 0.3, '#ffffff', 0, 0.45, 0.15, { shadow: false });
-    box(g, 0.3, 0.08, 0.2, '#e8fbff', -1.4, 0.26, 0.3, { shadow: false });
-    box(g, 0.3, 0.08, 0.2, '#e8fbff', 1.4, 0.26, 0.3, { shadow: false });
-    return g;
-  });
   anim.push((dt, t) => {
     foam.forEach((f) => {
       f.m.position.y = -0.3 + Math.sin(t * 2 + f.p) * 0.04;
       f.m.position.x = f.x0 + Math.sin(t * 0.5 + f.p) * 0.4;
     });
-    crests.forEach((c, i) => (c.position.y = -0.36 + Math.sin(t * 1.6 + i * 2) * 0.1));
   });
   surfShack(stat, -4, z(31.6));
   // Dolphins leaping across the water, each on its own loop.
