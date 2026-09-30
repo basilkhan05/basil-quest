@@ -1105,6 +1105,21 @@ const memoryKinds = {
       box(g, 0.4, 0.4, 0.4, '#2f7d5b', px, 0.7, pz);
     });
     box(g, 0.9, 0.12, 0.26, '#d52b1e', 0.2, 0.06, 0.3);
+    // Banff Springs: a castle-style hotel with steep slate roofs and turrets.
+    const hotel = group(g, 1.9, 0, -0.25);
+    const stone = '#cbb994';
+    const slate = '#4a5552';
+    box(hotel, 1.1, 1.0, 0.7, stone, 0, 0, 0);
+    box(hotel, 0.8, 0.5, 0.55, stone, 0, 1.0, 0);
+    [[1.16, 0.3, 0.76], [0.9, 0.25, 0.6], [0.6, 0.2, 0.44]].forEach(([w, h, d], i) => box(hotel, w, h, d, slate, 0, 1.0 + i * 0.25 + (i ? 0.25 : 0), 0));
+    for (let r = 0; r < 3; r++)
+      for (let c = 0; c < 4; c++) box(hotel, 0.12, 0.14, 0.03, '#ffe9a8', -0.36 + c * 0.24, 0.2 + r * 0.3, 0.36, { shadow: false });
+    [-0.62, 0.62].forEach((tx) => {
+      box(hotel, 0.3, 1.5, 0.3, stone, tx, 0, 0.1);
+      box(hotel, 0.36, 0.2, 0.36, slate, tx, 1.5, 0.1);
+      box(hotel, 0.22, 0.25, 0.22, slate, tx, 1.7, 0.1);
+      box(hotel, 0.1, 0.25, 0.1, slate, tx, 1.95, 0.1);
+    });
   },
   // 2018: Portugal and Spain
   iberia(g, live, anim) {
