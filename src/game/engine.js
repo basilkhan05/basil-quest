@@ -564,6 +564,16 @@ export async function startGame(root) {
     }
   });
   let touch = null;
+  const toScreen = (v, r) => ({ x: ((v.x + 1) / 2) * r.width, y: ((1 - v.y) / 2) * r.height });
+  function tappedAhead(e) {
+    const r = canvasWrap.getBoundingClientRect();
+    const y = groundAt(actor.L) + actor.alt + 0.5;
+    const here = toScreen(new THREE.Vector3(actor.x, y, -actor.L).project(camera), r);
+    const ahead = toScreen(new THREE.Vector3(actor.x, y, -actor.L - 1).project(camera), r);
+    const tx = e.clientX - r.left - here.x;
+    const ty = e.clientY - r.top - here.y;
+    return tx * (ahead.x - here.x) + ty * (ahead.y - here.y) >= 0;
+  }
   canvasWrap.addEventListener('pointerdown', (e) => (touch = { x: e.clientX, y: e.clientY }));
   canvasWrap.addEventListener('pointerup', (e) => {
     if (!touch) return;
@@ -572,7 +582,8 @@ export async function startGame(root) {
     touch = null;
     if (Math.hypot(dx, dy) < 12) {
       if (egg && egg.hit(e, camera, canvasWrap)) return egg.hatch(emit);
-      return next();
+      // Tap ahead of Basil to go forward, behind him to go back.
+      return tappedAhead(e) ? next() : prev();
     }
     if (Math.abs(dy) > Math.abs(dx)) (dy < 0 ? next : prev)();
     else (dx < 0 ? next : prev)();
