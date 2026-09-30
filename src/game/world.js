@@ -1072,6 +1072,29 @@ const memoryKinds = {
       box(g, 0.6, 0.4, 0.6, '#2f7d5b', px, 0.3, pz);
       box(g, 0.62, 0.08, 0.62, '#ffffff', px, 0.7, pz);
     });
+    // A heli-tour circling the peaks.
+    const heli = live(0, 0, 0);
+    const body = group(heli);
+    box(body, 0.34, 0.3, 0.6, '#ff3b5c', 0, 0, 0);
+    box(body, 0.3, 0.18, 0.2, '#9fdcff', 0, 0.1, -0.32, { shadow: false });
+    box(body, 0.1, 0.1, 0.6, '#ff3b5c', 0, 0.12, 0.55);
+    box(body, 0.04, 0.2, 0.14, '#1b1b1f', 0.06, 0.12, 0.84);
+    box(body, 0.04, 0.04, 0.6, '#1b1b1f', -0.14, -0.12, 0);
+    box(body, 0.04, 0.04, 0.6, '#1b1b1f', 0.14, -0.12, 0);
+    box(body, 0.06, 0.1, 0.06, '#1b1b1f', 0, 0.3, 0);
+    const rotor = group(body, 0, 0.4, 0);
+    box(rotor, 1.4, 0.03, 0.08, '#2b2f3a', 0, 0, 0, { shadow: false });
+    box(rotor, 0.08, 0.03, 1.4, '#2b2f3a', 0, 0, 0, { shadow: false });
+    const cx = heli.position.x;
+    const cy = heli.position.y;
+    const cz = heli.position.z;
+    anim.push((dt, t) => {
+      const a = t * 0.5;
+      heli.position.set(cx + 0.1 + Math.cos(a) * 1.9, cy + 3.3 + Math.sin(t * 1.3) * 0.15, cz - 0.5 + Math.sin(a) * 1.1);
+      body.rotation.y = -a + Math.PI; // nose along the circle
+      body.rotation.z = 0.12;
+      rotor.rotation.y = t * 20;
+    });
   },
   // 2019: Tofino, Vancouver Island
   tofino(g, live, anim) {
