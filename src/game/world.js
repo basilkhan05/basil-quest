@@ -986,30 +986,50 @@ function crew(g, looks, x0, zz, rot = 0) {
 }
 
 const memoryKinds = {
-  // 2026: Hawaii
+  // 2026: Hawaii. Hula dancers in leis and grass skirts, tiki torches, a palm.
   hawaii(g, live, anim) {
-    box(g, 2.8, 0.06, 1.6, '#f3d89b', 0, 0, 0, { shadow: false });
-    box(g, 0.9, 0.06, 1.6, '#3fc6e8', 1.4, 0, 0, { shadow: false });
-    for (let i = 0; i < 4; i++) {
-      const w = 1.4 - i * 0.28;
-      box(g, w, 0.35, w, i === 3 ? '#4a3a32' : '#6b5a4a', -0.7, i * 0.35, -0.5);
-    }
-    box(g, 0.24, 0.06, 0.24, '#ff5a1f', -0.7, 1.4, -0.5, { shadow: false });
-    const smoke = live(-0.7, 1.5, -0.5);
-    const puff = box(smoke, 0.2, 0.2, 0.2, '#e8e8ee', 0, 0, 0, { shadow: false });
-    anim.push((dt, t) => {
-      const u = (t * 0.4) % 1;
-      puff.position.y = u * 0.8;
-      puff.scale.setScalar(0.5 + u);
+    box(g, 3.2, 0.06, 1.8, '#f3d89b', 0, 0, 0, { shadow: false });
+    box(g, 3.2, 0.06, 0.7, '#3fc6e8', 0, 0, -1.2, { shadow: false });
+    box(g, 3.0, 0.07, 0.12, '#e8fbff', 0, 0, -0.85, { shadow: false });
+    // Palm and surfboard
+    for (let i = 0; i < 6; i++) box(g, 0.2, 0.3, 0.2, '#9b6b43', 1.3 + i * 0.04, i * 0.3, -0.5);
+    box(g, 1.5, 0.1, 0.3, '#48c774', 1.5, 1.8, -0.5);
+    box(g, 0.3, 0.1, 1.5, '#48c774', 1.5, 1.82, -0.5);
+    const sb = box(g, 0.32, 1.1, 0.08, '#ff6fa8', -1.5, 0, -0.5);
+    sb.rotation.z = 0.15;
+    // Tiki torches
+    [-1.45, 1.45].forEach((tx) => {
+      box(g, 0.1, 1.1, 0.1, '#7a4b33', tx, 0, 0.6);
+      box(g, 0.2, 0.2, 0.2, '#5a3a22', tx, 1.1, 0.6);
+      const flame = live(tx, 1.3, 0.6);
+      const f = box(flame, 0.16, 0.24, 0.16, '#ff8a1f', 0, 0, 0, { shadow: false });
+      box(flame, 0.08, 0.14, 0.08, '#ffe14d', 0, 0.18, 0, { shadow: false });
+      anim.push((dt, t) => (f.scale.y = 0.8 + Math.abs(Math.sin(t * 9 + tx)) * 0.5));
     });
-    for (let i = 0; i < 5; i++) box(g, 0.18, 0.3, 0.18, '#9b6b43', 0.5 + i * 0.04, i * 0.3, 0.3);
-    box(g, 1.3, 0.1, 0.3, '#48c774', 0.7, 1.55, 0.3);
-    box(g, 0.3, 0.1, 1.3, '#48c774', 0.7, 1.57, 0.3);
-    const sb = box(g, 0.32, 1.0, 0.08, '#2ec4ff', 1.1, 0, 0.6);
-    sb.rotation.z = -0.2;
-    [[-1.2, 0.5], [-0.3, 0.6]].forEach(([px, pz]) => {
-      box(g, 0.16, 0.16, 0.16, '#ff3b5c', px, 0.06, pz);
-      box(g, 0.06, 0.06, 0.06, '#ffd23f', px, 0.22, pz);
+    // Hula dancers
+    const troupe = live(0, 0, 0);
+    [
+      { skin: '#b87a55', hair: '#1c1512', shirt: '#ff3b5c' },
+      { skin: '#c68a64', hair: '#2b1e18', shirt: '#ffd23f' },
+      { skin: '#8d5a3b', hair: '#141012', shirt: '#15c2b0' },
+    ].forEach((look, i) => {
+      const p = makePlayer({ ...look, shirtDark: look.shirt, beard: null, longHair: true, pants: '#b58a3a' });
+      box(p.body, 0.6, 0.26, 0.4, '#8fb04a', 0, 0.12, 0);
+      for (let k = 0; k < 5; k++) box(p.body, 0.08, 0.26, 0.42, '#6f8f35', -0.24 + k * 0.12, 0.12, 0);
+      box(p.body, 0.54, 0.1, 0.36, '#ff6fa8', 0, 0.62, 0);
+      [[-0.18, '#ffd23f'], [0, '#ffffff'], [0.18, '#ffd23f']].forEach(([lx, c]) => box(p.body, 0.08, 0.08, 0.04, c, lx, 0.63, -0.19));
+      box(p.body, 0.12, 0.12, 0.12, '#ff3b5c', 0.2, 1.08, -0.1);
+      p.root.position.set(-0.7 + i * 0.7, 0, 0.1 + (i % 2) * 0.25);
+      p.root.rotation.y = Math.PI; // facing the camera
+      p.root.scale.setScalar(0.85);
+      troupe.add(p.root);
+      anim.push((dt, t) => {
+        const w = Math.sin(t * 3 + i * 0.8);
+        p.body.rotation.z = w * 0.12;
+        p.body.position.x = w * 0.05;
+        p.armL.rotation.z = -1.2 + w * 0.4;
+        p.armR.rotation.z = 1.2 + w * 0.4;
+      });
     });
   },
   // 2025: Whistler
