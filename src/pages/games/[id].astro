@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import Arcade from '../../components/Arcade.astro';
+import { GAMES } from '../../arcade/registry.js';
+
+export function getStaticPaths() {
+  return GAMES.map((g) => ({ params: { id: g.id }, props: { game: g } }));
+}
+const { game } = Astro.props;
+---
+<Base bare title={`${game.title}: arcade`} description={`${game.blurb} Can you beat Basil's high score?`}>
+  <Arcade id={game.id} />
+</Base>

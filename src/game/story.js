@@ -166,7 +166,7 @@ export const STOPS = [
     role: 'Remote, around the world',
     milestone: 'Hiring worldwide',
     blurb: 'After we passed $10K MRR, we started hiring and built a remote team around the world.',
-    links: [{ text: 'Join us: open roles', href: CAREERS, ext: true }],
+    links: [{ text: 'Join us: open roles', href: CAREERS, ext: true }, { text: 'Beat my high score', href: 'games/offroad/' }],
     bubbles: [
       { text: 'Campfire debugging', at: [-1.5, 1.4, 21.2] },
       { text: "We're hiring: open roles", at: [-6.8, 2.4, 21.6], href: CAREERS },
@@ -196,6 +196,7 @@ export const STOPS = [
     role: 'A ground-up rebuild',
     milestone: 'Simple Bundles 2.0 + Simple Discounts',
     blurb: 'We rebuilt Simple Bundles from the ground up and launched Simple Discounts, our third app.',
+    links: [{ text: 'Beat my high score', href: 'games/wakeboard/' }],
     bubbles: [
       { text: 'Launch day: Simple Bundles 2.0', at: [-4, 2.4, 31.6] },
       { text: 'Next: scaling our apps for enterprise merchants', at: [1.2, 1.6, 32.4] },
@@ -227,6 +228,7 @@ export const STOPS = [
     links: [
       { text: 'See the products', href: 'work/' },
       { text: 'freshlycommerce.com', href: 'https://www.freshlycommerce.com/', ext: true },
+      { text: 'Beat my high score', href: 'games/mtb/' },
     ],
     bubbles: [
       { text: 'You are here', at: 'me' },
@@ -284,6 +286,7 @@ export const STOPS = [
     role: "We're building the platform to run it",
     milestone: 'Do more with less',
     blurb: "We're building a platform where merchants set the goal, like lift AOV by 17% or cut fulfillment issues by 30%, and a crew plans the work, makes the changes and reports what moved. Then it runs the whole operation, so a team of five can run a brand that used to take 500.",
+    links: [{ text: 'Beat my high score', href: 'games/snowboard/' }],
     bubbles: [
       { text: 'Increase my AOV by 17%', at: [4.2, 1.8, 72.6] },
       { text: 'Cut fulfillment issues by 30%', at: [6.8, 2.5, 74.2] },
@@ -317,6 +320,7 @@ export const STOPS = [
     links: [
       { text: 'Say hi', href: 'contact/' },
       { text: 'Join us', href: CAREERS, ext: true },
+      { text: 'Beat my high score', href: 'games/rocket/' },
     ],
     bubbles: [],
     path: [

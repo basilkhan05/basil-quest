@@ -1,0 +1,122 @@
+---
+import { gameById } from '../arcade/registry.js';
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const meta = gameById(id)!;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+<div id="arcade" data-base={base} data-game={id}>
+  <div id="stage"></div>
+
+  <header class="a-hud">
+    <a class="pxbtn pxbtn--white pxbtn--sm" href={`${base}games/`}>◀ Arcade</a>
+    <div class="a-score"><span id="hud-score">0</span></div>
+    <div id="hud-lives" class="a-lives" hidden></div>
+  </header>
+  <div id="hud-meter" class="a-meter" hidden><div class="fill"></div><span class="label"></span></div>
+  <div id="toast" class="a-toast" aria-live="polite"></div>
+
+  <section id="title-screen" class="a-card panel pxcorners">
+    <p class="a-year">{meta.year}</p>
+    <h1>{meta.title}</h1>
+    <p class="a-blurb">{meta.blurb}</p>
+    <p class="a-controls"><span class="desk">{meta.controls}</span><span class="tch">Use the buttons, or swipe and tap.</span></p>
+    <div class="a-scores">
+      <div><span>Your best</span><b id="best">0</b></div>
+      <div class="basil"><span>Basil's best</span><b id="basil">0</b></div>
+    </div>
+    <button id="play" class="pxbtn pxbtn--pink">Play ▶</button>
+    <a class="a-back" href={`${base}#${meta.stop}`}>Back to the journey</a>
+  </section>
+
+  <section id="over-screen" class="a-card panel pxcorners" hidden>
+    <p class="a-year">Game over</p>
+    <p id="over-msg" class="a-msg"></p>
+    <div class="a-big" id="over-score">0</div>
+    <p id="over-verdict" class="a-verdict"></p>
+    <div class="a-scores">
+      <div><span>Your best</span><b id="over-best">0</b></div>
+      <div class="basil"><span>Basil's best</span><b id="over-basil">0</b></div>
+    </div>
+    <div class="a-btns">
+      <button id="again" class="pxbtn pxbtn--pink">Play again</button>
+      <a class="pxbtn pxbtn--white" href={`${base}games/`}>Arcade</a>
+    </div>
+    <a class="a-back" href={`${base}#${meta.stop}`}>Back to the journey</a>
+  </section>
+
+  <div class="a-pad" aria-hidden="true">
+    <div class="a-pad__lr">
+      <button data-key="left" class="a-key">◀</button>
+      <button data-key="right" class="a-key">▶</button>
+    </div>
+    <div class="a-pad__act">
+      <button data-key="up" class="a-key">▲</button>
+      <button data-key="action" class="a-key a-key--go">●</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { runArcade } from '../arcade/kit.js';
+  import { gameById } from '../arcade/registry.js';
+  import { loaders } from '../arcade/loaders.js';
+  const root = document.getElementById('arcade')!;
+  const meta = gameById(root.dataset.game!)!;
+  loaders[meta.id as keyof typeof loaders]()
+    .then((mod) => runArcade(root, meta, mod.default))
+    .catch((e) => {
+      console.error(e);
+      root.classList.add('is-broken');
+    });
+</script>
+
+<style is:global>
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  #arcade { position: fixed; inset: 0; background: var(--sky); touch-action: none; user-select: none; -webkit-user-select: none; }
+  #stage { position: absolute; inset: 0; }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+
+  .a-hud { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: max(12px, env(safe-area-inset-top)) 14px 0; pointer-events: none; }
+  .a-hud > * { pointer-events: auto; }
+  .a-score { font-family: var(--px); font-size: clamp(22px, 5vw, 36px); color: #fff; text-shadow: 3px 3px 0 var(--ink), -3px -3px 0 var(--ink), 3px -3px 0 var(--ink), -3px 3px 0 var(--ink); }
+  .a-lives { font-family: var(--px); font-size: 18px; color: var(--pink); text-shadow: 2px 2px 0 var(--ink); min-width: 60px; text-align: right; }
+  .a-meter { position: absolute; top: calc(max(12px, env(safe-area-inset-top)) + 52px); left: 50%; transform: translateX(-50%); width: min(70vw, 420px); height: 22px; background: #fff; border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+  .a-meter .fill { height: 100%; width: 0; background: var(--teal); transition: width 0.15s linear; }
+  .a-meter .label { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--px); font-size: 9px; color: var(--ink); }
+  .a-toast { position: absolute; left: 50%; top: 30%; transform: translate(-50%, 0); font-family: var(--px); font-size: clamp(14px, 3.5vw, 22px); color: var(--yellow); text-shadow: 3px 3px 0 var(--ink); opacity: 0; pointer-events: none; white-space: nowrap; }
+  .a-toast.is-on { animation: a-toast 1.1s steps(6) forwards; }
+  @keyframes a-toast { 0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -20px); } }
+
+  .a-card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(92vw, 440px); max-height: 88vh; overflow: auto; text-align: center; padding: 26px 22px; }
+  .a-card[hidden] { display: none; }
+  .a-card h1 { font-size: clamp(20px, 5vw, 28px); margin: 6px 0 12px; }
+  .a-year { font-family: var(--px); font-size: 10px; color: var(--pink); margin: 0; text-transform: uppercase; }
+  .a-blurb { margin: 0 0 10px; font-size: 15px; }
+  .a-controls { font-size: 13px; color: var(--muted); margin: 0 0 16px; }
+  .a-controls .tch { display: none; }
+  #arcade.is-touch .a-controls .tch { display: inline; }
+  #arcade.is-touch .a-controls .desk { display: none; }
+  .a-scores { display: flex; justify-content: center; gap: 14px; margin: 0 0 18px; }
+  .a-scores > div { border: 3px solid var(--ink); padding: 8px 12px; min-width: 120px; background: #fff; }
+  .a-scores span { display: block; font-family: var(--px); font-size: 8px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .a-scores b { font-family: var(--px); font-size: 16px; }
+  .a-scores .basil { background: var(--yellow); }
+  .a-big { font-family: var(--px); font-size: clamp(30px, 8vw, 48px); margin: 6px 0 10px; }
+  .a-msg { margin: 8px 0 0; font-size: 15px; }
+  .a-verdict { font-family: var(--px); font-size: 11px; line-height: 1.6; margin: 0 0 14px; }
+  .a-verdict[data-win='1'] { color: var(--teal); }
+  .a-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .a-back { display: block; margin-top: 16px; font-family: var(--px); font-size: 9px; }
+  #arcade.is-playing .a-card { display: none; }
+
+  .a-pad { position: absolute; left: 0; right: 0; bottom: 0; display: none; justify-content: space-between; padding: 0 14px max(16px, env(safe-area-inset-bottom)); pointer-events: none; }
+  #arcade.is-touch.is-playing .a-pad { display: flex; }
+  .a-pad > div { display: flex; gap: 12px; pointer-events: auto; }
+  .a-key { width: 68px; height: 68px; font-family: var(--px); font-size: 22px; color: var(--ink); background: rgba(255, 255, 255, 0.85); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); touch-action: none; }
+  .a-key.is-down { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); background: #fff; }
+  .a-key--go { background: rgba(255, 210, 63, 0.9); }
+  #arcade.is-broken::after { content: 'This game could not start on this device.'; position: absolute; top: 45%; left: 0; right: 0; text-align: center; font-family: var(--px); font-size: 12px; }
+</style>
