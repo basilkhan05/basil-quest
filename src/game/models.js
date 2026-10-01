@@ -6,7 +6,7 @@ import { box, group, mat, rand, pick } from './voxel.js';
 export const PALETTE = {
   skin: '#c68a64',
   hair: '#1c1512',
-  beard: '#2b1e18',
+  beard: null,
   shirt: '#15c2b0',
   shirtDark: '#0f9486',
   pants: '#2c3a57',
