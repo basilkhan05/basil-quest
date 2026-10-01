@@ -20,13 +20,20 @@ const TRAIL = [33, 45];
 // The 2005 Saudi Arabia to Canada scene is personal-route only.
 let personalWorld = false;
 
-// Canadian flags along the whole route (we're still in Canada).
+// Canadian flags along the route (we're still in Canada): one per section.
+// A third value of 'personal' shows that flag on /personal/ only.
 const CANADA_FLAGS = [
-  [-2.2, -35.6], [3.2, -36.8], [-5.8, -34.2], // behind UWaterloo
-  [-6.8, -27.4], [-2.6, -30.4], [2.6, -31.2], // UWaterloo
-  [2.4, -21.3], [4.4, -10.1], [-2.2, -0.3], // LANSA, Toronto, founding
-  [-3.4, 8.4], [-2.2, 22.9], [2.8, 32.4], [3.4, 38.2], // road, camp, beach, trail
-  [-3.6, 46.4], [-7.2, 57.2], [-2.6, 72.4], // Now, basecamp, launch pad
+  [-2.2, -35.6, 'personal'], // Canada, 2005
+  [-6.8, -27.4], // UWaterloo
+  [2.4, -21.3], // LANSA
+  [4.4, -10.1], // Vidyard / AsteroidX
+  [-2.2, -0.3], // App Challenge
+  [-3.4, 8.4], // $10K MRR road
+  [-2.2, 22.9], // camp
+  [2.8, 32.4], // Bundles 2.0 beach
+  [-3.6, 46.4], // Now
+  [-7.2, 57.2], // 100K basecamp
+  [-2.6, 72.4], // launch pad
 ];
 
 export function laneType(L) {
@@ -143,7 +150,7 @@ export function buildWorld(scene, mode = 'pro') {
   pastLandmarks(stat, anim);
   if (personalWorld) movingToCanada(stat, root, anim);
   tobiStage(stat, anim);
-  CANADA_FLAGS.forEach(([x, L]) => canadaFlag(stat, root, anim, x, L));
+  CANADA_FLAGS.filter(([, , only]) => !only || personalWorld).forEach(([x, L]) => canadaFlag(stat, root, anim, x, L));
   // Shopify bags around the App Challenge
   shopifyBag(stat, -1.8, 0, z(2.6), 0.09);
   shopifyBag(stat, 6.4, 0, z(-0.9), 0.07);
