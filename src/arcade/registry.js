@@ -9,7 +9,7 @@ export const GAMES = [
     stop: 'roadtrip',
     blurb: 'Take the Bronco through the backcountry. Dodge bears and moose, splash through mud, keep it on the trail.',
     controls: 'Steer left and right. Boost with up or the boost button.',
-    basilBest: 1000,
+    basilBest: 6500,
     units: 'pts',
   },
   {
@@ -19,7 +19,7 @@ export const GAMES = [
     stop: 'wake',
     blurb: 'Get towed to shore. Hit kickers and side hits for tricks, and dodge the dolphins and salmon jumping out of the water.',
     controls: 'Cut left and right. Jump with up, space or the jump button.',
-    basilBest: 1000,
+    basilBest: 10000,
     units: 'pts',
   },
   {
@@ -29,7 +29,7 @@ export const GAMES = [
     stop: 'now',
     blurb: 'Mountain bike the brand trail. Clear the big jumps, land your tricks and stay off the edges.',
     controls: 'Steer left and right. Jump with up or space; hold it in the air to flip.',
-    basilBest: 1000,
+    basilBest: 15000,
     units: 'pts',
   },
   {
@@ -39,7 +39,7 @@ export const GAMES = [
     stop: 'launchpad',
     blurb: 'Ride the terrain park. Jump for points, dodge the ski-school kids, and outrun the avalanche.',
     controls: 'Carve left and right. Jump with up or space; spin with left/right in the air.',
-    basilBest: 1000,
+    basilBest: 18000,
     units: 'pts',
   },
   {
@@ -49,7 +49,7 @@ export const GAMES = [
     stop: 'launch',
     blurb: 'Fly to the Moon. Dodge space debris and satellites, then land it softly on the surface.',
     controls: 'Steer left and right, thrust with up. Land slow and level.',
-    basilBest: 1000,
+    basilBest: 21000,
     units: 'pts',
   },
 ];
