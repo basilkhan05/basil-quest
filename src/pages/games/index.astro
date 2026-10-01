@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import { GAMES } from '../../arcade/registry.js';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+<Base title="Arcade" active="arcade" description="Five mini-games from Basil's journey: off-roading, wakeboarding, mountain biking, snowboarding and a rocket to the moon. Can you beat Basil's high score?">
+  <div class="wrap page">
+    <p class="eyebrow">Arcade</p>
+    <h1>Beat my high score</h1>
+    <p class="lede">One game from each part of the journey. Your best scores save on this device.</p>
+    <ul class="games">
+      {GAMES.map((g) => (
+        <li class="game panel pxcorners">
+          <span class="yr">{g.year}</span>
+          <h2>{g.title}</h2>
+          <p>{g.blurb}</p>
+          <div class="scores">
+            <span>Your best <b data-best={g.id}>0</b></span>
+            <span class="basil">Basil's best <b>{g.basilBest.toLocaleString('en-CA')}</b></span>
+          </div>
+          <a class="pxbtn pxbtn--pink pxbtn--sm" href={`${base}games/${g.id}/`}>Play</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-best]').forEach((el) => {
+    try {
+      const v = Number(localStorage.getItem(`basil-arcade:${el.dataset.best}`)) || 0;
+      el.textContent = v.toLocaleString('en-CA');
+    } catch {}
+  });
+</script>
+
+<style>
+  h1 { font-size: clamp(22px, 4vw, 32px); margin: 12px 0; }
+  .games { list-style: none; padding: 0; margin: 36px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .game { display: flex; flex-direction: column; gap: 8px; }
+  .game h2 { font-size: 15px; margin: 0; }
+  .game p { margin: 0; color: var(--muted); font-size: 15px; flex: 1; }
+  .yr { font-family: var(--px); font-size: 10px; color: var(--pink); }
+  .scores { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; margin: 6px 0 8px; }
+  .scores span { border: 2px solid var(--ink); padding: 4px 8px; background: #fff; }
+  .scores .basil { background: var(--yellow); }
+  .scores b { font-family: var(--px); font-size: 11px; margin-left: 4px; }
+  .game .pxbtn { align-self: flex-start; }
+</style>
