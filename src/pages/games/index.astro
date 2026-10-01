@@ -46,4 +46,9 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   .scores .basil { background: var(--yellow); }
   .scores b { font-family: var(--px); font-size: 11px; margin-left: 4px; }
   .game .pxbtn { align-self: flex-start; }
+  @media (max-width: 640px) {
+    .games { margin-top: 24px; gap: 16px; grid-template-columns: 1fr; }
+    .game h2 { font-size: 14px; }
+    .game .pxbtn { align-self: stretch; justify-content: center; }
+  }
 </style>

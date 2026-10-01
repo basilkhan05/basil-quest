@@ -77,5 +77,16 @@ const company = STOPS.filter((s) => s.era === 'company').reverse();
   .badge { display: inline-block; font-family: var(--px); font-size: 10px; background: var(--yellow); border: 2px solid var(--ink); padding: 6px 8px; }
   .past { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 15px; color: var(--muted); }
   .past .yr { color: #b07a1a; margin-right: 8px; }
-  @media (max-width: 560px) { .future li { grid-template-columns: 1fr; gap: 6px; } }
+  @media (max-width: 640px) {
+    .now { margin: 24px 0; }
+    .now h2 { font-size: 14px; }
+    .sec { font-size: 15px; margin: 36px 0 14px; }
+    .future { gap: 16px; }
+    .future li { grid-template-columns: 1fr; gap: 8px; padding: 16px 18px 18px; }
+    .future h3 { font-size: 13px; line-height: 1.45; }
+    .future p { font-size: 15px; }
+    .jump { display: inline-block; margin-top: 4px; padding: 8px 10px; border: 2px solid var(--ink); background: var(--yellow); text-decoration: none; justify-self: start; }
+    .past { gap: 12px; font-size: 14px; }
+    .past li { line-height: 1.5; }
+  }
 </style>

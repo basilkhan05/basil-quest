@@ -170,8 +170,34 @@ const customers = ['stanley', 'loop', 'parks-project', 'westman-atelier', 'eight
     .hero__inner { grid-template-columns: 1fr; }
     .hero__art { display: none; }
     .stats { grid-template-columns: repeat(2, 1fr); }
-    .product { grid-template-columns: 1fr; }
-    .product__art { border-right: 0; border-bottom: 3px solid var(--ink); min-height: 160px; }
-    .product__body { padding: 0 20px 22px; }
+    .product { grid-template-columns: 1fr; gap: 18px; }
+    .product__art { border-right: 0; border-bottom: 3px solid var(--ink); min-height: 150px; padding: 20px; }
+    .product__body { padding: 0 18px 20px; }
+  }
+  @media (max-width: 640px) {
+    .hero { padding: 32px 0 60px; }
+    .hero__logo { margin: 12px 0 16px; }
+    .hero__cta { gap: 10px; margin-top: 20px; }
+    .hero__cta .pxbtn { flex: 1 1 100%; justify-content: center; }
+    .stats { gap: 12px; margin-top: -28px; }
+    .stat { padding: 14px 12px; }
+    .stat b { font-size: 15px; }
+    .stat span { font-size: 13px; line-height: 1.35; }
+    .products { padding-top: 44px; gap: 22px; }
+    .products h2 { font-size: 16px; }
+    .product h3 { font-size: 15px; line-height: 1.4; }
+    .product__tag { font-size: 16px; }
+    .product li { font-size: 15px; padding-left: 20px; margin-bottom: 4px; }
+    .product__stats { flex-wrap: wrap; gap: 8px 16px; }
+    .product__links .pxbtn { flex: 1 1 auto; justify-content: center; }
+    .bigglyph { font-size: 80px; }
+    .shot { padding-top: 36px; }
+    .shot img { box-shadow: 4px 4px 0 var(--ink); }
+    .brands { padding-top: 40px; }
+    .brands__row { gap: 20px 28px; }
+    .brands__row img { height: 20px; }
+    .cta { padding: 44px 20px 64px; }
+    .cta__box { padding: 28px 18px; }
+    .cta__box h2 { font-size: 15px; }
   }
 </style>

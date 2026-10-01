@@ -126,8 +126,9 @@ h1, h2, h3 { font-family: var(--px); font-weight: 400; line-height: 1.35; letter
 }
 .nav-links a:hover, .nav-links a[aria-current='page'] { border-color: var(--ink); background: #fff; box-shadow: 3px 3px 0 var(--ink); }
 
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
-.page { padding: 56px 0 96px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 40px); }
+/* Vertical padding only: the side gutters come from .wrap. */
+.page { padding-top: 56px; padding-bottom: 96px; }
 .eyebrow { font-family: var(--px); font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.08em; }
 .lede { font-size: 20px; max-width: 640px; }
 
@@ -144,7 +145,27 @@ h1, h2, h3 { font-family: var(--px); font-weight: 400; line-height: 1.35; letter
 /* Grass strip divider, echoing the game's lanes */
 .lanes { height: 36px; background: repeating-linear-gradient(180deg, #a9e35b 0 12px, #9dd752 12px 24px, #4b5160 24px 36px); border-top: 3px solid var(--ink); }
 
-@media (max-width: 560px) {
-  .brand__name { display: none; }
-  .nav-links a { font-size: 9px; padding: 8px 6px; }
+/* ---------- Phones ---------- */
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  h1 { overflow-wrap: anywhere; }
+  .page { padding-top: 32px; padding-bottom: 64px; }
+  .lede { font-size: 17px; line-height: 1.55; }
+  .eyebrow { font-size: 9px; }
+  .panel { padding: 18px; box-shadow: 4px 4px 0 var(--ink); }
+  .pxbtn { font-size: 11px; padding: 12px 14px; }
+
+  /* Header: brand on top, links as a tidy 3 x 2 grid of chips. Not sticky, to save screen. */
+  .site-nav { position: static; flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 20px 16px; }
+  .brand { font-size: 13px; }
+  .nav-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .nav-links a {
+    text-align: center; font-size: 9px; padding: 10px 4px;
+    background: #fff; border: 2px solid var(--ink);
+  }
+  .nav-links a:hover, .nav-links a[aria-current='page'] { border-width: 2px; background: var(--yellow); box-shadow: 2px 2px 0 var(--ink); }
+
+  .site-foot { padding: 24px 0 32px; font-size: 13px; }
+  .site-foot .wrap { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .lanes { height: 24px; background: repeating-linear-gradient(180deg, #a9e35b 0 8px, #9dd752 8px 16px, #4b5160 16px 24px); }
 }

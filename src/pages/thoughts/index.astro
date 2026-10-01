@@ -36,5 +36,10 @@ const fmt = (d: Date) => d.toLocaleDateString('en-CA', { year: 'numeric', month:
   .post h2 { font-size: 15px; margin: 10px 0 8px; }
   .post p { margin: 0; color: var(--muted); }
   .meta { font-family: var(--px); font-size: 9px; color: var(--muted); }
+  @media (max-width: 640px) {
+    .posts { margin-top: 28px; gap: 16px; }
+    .post h2 { font-size: 13px; line-height: 1.45; }
+    .empty { margin-top: 28px; font-size: 11px; line-height: 1.6; }
+  }
   .tag { background: var(--yellow); border: 2px solid var(--ink); padding: 3px 6px; margin-right: 8px; color: var(--ink); text-transform: uppercase; }
 </style>

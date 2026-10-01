@@ -27,5 +27,10 @@ const date = post.data.date.toLocaleDateString('en-CA', { year: 'numeric', month
   .prose :global(h2) { font-size: 15px; margin-top: 40px; }
   .prose :global(p), .prose :global(li) { font-size: 18px; }
   .prose :global(code) { background: var(--paper-2); padding: 2px 5px; border: 2px solid var(--ink); font-size: 0.9em; }
+  @media (max-width: 640px) {
+    h1 { margin: 10px 0 24px; }
+    .prose :global(p), .prose :global(li) { font-size: 17px; }
+    .prose :global(h2) { font-size: 14px; margin-top: 32px; }
+  }
   .prose :global(blockquote) { margin: 24px 0; padding: 12px 20px; border-left: 6px solid var(--teal); background: #fff; }
 </style>
